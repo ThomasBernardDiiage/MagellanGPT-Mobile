@@ -5,6 +5,7 @@ import fr.group5.magellangpt.presentation.login.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class MainViewModel : ViewModel() {
 
@@ -14,7 +15,11 @@ class MainViewModel : ViewModel() {
 
     fun onEvent(event : MainEvent){
         when(event){
-            else -> {}
+            is MainEvent.OnQueryChanged -> onQueryChanged(event.query)
         }
+    }
+
+    private fun onQueryChanged(query: String) {
+        _uiState.update { it.copy(query = query) }
     }
 }
