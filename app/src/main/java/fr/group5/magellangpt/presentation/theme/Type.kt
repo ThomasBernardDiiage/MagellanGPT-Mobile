@@ -1,4 +1,4 @@
-package fr.group5.magellangpt.ui.theme
+package fr.group5.magellangpt.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color

@@ -1,4 +1,4 @@
-package fr.group5.magellangpt.ui.theme
+package fr.group5.magellangpt.presentation.theme
 
 import android.app.Activity
 import android.os.Build

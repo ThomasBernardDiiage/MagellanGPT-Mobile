@@ -3,14 +3,12 @@ package fr.group5.magellangpt.presentation.login
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.presentation.components.login.PrimaryButton
-import fr.group5.magellangpt.ui.theme.Blue
-import fr.group5.magellangpt.ui.theme.MagellanGPTTheme
+import fr.group5.magellangpt.presentation.theme.Blue
+import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
 
 @Composable
 fun LoginScreen(

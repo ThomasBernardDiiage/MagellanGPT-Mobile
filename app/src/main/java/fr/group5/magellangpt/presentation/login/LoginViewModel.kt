@@ -2,14 +2,18 @@ package fr.group5.magellangpt.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.group5.magellangpt.common.navigation.Navigator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.java.KoinJavaComponent.get
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val navigator : Navigator = get(Navigator::class.java)
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -28,6 +32,11 @@ class LoginViewModel : ViewModel() {
 
             delay(2000)
             _uiState.update { it.copy(loading = false) }
+
+            navigator.navigateTo(
+                route = Navigator.Destination.Main,
+                popupTo = Navigator.Destination.Login.route,
+                inclusive = true)
         }
     }
 }
