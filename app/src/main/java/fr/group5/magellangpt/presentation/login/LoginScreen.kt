@@ -33,7 +33,10 @@ import fr.group5.magellangpt.ui.theme.Blue
 import fr.group5.magellangpt.ui.theme.MagellanGPTTheme
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    uiState : LoginUiState,
+    onEvent : (LoginEvent) -> Unit
+) {
     Scaffold {
         Surface(
             modifier = Modifier.padding(it)
@@ -65,19 +68,22 @@ fun LoginScreen() {
                             shape = RoundedCornerShape(topStart = 40.dp))
                         .padding(36.dp)
                         .align(Alignment.BottomCenter)
-                        .zIndex(1f)
+                        .zIndex(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = R.string.welcome_to),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.titleLarge)
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = R.string.app_name),
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.titleLarge)
 
                     Text(
-                        modifier = Modifier.padding(top = 8.dp),
+                        modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
                         text = stringResource(id = R.string.login_subtitle),
                         style = MaterialTheme.typography.titleSmall)
 
@@ -86,8 +92,10 @@ fun LoginScreen() {
                     PrimaryButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = R.string.login_with_microsoft),
-                        loading = false,
-                        onClick = {})
+                        loading = uiState.loading,
+                        onClick = {
+                            onEvent(LoginEvent.OnLogin)
+                        })
                 }
             }
         }
@@ -101,7 +109,10 @@ fun LoginScreen() {
 fun LoginScreenPreview() {
     MagellanGPTTheme {
         Surface {
-            LoginScreen()
+            val uiState = LoginUiState()
+            LoginScreen(
+                uiState = uiState,
+                onEvent = {})
         }
     }
 }
