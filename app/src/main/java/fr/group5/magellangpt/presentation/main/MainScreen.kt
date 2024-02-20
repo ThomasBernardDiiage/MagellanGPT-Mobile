@@ -47,19 +47,51 @@ fun MainScreen(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text("Drawer title", modifier = Modifier.padding(16.dp))
-                Divider()
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.app_name),
+                        modifier = Modifier.padding(vertical = 16.dp))
+
+                    TextField(
+                        text = "",
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = stringResource(id = R.string.search_conversation),
+                        trailingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.search),
+                                contentDescription = "search")
+                        })
+
+                    Text(
+                        text = stringResource(id = R.string.my_rag),
+                        modifier = Modifier.padding(vertical = 16.dp))
+
+                    Divider()
+
+                    Text(
+                        text = stringResource(id = R.string.conversations),
+                        modifier = Modifier.padding(vertical = 16.dp))
+
+                    Divider()
+
+                }
+
             }
         }) {
         Column(
             modifier = Modifier
-                .background(Color.LightGray)
+                .background(Color(0xFFF7F7F7))
                 .fillMaxSize()
         ) {
             Row(
                 modifier = Modifier.padding(12.dp)
             ) {
                 SquaredButton(
+                    color = MaterialTheme.colorScheme.primary,
+                    backgroundColor = Color.Transparent,
                     resource = R.drawable.vectormenu,
                     onClick = {
                         scope.launch {

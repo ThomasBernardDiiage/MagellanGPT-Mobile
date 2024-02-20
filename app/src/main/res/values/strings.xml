@@ -9,4 +9,7 @@
     <!-- Main -->
     <string name="message">Message</string>
     <string name="empty_conversation_placeholder">Entrez une question, chargez un fichier pour lancer une conversation. Votre quotas quotidien s’affiche dans le menu en haut à gauche.</string>
+    <string name="search_conversation">Recherchez une conversation</string>
+    <string name="my_rag">Mes RAG</string>
+    <string name="conversations">Conversations</string>
 </resources>
