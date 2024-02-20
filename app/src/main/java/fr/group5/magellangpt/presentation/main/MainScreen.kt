@@ -3,24 +3,37 @@ package fr.group5.magellangpt.presentation.main
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +47,7 @@ import fr.thomasbernard03.composents.TextField
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     uiState: MainUiState,
@@ -42,6 +56,11 @@ fun MainScreen(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val sheetState = rememberModalBottomSheetState()
+
+    val options by remember { mutableStateOf(listOf("GPT 3.5", "GPT 4")) }
+    var selectedOptionIndex by remember { mutableStateOf(0) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -69,27 +88,48 @@ fun MainScreen(
                         text = stringResource(id = R.string.my_rag),
                         modifier = Modifier.padding(vertical = 16.dp))
 
-                    Divider()
+                    HorizontalDivider()
 
                     Text(
                         text = stringResource(id = R.string.conversations),
                         modifier = Modifier.padding(vertical = 16.dp))
 
-                    Divider()
+                    HorizontalDivider()
 
                 }
 
             }
-        }) {
+        }
+    ) {
+
+        if (sheetState.isVisible) {
+            ModalBottomSheet(
+                sheetState = sheetState,
+                onDismissRequest = {
+                    scope.launch { sheetState.hide() }
+                }) {
+                Column(
+                    modifier = Modifier
+                        .heightIn(250.dp)
+                        .padding(12.dp)
+                ) {
+                    Text("Hello world")
+                }
+            }
+        }
+
         Column(
             modifier = Modifier
                 .background(Color(0xFFF7F7F7))
                 .fillMaxSize()
         ) {
-            Row(
-                modifier = Modifier.padding(12.dp)
+            Box(
+                modifier = Modifier
+                    .padding(12.dp)
+                    .fillMaxWidth()
             ) {
                 SquaredButton(
+                    modifier = Modifier.align(Alignment.CenterStart),
                     color = MaterialTheme.colorScheme.primary,
                     backgroundColor = Color.Transparent,
                     resource = R.drawable.vectormenu,
@@ -98,6 +138,21 @@ fun MainScreen(
                             drawerState.open()
                         }
                     })
+
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier.align(Alignment.Center),
+                ) {
+                    options.forEachIndexed { index, option ->
+                        SegmentedButton(
+                            selected = selectedOptionIndex == index,
+                            onClick = { selectedOptionIndex = index},
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)) {
+                            Text(text = option)
+                        }
+                    }
+
+                }
+
             }
 
             Column(
@@ -139,7 +194,13 @@ fun MainScreen(
                     text = uiState.query,
                     onTextChange = { onEvent(MainEvent.OnQueryChanged(it)) })
 
-                SquaredButton(resource = R.drawable.share, onClick = {  })
+                SquaredButton(
+                    resource = R.drawable.share,
+                    onClick = {
+                        scope.launch {
+                            sheetState.show()
+                        }
+                    })
             }
 
         }

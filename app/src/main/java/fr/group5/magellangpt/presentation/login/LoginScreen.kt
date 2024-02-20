@@ -35,67 +35,59 @@ fun LoginScreen(
     uiState : LoginUiState,
     onEvent : (LoginEvent) -> Unit
 ) {
-    Scaffold {
-        Surface(
-            modifier = Modifier.padding(it)
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Blue,
+                        Color.White)
+                )
+            )
+    ) {
+        Image(
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).zIndex(2f),
+            painter = painterResource(id = R.drawable.login_icon),
+            contentDescription = "")
+
+        Column(
+            modifier = Modifier
+                .padding(top = 360.dp)
+                .background(
+                    MaterialTheme.colorScheme.background,
+                    shape = RoundedCornerShape(topStart = 40.dp))
+                .padding(36.dp)
+                .align(Alignment.BottomCenter)
+                .zIndex(1f),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BoxWithConstraints(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Blue,
-                                Color.White)
-                        )
-                    )
-            ) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.welcome_to),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleLarge)
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.app_name),
+                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.titleLarge)
 
+            Text(
+                modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+                text = stringResource(id = R.string.login_subtitle),
+                style = MaterialTheme.typography.titleSmall)
 
-                Image(
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).zIndex(2f),
-                    painter = painterResource(id = R.drawable.login_icon),
-                    contentDescription = "")
+            Spacer(modifier = Modifier.weight(1f))
 
-                Column(
-                    modifier = Modifier
-                        .padding(top = 360.dp)
-                        .background(
-                            MaterialTheme.colorScheme.background,
-                            shape = RoundedCornerShape(topStart = 40.dp))
-                        .padding(36.dp)
-                        .align(Alignment.BottomCenter)
-                        .zIndex(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = R.string.welcome_to),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge)
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = R.string.app_name),
-                        color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.titleLarge)
-
-                    Text(
-                        modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
-                        text = stringResource(id = R.string.login_subtitle),
-                        style = MaterialTheme.typography.titleSmall)
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    PrimaryButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = R.string.login_with_microsoft),
-                        loading = uiState.loading,
-                        onClick = {
-                            onEvent(LoginEvent.OnLogin)
-                        })
-                }
-            }
+            PrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.login_with_microsoft),
+                loading = uiState.loading,
+                onClick = {
+                    onEvent(LoginEvent.OnLogin)
+                })
         }
     }
 }
