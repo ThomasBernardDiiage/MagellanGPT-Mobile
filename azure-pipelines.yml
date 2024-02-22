@@ -1,44 +1,30 @@
+# Android
+# Build your Android project with Gradle.
+# Add steps that test, sign, and distribute the APK, save build artifacts, and more:
 
 steps:
-- task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
-  displayName: 'Restore Projects'
+- task: Gradle@2
   inputs:
-    command: 'restore'
-    restoreSolution: '**/*.sln'
+    workingDirectory: ''
+    gradleWrapperFile: 'gradlew'
+    gradleOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: true
+    testResultsFiles: '**/TEST-*.xml'
+    tasks: 'assembleDebug test'
+  displayName: gradlew assembleDebug test
 
-- task: XamarinAndroid@1
-  displayName: 'Build Android $(buildConfiguration)'
-  inputs:
-    projectFile: 'Apps/MyAndroidApp.csproj'
-    outputDirectory: '$(Build.ArtifactStagingDirectory)/Android'
-    configuration: '$(buildConfiguration)'
-
-- task: DownloadSecureFile@1
-  name: keystore
-  inputs:
-    secureFile: '$(KeystoreFile)'
-
-- task: AndroidSigning@3
-  inputs:
-    apkFiles: '**/*.apk'
-    apksign: true
-    zipalign: true
-    apksignerKeystoreFile: '$(KeystoreFile)'
-    apksignerKeyPassword: '$(KeyStorePassword)'
-    apksignerKeystoreAlias: '$(KeyStoreAlias)'
-    apksignerKeystorePassword: '$(KeyStorePassword)'
-    
 - task: CopyFiles@2
   inputs:
-    Contents: '**/*.apk'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
-    OverWrite: true
-    flattenFolders: true
+    contents: '**/*.apk'
+    targetFolder: '$(build.artifactStagingDirectory)'
+  displayName: Copy .apk files to artifact staging directory
+
 - task: PublishBuildArtifacts@1
-  displayName: 'Copy into Artifact Package'
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+    pathToPublish: '$(build.artifactStagingDirectory)'
+    artifactName: 'drop'
+    artifactType: 'container'
+  displayName: Publish artifacts
