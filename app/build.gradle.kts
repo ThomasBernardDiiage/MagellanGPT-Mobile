@@ -79,4 +79,6 @@ dependencies {
 
     // Composants
     implementation("com.github.ThomasBernard03:Composents:1.2.1")
+
+    implementation("com.github.jeziellago:compose-markdown:0.4.1")
 }

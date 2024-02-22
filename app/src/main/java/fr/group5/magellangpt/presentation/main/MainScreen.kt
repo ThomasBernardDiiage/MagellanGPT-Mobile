@@ -5,21 +5,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SegmentedButton
@@ -27,8 +27,8 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +43,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import fr.group5.magellangpt.R
+import fr.group5.magellangpt.domain.models.MessageSender
+import fr.group5.magellangpt.presentation.components.main.IAMessage
+import fr.group5.magellangpt.presentation.components.main.UserMessage
 import fr.thomasbernard03.composents.TextField
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
@@ -57,10 +60,12 @@ fun MainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberModalBottomSheetState()
-
     val options by remember { mutableStateOf(listOf("GPT 3.5", "GPT 4")) }
     var selectedOptionIndex by remember { mutableStateOf(0) }
+
+    LaunchedEffect(Unit){
+        onEvent(MainEvent.OnAppearing)
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -96,27 +101,22 @@ fun MainScreen(
 
                     HorizontalDivider()
 
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+
+                    Row {
+                        SquaredButton(
+                            resource = R.drawable.logout,
+                            onClick = { onEvent(MainEvent.OnLogout)}
+                        )
+                    }
+
                 }
 
             }
         }
     ) {
-
-        if (sheetState.isVisible) {
-            ModalBottomSheet(
-                sheetState = sheetState,
-                onDismissRequest = {
-                    scope.launch { sheetState.hide() }
-                }) {
-                Column(
-                    modifier = Modifier
-                        .heightIn(250.dp)
-                        .padding(12.dp)
-                ) {
-                    Text("Hello world")
-                }
-            }
-        }
 
         Column(
             modifier = Modifier
@@ -140,7 +140,8 @@ fun MainScreen(
                     })
 
                 SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier.align(Alignment.Center),
+                    modifier = Modifier
+                        .align(Alignment.Center),
                 ) {
                     options.forEachIndexed { index, option ->
                         SegmentedButton(
@@ -155,28 +156,59 @@ fun MainScreen(
 
             }
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ){
-                Image(
-                    modifier = Modifier.size(200.dp),
-                    contentScale = ContentScale.FillWidth,
-                    painter = painterResource(id = R.drawable.file),
-                    contentDescription = "file")
-
-                Text(
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth(),
-                    text = stringResource(id = R.string.empty_conversation_placeholder),
-                    style = MaterialTheme.typography.titleSmall)
+            if (uiState.messages.isNotEmpty()){
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.messages){ message ->
+                        when(message.sender){
+                            MessageSender.USER ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(end = 12.dp),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    UserMessage(content = message.content)
+                                }
+                            MessageSender.AI ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 12.dp),
+                                    horizontalArrangement = Arrangement.Start
+                                ) {
+                                    IAMessage(content = message.content)
+                                }
+                        }
+                    }
+                }
             }
+            else {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Image(
+                        modifier = Modifier.size(200.dp),
+                        contentScale = ContentScale.FillWidth,
+                        painter = painterResource(id = R.drawable.file),
+                        contentDescription = "file")
 
+                    Text(
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .fillMaxWidth(),
+                        text = stringResource(id = R.string.empty_conversation_placeholder),
+                        style = MaterialTheme.typography.titleSmall)
+                }
+            }
 
             Row(
                 modifier = Modifier
@@ -195,11 +227,9 @@ fun MainScreen(
                     onTextChange = { onEvent(MainEvent.OnQueryChanged(it)) })
 
                 SquaredButton(
-                    resource = R.drawable.share,
+                    resource = R.drawable.file_icon,
                     onClick = {
-                        scope.launch {
-                            sheetState.show()
-                        }
+
                     })
             }
 

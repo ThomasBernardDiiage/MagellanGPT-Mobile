@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -64,13 +65,13 @@ class MainActivity(
                         NavHost(navController = navController, startDestination = Navigator.Destination.Login.route){
                             composable("login"){
                                 val viewModel : LoginViewModel = viewModel()
-                                val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-                                LoginScreen(uiState = uiState.value, onEvent = viewModel::onEvent)
+                                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                                LoginScreen(uiState = uiState, onEvent = viewModel::onEvent)
                             }
                             composable(Navigator.Destination.Main.route){
                                 val viewModel : MainViewModel = viewModel()
-                                val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-                                MainScreen(uiState = uiState.value, onEvent = viewModel::onEvent)
+                                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                                MainScreen(uiState = uiState, onEvent = viewModel::onEvent)
                             }
                         }
                     }

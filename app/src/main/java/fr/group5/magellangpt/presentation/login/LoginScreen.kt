@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -42,13 +43,17 @@ fun LoginScreen(
                 brush = Brush.verticalGradient(
                     colors = listOf(
                         Blue,
-                        Color.White)
+                        Color.White
+                    )
                 )
             )
     ) {
         Image(
             contentScale = ContentScale.FillWidth,
-            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).zIndex(2f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+                .zIndex(2f),
             painter = painterResource(id = R.drawable.login_icon),
             contentDescription = "")
 
@@ -57,7 +62,8 @@ fun LoginScreen(
                 .padding(top = 360.dp)
                 .background(
                     MaterialTheme.colorScheme.background,
-                    shape = RoundedCornerShape(topStart = 40.dp))
+                    shape = RoundedCornerShape(topStart = 40.dp)
+                )
                 .padding(36.dp)
                 .align(Alignment.BottomCenter)
                 .zIndex(1f),
@@ -75,7 +81,9 @@ fun LoginScreen(
                 style = MaterialTheme.typography.titleLarge)
 
             Text(
-                modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth(),
                 text = stringResource(id = R.string.login_subtitle),
                 style = MaterialTheme.typography.titleSmall)
 
