@@ -12,12 +12,12 @@ steps:
     tasks: 'assembleRelease --stacktrace'
 - task: CopyFiles@2
   inputs:
-    SourceFolder: $(Build.SourcesDirectory)
-    contents: '**/*.release.apk'
-    targetFolder: '$(build.artifactStagingDirectory)'
-    overWrite: true
+    Contents: '**/*.apk' # Utilisez Contents pour spécifier les fichiers à copier
+    TargetFolder: '$(build.artifactStagingDirectory)'
+    Overwrite: true
+
 - task: PublishBuildArtifacts@1
   inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)/**/release/'
-    artifactName: 'apks'
-    publishLocation: 'container'
+    PathToPublish: '$(build.artifactStagingDirectory)' # Assurez-vous que ce chemin est correct
+    ArtifactName: 'apks'
+    PublishLocation: 'container'
