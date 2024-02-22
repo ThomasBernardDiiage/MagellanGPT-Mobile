@@ -1,9 +1,3 @@
-trigger:
-- build-test
-
-variables:
-  - group: 'andriodApp'
-
 
 steps:
 - task: NuGetToolInstaller@1
