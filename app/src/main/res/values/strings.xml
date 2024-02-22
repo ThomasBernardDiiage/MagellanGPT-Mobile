@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">MagellanGPT</string>
+
+    <!-- Login -->
+    <string name="login_with_microsoft">Se connecter avec Microsoft</string>
+    <string name="welcome_to">Bienvenue sur</string>
+    <string name="login_subtitle">Tout comme le navigateur, explorez les entraille de l’IA</string>
+
+    <!-- Main -->
+    <string name="message">Message</string>
+    <string name="empty_conversation_placeholder">Entrez une question, chargez un fichier pour lancer une conversation. Votre quotas quotidien s’affiche dans le menu en haut à gauche.</string>
+    <string name="search_conversation">Recherchez une conversation</string>
+    <string name="my_rag">Mes RAG</string>
+    <string name="conversations">Conversations</string>
+
+    <!-- Errors -->
+    <string name="error_occured">Une erreur est survenue</string>
+</resources>
