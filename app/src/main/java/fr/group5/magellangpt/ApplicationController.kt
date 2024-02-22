@@ -8,6 +8,7 @@ import fr.group5.magellangpt.common.helpers.implementations.MediaPlayerHelperImp
 import fr.group5.magellangpt.common.helpers.implementations.ResourcesHelperImpl
 import fr.group5.magellangpt.common.navigation.Navigator
 import fr.group5.magellangpt.common.navigation.implementations.NavigatorImpl
+import fr.group5.magellangpt.domain.usecases.AuthenticationUseCase
 import fr.group5.magellangpt.domain.usecases.ConversationUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,9 @@ class ApplicationController : Application() {
 
 
         single<Context> { androidContext()}
+
         single { ConversationUseCase() }
+        single { AuthenticationUseCase() }
 
         // https://developer.android.com/kotlin/coroutines/coroutines-best-practices?hl=fr
         single<CoroutineDispatcher> { Dispatchers.IO }

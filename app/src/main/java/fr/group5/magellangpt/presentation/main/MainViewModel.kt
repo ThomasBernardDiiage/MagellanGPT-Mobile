@@ -7,6 +7,7 @@ import fr.group5.magellangpt.common.navigation.Navigator
 import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.domain.models.Resource
+import fr.group5.magellangpt.domain.usecases.AuthenticationUseCase
 import fr.group5.magellangpt.domain.usecases.ConversationUseCase
 import fr.group5.magellangpt.presentation.login.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
 
 class MainViewModel(
+    private val authenticationUseCase: AuthenticationUseCase = get(AuthenticationUseCase::class.java),
     private val navigator : Navigator = get(Navigator::class.java),
     private val conversationUseCase: ConversationUseCase = get(ConversationUseCase::class.java),
 ) : ViewModel() {
@@ -54,10 +56,18 @@ class MainViewModel(
     }
 
     private fun onLogout(){
-        navigator.navigateTo(
-            route = Navigator.Destination.Login,
-            popupTo = Navigator.Destination.Main.route,
-            inclusive = true
-        )
+        viewModelScope.launch {
+            when(val result = authenticationUseCase.logout()){
+                is Resource.Success -> {
+                    navigator.navigateTo(
+                        route = Navigator.Destination.Login,
+                        popupTo = Navigator.Destination.Main.route,
+                        inclusive = true)
+                }
+                is Resource.Error -> {
+                    Log.e("MainViewModel", result.message)
+                }
+            }
+        }
     }
 }
