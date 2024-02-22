@@ -22,8 +22,7 @@ class ConversationUseCase(
                     sender = MessageSender.USER),
                 Message(
                     content = "I am Magellan, your personal guide",
-                    sender = MessageSender.AI)
-            )
+                    sender = MessageSender.AI))
 
             Resource.Success(messages)
         }

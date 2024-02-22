@@ -1,5 +1,8 @@
 package fr.group5.magellangpt.presentation.main
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -62,6 +65,12 @@ fun MainScreen(
 
     val options by remember { mutableStateOf(listOf("GPT 3.5", "GPT 4")) }
     var selectedOptionIndex by remember { mutableStateOf(0) }
+
+
+    val fileResult = remember { mutableStateOf<Uri?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+        fileResult.value = it
+    }
 
     LaunchedEffect(Unit){
         onEvent(MainEvent.OnAppearing)
@@ -235,11 +244,8 @@ fun MainScreen(
 
                 SquaredButton(
                     resource = R.drawable.file_icon,
-                    onClick = {
-
-                    })
+                    onClick = { launcher.launch(arrayOf("application/pdf")) })
             }
-
         }
     }
 }
