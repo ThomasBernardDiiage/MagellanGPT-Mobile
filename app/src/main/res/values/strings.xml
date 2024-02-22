@@ -12,4 +12,7 @@
     <string name="search_conversation">Recherchez une conversation</string>
     <string name="my_rag">Mes RAG</string>
     <string name="conversations">Conversations</string>
+
+    <!-- Errors -->
+    <string name="error_occured">Une erreur est survenue</string>
 </resources>

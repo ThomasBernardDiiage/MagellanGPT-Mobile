@@ -44,8 +44,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.domain.models.MessageSender
-import fr.group5.magellangpt.presentation.components.main.IAMessage
-import fr.group5.magellangpt.presentation.components.main.UserMessage
+import fr.group5.magellangpt.presentation.components.main.Message
+import fr.group5.magellangpt.presentation.theme.Secondary
 import fr.thomasbernard03.composents.TextField
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
@@ -106,7 +106,14 @@ fun MainScreen(
 
 
                     Row {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(text = "${uiState.firstname} ${uiState.lastname.uppercase()}")
+                        }
                         SquaredButton(
+                            backgroundColor = Secondary,
                             resource = R.drawable.logout,
                             onClick = { onEvent(MainEvent.OnLogout)}
                         )
@@ -171,7 +178,7 @@ fun MainScreen(
                                         .padding(end = 12.dp),
                                     horizontalArrangement = Arrangement.End
                                 ) {
-                                    UserMessage(content = message.content)
+                                    Message(content = message.content, isUser = true)
                                 }
                             MessageSender.AI ->
                                 Row(
@@ -180,7 +187,7 @@ fun MainScreen(
                                         .padding(start = 12.dp),
                                     horizontalArrangement = Arrangement.Start
                                 ) {
-                                    IAMessage(content = message.content)
+                                    Message(content = message.content, isUser = false)
                                 }
                         }
                     }

@@ -6,4 +6,7 @@ data class MainUiState(
     val query : String = "",
 
     val messages : List<Message> = emptyList(),
+
+    val firstname : String = "Clément",
+    val lastname : String = "delarue",
 )

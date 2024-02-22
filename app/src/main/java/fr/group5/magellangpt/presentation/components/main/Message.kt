@@ -11,21 +11,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import fr.group5.magellangpt.presentation.theme.Primary
+import fr.group5.magellangpt.presentation.theme.Secondary
 
 @Composable
-fun UserMessage(
-    content : String
+fun Message(
+    content : String,
+    isUser : Boolean = true
 ) {
     MarkdownText(
         style = TextStyle(color = Color.White),
         modifier = Modifier
-            .background(Primary, shape = RoundedCornerShape(8.dp))
+            .background(if (isUser) Primary else Secondary, shape = RoundedCornerShape(8.dp))
             .padding(12.dp) ,
         markdown = content)
 }
 
 @Composable
 @Preview
-fun UserMessagePreview() {
-    UserMessage("Hello World!")
+fun Message() {
+    Message("Hello World!", isUser = true)
 }

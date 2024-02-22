@@ -1,18 +1,24 @@
 package fr.group5.magellangpt.presentation.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import fr.group5.magellangpt.common.navigation.Navigator
 import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.MessageSender
+import fr.group5.magellangpt.domain.models.Resource
+import fr.group5.magellangpt.domain.usecases.ConversationUseCase
 import fr.group5.magellangpt.presentation.login.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
 
 class MainViewModel(
-    private val navigator : Navigator = get(Navigator::class.java)
+    private val navigator : Navigator = get(Navigator::class.java),
+    private val conversationUseCase: ConversationUseCase = get(ConversationUseCase::class.java),
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -28,16 +34,18 @@ class MainViewModel(
     }
 
     private fun onAppearing(){
-        val messages = listOf(
-            Message(
-                content = "Welcome to Magellan GPT",
-                sender = MessageSender.USER),
-            Message(
-                content = "I am Magellan, your personal guide",
-                sender = MessageSender.AI)
-        )
+        viewModelScope.launch {
+            when(val result = conversationUseCase.getConversationMessages()){
+                is Resource.Success -> {
+                    _uiState.update { it.copy(messages = result.data) }
+                }
+                is Resource.Error -> {
+                    Log.e("MainViewModel", "An error occurred")
+                }
+            }
+        }
 
-        _uiState.update { it.copy(messages = messages) }
+
     }
 
 
