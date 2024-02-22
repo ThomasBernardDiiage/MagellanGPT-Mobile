@@ -10,14 +10,27 @@ steps:
     publishJUnitResults: false
     testResultsFiles: '**/TEST-*.xml'
     tasks: 'assembleRelease --stacktrace'
+
+- task: AndroidSigning@3 
+  inputs:
+    apkFiles: '**/*.apk' 
+    apksign: true 
+    apksignerKeystoreFile: '$(keystore file)' 
+    apksignerKeystorePassword: '$(certif_password)' 
+    apksignerKeystoreAlias: '$(keystore alias)'
+    apksignerKeyPassword: '$(certif_password)'
+    apksignerArguments: —-out $(Build.SourcesDirectory)/app/build/outputs
+
 - task: CopyFiles@2
   inputs:
     Contents: '**/*.apk' # Utilisez Contents pour spécifier les fichiers à copier
     TargetFolder: '$(build.artifactStagingDirectory)'
     Overwrite: true
 
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathToPublish: '$(build.artifactStagingDirectory)' # Assurez-vous que ce chemin est correct
     ArtifactName: 'apks'
     PublishLocation: 'container'
+
