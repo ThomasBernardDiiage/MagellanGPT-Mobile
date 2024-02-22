@@ -19,7 +19,8 @@ steps:
     apksignerKeystorePassword: '$(certif_password)' 
     apksignerKeystoreAlias: '$(keystore alias)'
     apksignerKeyPassword: '$(certif_password)'
-    apksignerArguments: —-out $(Build.SourcesDirectory)/app/build/outputs
+    # Suppression de apksignerArguments pour éviter la confusion
+
 
 - task: CopyFiles@2
   inputs:
