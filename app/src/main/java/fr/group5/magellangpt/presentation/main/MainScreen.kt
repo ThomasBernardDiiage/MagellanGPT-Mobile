@@ -1,5 +1,6 @@
 package fr.group5.magellangpt.presentation.main
 
+import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.domain.models.MessageSender
@@ -248,4 +250,12 @@ fun MainScreen(
             }
         }
     }
+}
+
+@Composable
+@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun mainScreenPreview(){
+    val uiState = MainUiState()
+    MainScreen(uiState = uiState, onEvent = {})
 }
