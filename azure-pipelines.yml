@@ -4,12 +4,13 @@
 
 steps:
 - task: Gradle@2
-  displayName: 'gradlew assembleDebug'
   inputs:
-    gradleWrapperFile: 'MobileApp/SourceCode -Android/gradlew'
-    workingDirectory: 'MobileApp/SourceCode -Android'
-    tasks: assembleDebug
+    workingDirectory: ''
+    gradleWrapperFile: 'gradlew'
+    gradleOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
     publishJUnitResults: false
-    checkStyleRunAnalysis: true
-    findBugsRunAnalysis: true
-    pmdRunAnalysis: true
+    testResultsFiles: '**/TEST-*.xml'
+    tasks: 'assembleRelease'
