@@ -6,5 +6,5 @@ interface AuthenticationRepository {
 
     fun login(activity : Activity, onSuccess : () -> Unit, onCancel : () -> Unit, onError : () -> Unit)
 
-    fun logout()
+    suspend fun logout()
 }

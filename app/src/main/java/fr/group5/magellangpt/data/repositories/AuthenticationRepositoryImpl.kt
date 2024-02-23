@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.microsoft.identity.client.AuthenticationCallback
+import com.microsoft.identity.client.IAccount
 import com.microsoft.identity.client.IAuthenticationResult
 import com.microsoft.identity.client.ISingleAccountPublicClientApplication
 import com.microsoft.identity.client.PublicClientApplication
@@ -19,6 +20,7 @@ class AuthenticationRepositoryImpl(
 
     private var client : ISingleAccountPublicClientApplication? = null
 
+    private var account: IAccount? = null
 
     override fun login(
         activity : Activity,
@@ -26,49 +28,61 @@ class AuthenticationRepositoryImpl(
         onCancel : () -> Unit,
         onError : () -> Unit
     ){
-        client = PublicClientApplication.createSingleAccountPublicClientApplication(
-            context,
-            R.raw.auth_config)
+        fun loginMsal(){
+            val parameters = SignInParameters
+                .builder()
+                .withActivity(activity)
+                .withScope("User.Read")
+                .withCallback(object : AuthenticationCallback {
+                    override fun onSuccess(authenticationResult: IAuthenticationResult?) {
+                        account = authenticationResult?.account
+                        onSuccess()
+                    }
 
-        val parameters = SignInParameters
-            .builder()
-            .withActivity(activity)
-            .withScope("User.Read")
-            .withCallback(object : AuthenticationCallback {
-                override fun onSuccess(authenticationResult: IAuthenticationResult?) {
-                    Log.d("AuthenticationUseCase", "Successfully signed in")
+                    override fun onError(exception: MsalException?) {
+                        Log.e("AuthenticationUseCase", exception?.message ?: "An error occurred")
+                        onError()
+                    }
+
+                    override fun onCancel() {
+                        Log.d("AuthenticationUseCase", "User cancelled signing in")
+                        onCancel()
+                    }
+                })
+
+            client?.signIn(parameters.build())
+        }
+        client = PublicClientApplication.createSingleAccountPublicClientApplication(context, R.raw.auth_config)
+
+        client?.getCurrentAccountAsync(
+            object : ISingleAccountPublicClientApplication.CurrentAccountCallback {
+                override fun onAccountLoaded(activeAccount: IAccount?) {
+                    account = activeAccount
+                    if (account == null)
+                        loginMsal()
+                    else
+                        onSuccess()
                 }
 
-                override fun onError(exception: MsalException?) {
-                    Log.e("AuthenticationUseCase", exception?.message ?: "An error occurred")
+                override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
+                    account = currentAccount
+                    if (currentAccount == null)
+                        loginMsal()
+                    else
+                        onSuccess()
+
                 }
 
-                override fun onCancel() {
-                    Log.d("AuthenticationUseCase", "User cancelled signing in")
+                override fun onError(exception: MsalException) {
+                    Log.i("Logout Error", exception.toString())
+                    onError()
                 }
-            })
-
-        client?.signIn(parameters.build())
-
-        client?.acquireToken(activity, arrayOf("User.Read"), object : AuthenticationCallback {
-            override fun onSuccess(authenticationResult: IAuthenticationResult?) {
-                Log.d("AuthenticationUseCase", "Successfully signed in, ${authenticationResult?.accessToken}")
-                onSuccess()
             }
-
-            override fun onError(exception: MsalException?) {
-                Log.e("AuthenticationUseCase", exception?.message ?: "An error occurred")
-                onError()
-            }
-
-            override fun onCancel() {
-                Log.d("AuthenticationUseCase", "User cancelled signing in")
-                onCancel()
-            }
-        })
+        )
     }
 
-    override fun logout() {
+    override suspend fun logout() {
         client?.signOut()
+        account = null
     }
 }

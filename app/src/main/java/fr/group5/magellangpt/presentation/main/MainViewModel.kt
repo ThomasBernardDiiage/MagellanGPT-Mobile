@@ -64,17 +64,12 @@ class MainViewModel(
 
     private fun onLogout(){
         viewModelScope.launch {
-            when(val result = authenticationUseCase.logout()){
-                is Resource.Success -> {
-                    navigator.navigateTo(
-                        route = Navigator.Destination.Login,
-                        popupTo = Navigator.Destination.Main.route,
-                        inclusive = true)
-                }
-                is Resource.Error -> {
-                    Log.e("MainViewModel", result.message)
-                }
-            }
+            authenticationUseCase.logout()
+
+            navigator.navigateTo(
+                route = Navigator.Destination.Login,
+                popupTo = Navigator.Destination.Main.route,
+                inclusive = true)
         }
     }
 }

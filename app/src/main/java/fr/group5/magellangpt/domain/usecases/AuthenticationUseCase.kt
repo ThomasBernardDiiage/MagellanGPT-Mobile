@@ -35,14 +35,12 @@ class AuthenticationUseCase(
         }
     }
 
-    suspend fun logout() : Resource<Unit> = withContext(ioDispatcher) {
+    suspend fun logout() = withContext(ioDispatcher){
         try {
             authenticationRepository.logout()
-            Resource.Success(Unit)
         }
         catch (e : Exception){
             Log.e("AuthenticationUseCase", e.message ?: "An error occurred")
-            Resource.Error(resourcesHelper.getString(R.string.error_occured))
         }
     }
 }
