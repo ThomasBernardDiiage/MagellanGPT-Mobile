@@ -18,8 +18,9 @@ class AuthenticationRepositoryImpl(
     private val context : Context = get(Context::class.java)
 ) : AuthenticationRepository {
 
-    private var client : ISingleAccountPublicClientApplication? = null
-
+    private val client : ISingleAccountPublicClientApplication by lazy {
+        PublicClientApplication.createSingleAccountPublicClientApplication(context, R.raw.auth_config)
+    }
     private var account: IAccount? = null
 
     override fun login(
@@ -50,11 +51,10 @@ class AuthenticationRepositoryImpl(
                     }
                 })
 
-            client?.signIn(parameters.build())
+            client.signIn(parameters.build())
         }
-        client = PublicClientApplication.createSingleAccountPublicClientApplication(context, R.raw.auth_config)
 
-        client?.getCurrentAccountAsync(
+        client.getCurrentAccountAsync(
             object : ISingleAccountPublicClientApplication.CurrentAccountCallback {
                 override fun onAccountLoaded(activeAccount: IAccount?) {
                     account = activeAccount
@@ -65,12 +65,7 @@ class AuthenticationRepositoryImpl(
                 }
 
                 override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
-                    account = currentAccount
-                    if (currentAccount == null)
-                        loginMsal()
-                    else
-                        onSuccess()
-
+                    Log.d("AuthenticationUseCase", "Account changed")
                 }
 
                 override fun onError(exception: MsalException) {
@@ -82,7 +77,25 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun logout() {
-        client?.signOut()
+        client.signOut()
         account = null
+    }
+
+    override suspend fun userConnected(onResult : (Boolean) -> Unit) {
+        client.getCurrentAccountAsync(
+            object : ISingleAccountPublicClientApplication.CurrentAccountCallback {
+                override fun onAccountLoaded(activeAccount: IAccount?) {
+                    onResult(activeAccount != null)
+                }
+
+                override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
+                    Log.d("AuthenticationUseCase", "Account changed")
+                }
+
+                override fun onError(exception: MsalException) {
+                    Log.i("Logout Error", exception.toString())
+                }
+            }
+        )
     }
 }

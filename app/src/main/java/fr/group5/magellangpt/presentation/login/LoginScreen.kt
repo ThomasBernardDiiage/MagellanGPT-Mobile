@@ -40,6 +40,10 @@ fun LoginScreen(
 ) {
     val activity = LocalContext.current as MainActivity
 
+    LaunchedEffect(Unit){
+        onEvent(LoginEvent.OnAppearing)
+    }
+
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()

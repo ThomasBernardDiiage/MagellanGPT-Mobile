@@ -43,4 +43,10 @@ class AuthenticationUseCase(
             Log.e("AuthenticationUseCase", e.message ?: "An error occurred")
         }
     }
+
+    suspend fun userConnected(onResult : (Boolean) -> Unit) = withContext(ioDispatcher){
+        authenticationRepository.userConnected {
+            onResult(it)
+        }
+    }
 }

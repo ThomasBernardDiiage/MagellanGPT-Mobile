@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import fr.group5.magellangpt.common.helpers.ErrorHelper
 import fr.group5.magellangpt.common.navigation.Navigator
+import fr.group5.magellangpt.domain.usecases.AuthenticationUseCase
 import fr.group5.magellangpt.presentation.login.LoginScreen
 import fr.group5.magellangpt.presentation.login.LoginViewModel
 import fr.group5.magellangpt.presentation.main.MainScreen
@@ -32,7 +33,7 @@ import org.koin.java.KoinJavaComponent.get
 
 class MainActivity(
     private val navigator : Navigator = get(Navigator::class.java),
-    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java)
+    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java),
 ) : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +53,6 @@ class MainActivity(
                             .padding(it),
                         color = MaterialTheme.colorScheme.background
                     ) {
-
-
                         LaunchedEffect(Unit) {
                             navigator.sharedFlow.onEach {
                                 when(it){

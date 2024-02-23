@@ -31,7 +31,23 @@ class LoginViewModel(
 
     fun onEvent(event : LoginEvent){
         when(event){
+            is LoginEvent.OnAppearing -> onAppearing()
             is LoginEvent.OnLogin -> onLogin(event.activity)
+        }
+    }
+
+    private fun onAppearing(){
+        viewModelScope.launch {
+            _uiState.update { it.copy(loading = true) }
+            authenticationUseCase.userConnected { connected ->
+                if (connected) {
+                    navigator.navigateTo(
+                        route = Navigator.Destination.Main,
+                        popupTo = Navigator.Destination.Login.route,
+                        inclusive = true)
+                }
+                _uiState.update { it.copy(loading = false) }
+            }
         }
     }
 

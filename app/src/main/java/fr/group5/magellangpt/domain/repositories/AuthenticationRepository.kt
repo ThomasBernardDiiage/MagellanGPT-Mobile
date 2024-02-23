@@ -7,4 +7,6 @@ interface AuthenticationRepository {
     fun login(activity : Activity, onSuccess : () -> Unit, onCancel : () -> Unit, onError : () -> Unit)
 
     suspend fun logout()
+
+    suspend fun userConnected(onResult : (Boolean) -> Unit)
 }
