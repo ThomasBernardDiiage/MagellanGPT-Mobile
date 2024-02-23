@@ -18,10 +18,10 @@ class AuthenticationRepositoryImpl(
     private val context : Context = get(Context::class.java)
 ) : AuthenticationRepository {
 
+    private var account: IAccount? = null
     private val client : ISingleAccountPublicClientApplication by lazy {
         PublicClientApplication.createSingleAccountPublicClientApplication(context, R.raw.auth_config)
     }
-    private var account: IAccount? = null
 
     override fun login(
         activity : Activity,
