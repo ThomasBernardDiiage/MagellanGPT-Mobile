@@ -1,20 +1,24 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+## Faire fonctionner l'authentification avec Azure AD
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+1) Générer une clé de keystore :
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+```shell
+keytool -exportcert -alias androiddebugkey -keystore ~/.android/debug.keystore | openssl sha1 -binary | openssl base64
+```
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+Windows : 
+```shell
+keytool -exportcert -alias androiddebugkey -keystore %HOMEPATH%\.android\debug.keystore | openssl sha1 -binary | openssl base64
+```
+Le mot de passe par défaut est : **android**
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Récuperez la clé générée
+
+3) Ensuite il faut se rendre sur https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Authentication/appId/4cf58850-84de-4db1-b613-ab25d7dac819/isMSAApp~/false
+
+
+
+4) Il faut ajouter une nouvelle ligne :
+Nom de package : fr.group5.magellangpt
+Hachage de signature : collez la valeur générée
+Récupérez le redirectUri et le changer dans app/src/debug/res/raw/auth_config.json
