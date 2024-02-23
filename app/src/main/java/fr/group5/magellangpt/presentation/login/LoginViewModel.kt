@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.group5.magellangpt.R
+import fr.group5.magellangpt.common.helpers.ErrorHelper
 import fr.group5.magellangpt.common.helpers.MediaPlayerHelper
 import fr.group5.magellangpt.common.navigation.Navigator
 import fr.group5.magellangpt.domain.models.Message
@@ -22,6 +23,7 @@ import org.koin.java.KoinJavaComponent.get
 class LoginViewModel(
     private val navigator : Navigator = get(Navigator::class.java),
     private val authenticationUseCase: AuthenticationUseCase = get(AuthenticationUseCase::class.java),
+    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java),
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -37,20 +39,24 @@ class LoginViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(loading = true) }
 
-            when(val result = authenticationUseCase.login(activity)){
-                is Resource.Success -> {
+            authenticationUseCase.login(
+                activity = activity,
+                onSuccess = {
                     navigator.navigateTo(
                         route = Navigator.Destination.Main,
                         popupTo = Navigator.Destination.Login.route,
                         inclusive = true)
 
                     _uiState.update { it.copy(loading = false) }
-                }
-                is Resource.Error -> {
-                    Log.e("LoginViewModel", "Error: ${result.message}")
+                },
+                onError = { error ->
+                    Log.e("LoginViewModel", error)
+                    viewModelScope.launch { errorHelper.onError(ErrorHelper.Error(error)) }
                     _uiState.update { it.copy(loading = false) }
-                }
-            }
+                },
+                onCancel = {
+                    _uiState.update { it.copy(loading = false) }
+                })
         }
     }
 }

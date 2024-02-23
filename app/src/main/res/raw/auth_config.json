@@ -3,14 +3,12 @@
   "authorization_user_agent" : "WEBVIEW",
   "redirect_uri" : "msauth://fr.group5.magellangpt/kts8wShVeFLSHKiq3qYsXER3K3U%3D",
   "account_mode" : "SINGLE",
-  "broker_redirect_uri_registered": false,
   "authorities" : [
     {
       "type": "AAD",
-      "authority_url": "https://login.microsoftonline.com/common",
       "audience": {
-        "type": "AzureADMultipleOrgs",
-        "tenant_id": "organizations"
+        "type": "AzureADMyOrg",
+        "tenant_id": "14bc5219-40ca-4d62-a8e4-7c97c1236349"
       }
     }
   ]

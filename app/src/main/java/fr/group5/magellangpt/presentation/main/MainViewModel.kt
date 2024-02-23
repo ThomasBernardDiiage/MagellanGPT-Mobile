@@ -3,6 +3,7 @@ package fr.group5.magellangpt.presentation.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.common.navigation.Navigator
 import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.MessageSender
@@ -21,6 +22,7 @@ class MainViewModel(
     private val authenticationUseCase: AuthenticationUseCase = get(AuthenticationUseCase::class.java),
     private val navigator : Navigator = get(Navigator::class.java),
     private val conversationUseCase: ConversationUseCase = get(ConversationUseCase::class.java),
+    private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java)
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -29,14 +31,19 @@ class MainViewModel(
 
     fun onEvent(event : MainEvent){
         when(event){
-            is MainEvent.OnQueryChanged -> onQueryChanged(event.query)
             is MainEvent.OnAppearing -> onAppearing()
+            is MainEvent.OnQueryChanged -> onQueryChanged(event.query)
             is MainEvent.OnLogout -> onLogout()
         }
     }
 
     private fun onAppearing(){
         viewModelScope.launch {
+            _uiState.update { it.copy(
+                firstname = preferencesHelper.firstname,
+                lastname = preferencesHelper.lastname,
+            ) }
+
             when(val result = conversationUseCase.getConversationMessages()){
                 is Resource.Success -> {
                     _uiState.update { it.copy(messages = result.data) }

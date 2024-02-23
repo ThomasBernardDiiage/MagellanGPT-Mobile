@@ -7,15 +7,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import fr.group5.magellangpt.common.helpers.ErrorHelper
 import fr.group5.magellangpt.common.navigation.Navigator
 import fr.group5.magellangpt.presentation.login.LoginScreen
 import fr.group5.magellangpt.presentation.login.LoginViewModel
@@ -27,19 +31,28 @@ import kotlinx.coroutines.flow.onEach
 import org.koin.java.KoinJavaComponent.get
 
 class MainActivity(
-    private val navigator : Navigator = get(Navigator::class.java)
+    private val navigator : Navigator = get(Navigator::class.java),
+    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java)
 ) : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MagellanGPTTheme {
-                Scaffold {
+
+                val navController = rememberNavController()
+                val snackbarHostState = remember { SnackbarHostState() }
+
+                Scaffold(
+                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+                ) {
                     // A surface container using the 'background' color from the theme
                     Surface(
-                        modifier = Modifier.fillMaxSize().padding(it),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(it),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        val navController = rememberNavController()
+
 
                         LaunchedEffect(Unit) {
                             navigator.sharedFlow.onEach {
@@ -60,6 +73,14 @@ class MainActivity(
                                     }
                                 }
                             }.launchIn(this)
+
+                            errorHelper.sharedFlow.onEach {
+                                if (snackbarHostState.currentSnackbarData != null)
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+
+                                snackbarHostState.showSnackbar(it.message, withDismissAction = true)
+                            }.launchIn(this)
+
                         }
 
                         NavHost(navController = navController, startDestination = Navigator.Destination.Login.route){
