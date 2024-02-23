@@ -81,4 +81,6 @@ dependencies {
     implementation("com.github.ThomasBernard03:Composents:1.2.1")
 
     implementation("com.github.jeziellago:compose-markdown:0.4.1")
+
+    implementation("com.microsoft.identity.client:msal:5.1.0")
 }

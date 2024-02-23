@@ -3,10 +3,12 @@ package fr.group5.magellangpt.presentation.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.common.navigation.Navigator
 import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.domain.models.Resource
+import fr.group5.magellangpt.domain.usecases.AuthenticationUseCase
 import fr.group5.magellangpt.domain.usecases.ConversationUseCase
 import fr.group5.magellangpt.presentation.login.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +19,10 @@ import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
 
 class MainViewModel(
+    private val authenticationUseCase: AuthenticationUseCase = get(AuthenticationUseCase::class.java),
     private val navigator : Navigator = get(Navigator::class.java),
     private val conversationUseCase: ConversationUseCase = get(ConversationUseCase::class.java),
+    private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java)
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -27,14 +31,19 @@ class MainViewModel(
 
     fun onEvent(event : MainEvent){
         when(event){
-            is MainEvent.OnQueryChanged -> onQueryChanged(event.query)
             is MainEvent.OnAppearing -> onAppearing()
+            is MainEvent.OnQueryChanged -> onQueryChanged(event.query)
             is MainEvent.OnLogout -> onLogout()
         }
     }
 
     private fun onAppearing(){
         viewModelScope.launch {
+            _uiState.update { it.copy(
+                firstname = preferencesHelper.firstname,
+                lastname = preferencesHelper.lastname,
+            ) }
+
             when(val result = conversationUseCase.getConversationMessages()){
                 is Resource.Success -> {
                     _uiState.update { it.copy(messages = result.data) }
@@ -54,10 +63,13 @@ class MainViewModel(
     }
 
     private fun onLogout(){
-        navigator.navigateTo(
-            route = Navigator.Destination.Login,
-            popupTo = Navigator.Destination.Main.route,
-            inclusive = true
-        )
+        viewModelScope.launch {
+            authenticationUseCase.logout()
+
+            navigator.navigateTo(
+                route = Navigator.Destination.Login,
+                popupTo = Navigator.Destination.Main.route,
+                inclusive = true)
+        }
     }
 }
