@@ -3,16 +3,10 @@ package fr.group5.magellangpt.presentation.login
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.helpers.ErrorHelper
-import fr.group5.magellangpt.common.helpers.MediaPlayerHelper
 import fr.group5.magellangpt.common.navigation.Navigator
-import fr.group5.magellangpt.domain.models.Message
-import fr.group5.magellangpt.domain.models.MessageSender
-import fr.group5.magellangpt.domain.models.Resource
 import fr.group5.magellangpt.domain.usecases.AuthenticationUseCase
 import fr.group5.magellangpt.presentation.MainActivity
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

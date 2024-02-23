@@ -3,11 +3,9 @@ package fr.group5.magellangpt
 import android.app.Application
 import android.content.Context
 import fr.group5.magellangpt.common.helpers.ErrorHelper
-import fr.group5.magellangpt.common.helpers.MediaPlayerHelper
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.common.helpers.ResourcesHelper
 import fr.group5.magellangpt.common.helpers.implementations.ErrorHelperImpl
-import fr.group5.magellangpt.common.helpers.implementations.MediaPlayerHelperImpl
 import fr.group5.magellangpt.common.helpers.implementations.PreferencesHelperImpl
 import fr.group5.magellangpt.common.helpers.implementations.ResourcesHelperImpl
 import fr.group5.magellangpt.common.navigation.Navigator
@@ -30,7 +28,6 @@ class ApplicationController : Application() {
         single<AuthenticationRepository> { AuthenticationRepositoryImpl() }
 
         single<ResourcesHelper> { ResourcesHelperImpl() }
-        single<MediaPlayerHelper> { MediaPlayerHelperImpl() }
         single<PreferencesHelper> {  PreferencesHelperImpl() }
         single<ErrorHelper> {  ErrorHelperImpl() }
 
