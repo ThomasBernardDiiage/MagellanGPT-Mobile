@@ -73,7 +73,8 @@ fun MainScreen(
 
     LaunchedEffect(uiState.messages) {
         if (uiState.messages.isNotEmpty()) {
-            lazyListState.scrollToItem(uiState.messages.size - 1)
+            // Count all messages in the map
+            lazyListState.scrollToItem(uiState.messages.flatMap { it.value }.size + uiState.messages.size - 1)
         }
     }
 
@@ -107,7 +108,7 @@ fun MainScreen(
 
         Column(
             modifier = Modifier
-                .background(Color(0xFFF7F7F7))
+                .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
         ) {
             Row(
@@ -162,8 +163,8 @@ fun MainScreen(
                             Text(
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
-                                    .background(Color(0xFFF7F7F7))
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.background),
                                 text = date.toDateLabel(),
                             )
                         }
@@ -174,7 +175,7 @@ fun MainScreen(
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(end = 12.dp),
+                                            .padding(end = 12.dp, start = 48.dp),
                                         horizontalArrangement = Arrangement.End
                                     ) {
                                         Message(content = message.content, date = message.date, isUser = true)
@@ -183,7 +184,7 @@ fun MainScreen(
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(start = 12.dp),
+                                            .padding(start = 12.dp, end = 24.dp),
                                         horizontalArrangement = Arrangement.Start
                                     ) {
                                         Message(content = message.content, date = message.date, isUser = false)
@@ -221,7 +222,7 @@ fun MainScreen(
             Row(
                 modifier = Modifier
                     .background(
-                        color = MaterialTheme.colorScheme.background,
+                        color = Color.White,
                         shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                     )
                     .padding(16.dp),

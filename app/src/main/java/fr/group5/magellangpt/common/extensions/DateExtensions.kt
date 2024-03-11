@@ -14,6 +14,11 @@ fun Date.toPrettyDate() : String {
     return dateFormatter.format(this)
 }
 
+fun Date.toPrettyHour() : String {
+    val dateFormatter = SimpleDateFormat("HH:mm", Locale.FRENCH)
+    return dateFormatter.format(this)
+}
+
 // Return today, yesterday or the date
 fun Date.toDateLabel() : String {
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.FRENCH)

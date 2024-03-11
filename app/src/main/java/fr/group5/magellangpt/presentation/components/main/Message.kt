@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import fr.group5.magellangpt.common.extensions.toPrettyDate
+import fr.group5.magellangpt.common.extensions.toPrettyHour
 import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
 import fr.group5.magellangpt.presentation.theme.Primary
 import fr.group5.magellangpt.presentation.theme.Secondary
@@ -41,7 +42,7 @@ fun Message(
             markdown = content)
 
         Text(
-            text = date.toPrettyDate(),
+            text = date.toPrettyHour(),
             color = Color.White,
             style = Typography.labelSmall
         )
