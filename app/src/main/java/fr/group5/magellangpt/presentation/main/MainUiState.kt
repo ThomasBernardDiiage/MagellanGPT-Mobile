@@ -1,11 +1,14 @@
 package fr.group5.magellangpt.presentation.main
 
 import fr.group5.magellangpt.domain.models.Message
+import java.util.Date
 
 data class MainUiState(
-    val query : String = "",
+    val message : String = "",
 
-    val messages : List<Message> = emptyList(),
+    val conversationQuery : String = "",
+
+    val messages : Map<Date, List<Message>> = emptyMap(),
 
     val firstname : String = "-",
     val lastname : String = "-",

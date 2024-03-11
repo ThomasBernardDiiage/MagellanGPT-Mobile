@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -13,21 +14,40 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.jeziellago.compose.markdowntext.MarkdownText
+import fr.group5.magellangpt.common.extensions.toPrettyDate
+import fr.group5.magellangpt.common.extensions.toPrettyHour
 import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
 import fr.group5.magellangpt.presentation.theme.Primary
 import fr.group5.magellangpt.presentation.theme.Secondary
+import java.util.Date
+import fr.group5.magellangpt.presentation.theme.Typography
 
 @Composable
 fun Message(
     content : String,
+    date : Date,
     isUser : Boolean = true
 ) {
-    MarkdownText(
-        style = TextStyle(color = Color.White),
+    Column(
         modifier = Modifier
-            .background(if (isUser) Primary else Secondary, shape = RoundedCornerShape(8.dp))
-            .padding(12.dp) ,
-        markdown = content)
+            .background(
+                color = if (isUser) Primary else Secondary,
+                shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomEnd = if (isUser) 0.dp else 8.dp, bottomStart = if (isUser) 8.dp else 0.dp)
+            )
+            .padding(horizontal = 12.dp)
+            .padding(top = 12.dp, bottom = 6.dp)
+    ) {
+        MarkdownText(
+            style = TextStyle(color = Color.White),
+            markdown = content)
+
+        Text(
+            text = date.toPrettyHour(),
+            color = Color.White,
+            style = Typography.labelSmall
+        )
+    }
+
 }
 
 @Composable
@@ -38,8 +58,8 @@ fun Message() {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Message(content = "Hello World!", isUser = true)
-                Message(content = "Hello World!", isUser = false)
+                Message(content = "Hello World!", date = Date(), isUser = true)
+                Message(content = "Hello World!",date = Date(), isUser = false)
             }
         }
     }
