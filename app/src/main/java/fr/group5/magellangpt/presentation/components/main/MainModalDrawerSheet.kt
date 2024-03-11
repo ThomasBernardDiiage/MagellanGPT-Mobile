@@ -65,15 +65,10 @@ fun MainModalDrawerSheet(
                         contentDescription = "search")
                 })
 
-            Text(
-                text = stringResource(id = R.string.my_rag),
-                modifier = Modifier.padding(vertical = 16.dp))
-
-            HorizontalDivider()
 
             Text(
                 text = stringResource(id = R.string.conversations),
-                modifier = Modifier.padding(vertical = 16.dp))
+                modifier = Modifier.padding(top = 8.dp))
 
             HorizontalDivider()
 
@@ -81,7 +76,10 @@ fun MainModalDrawerSheet(
 
             OutlinedButton(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = {}
+                onClick = {
+                    val uri = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                    uriHandler.openUri(uri)
+                }
             ){
                 Text(text = stringResource(id = R.string.quota))
                 
