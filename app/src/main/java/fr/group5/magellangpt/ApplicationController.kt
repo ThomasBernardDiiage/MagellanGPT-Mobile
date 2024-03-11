@@ -12,8 +12,11 @@ import fr.group5.magellangpt.common.navigation.Navigator
 import fr.group5.magellangpt.common.navigation.implementations.NavigatorImpl
 import fr.group5.magellangpt.data.repositories.AuthenticationRepositoryImpl
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
-import fr.group5.magellangpt.domain.usecases.AuthenticationUseCase
-import fr.group5.magellangpt.domain.usecases.ConversationUseCase
+import fr.group5.magellangpt.domain.usecases.LoginUseCase
+import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
+import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
+import fr.group5.magellangpt.domain.usecases.LogoutUseCase
+import fr.group5.magellangpt.domain.usecases.UserConnectedUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
@@ -33,8 +36,11 @@ class ApplicationController : Application() {
 
         single<Context> { androidContext()}
 
-        single { ConversationUseCase() }
-        single { AuthenticationUseCase() }
+        single { GetConversationUseCase() }
+        single { LoginUseCase() }
+        single { LogoutUseCase() }
+        single { UserConnectedUseCase() }
+        single { GetCurrentUserUseCase() }
 
         // https://developer.android.com/kotlin/coroutines/coroutines-best-practices?hl=fr
         single<CoroutineDispatcher> { Dispatchers.IO }

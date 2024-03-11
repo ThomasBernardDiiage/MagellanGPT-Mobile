@@ -13,6 +13,11 @@
     <string name="my_rag">Mes RAG</string>
     <string name="conversations">Conversations</string>
 
+
+    <!-- Modal Navigation Drawer -->
+    <string name="more_informations">Plus d\'informations</string>
+    <string name="quota">Quota</string>
+
     <!-- Errors -->
     <string name="error_occured">Une erreur est survenue</string>
 </resources>

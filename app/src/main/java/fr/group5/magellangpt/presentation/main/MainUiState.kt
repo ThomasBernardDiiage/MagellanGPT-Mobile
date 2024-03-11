@@ -7,6 +7,7 @@ data class MainUiState(
 
     val messages : List<Message> = emptyList(),
 
-    val firstname : String = "Clément",
-    val lastname : String = "delarue",
+    val firstname : String = "-",
+    val lastname : String = "-",
+    val email : String = "-",
 )

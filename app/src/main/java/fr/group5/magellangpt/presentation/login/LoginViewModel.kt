@@ -5,7 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.group5.magellangpt.common.helpers.ErrorHelper
 import fr.group5.magellangpt.common.navigation.Navigator
-import fr.group5.magellangpt.domain.usecases.AuthenticationUseCase
+import fr.group5.magellangpt.domain.usecases.LoginUseCase
+import fr.group5.magellangpt.domain.usecases.UserConnectedUseCase
 import fr.group5.magellangpt.presentation.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +17,8 @@ import org.koin.java.KoinJavaComponent.get
 
 class LoginViewModel(
     private val navigator : Navigator = get(Navigator::class.java),
-    private val authenticationUseCase: AuthenticationUseCase = get(AuthenticationUseCase::class.java),
+    private val loginUseCase: LoginUseCase = get(LoginUseCase::class.java),
+    private val userConnectedUseCase: UserConnectedUseCase = get(UserConnectedUseCase::class.java),
     private val errorHelper: ErrorHelper = get(ErrorHelper::class.java),
 ) : ViewModel() {
 
@@ -33,7 +35,7 @@ class LoginViewModel(
     private fun onAppearing(){
         viewModelScope.launch {
             _uiState.update { it.copy(loading = true) }
-            authenticationUseCase.userConnected { connected ->
+            userConnectedUseCase { connected ->
                 if (connected) {
                     navigator.navigateTo(
                         route = Navigator.Destination.Main,
@@ -49,7 +51,7 @@ class LoginViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(loading = true) }
 
-            authenticationUseCase.login(
+            loginUseCase(
                 activity = activity,
                 onSuccess = {
                     navigator.navigateTo(

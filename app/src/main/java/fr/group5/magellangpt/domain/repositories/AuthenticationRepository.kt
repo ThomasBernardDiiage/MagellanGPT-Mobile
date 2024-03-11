@@ -1,6 +1,7 @@
 package fr.group5.magellangpt.domain.repositories
 
 import android.app.Activity
+import fr.group5.magellangpt.domain.models.User
 
 interface AuthenticationRepository {
 
@@ -23,4 +24,6 @@ interface AuthenticationRepository {
      * @param onResult the result callback
      */
     suspend fun userConnected(onResult : (Boolean) -> Unit)
+
+    suspend fun getCurrentUser(onResult :(user : User) -> Unit)
 }

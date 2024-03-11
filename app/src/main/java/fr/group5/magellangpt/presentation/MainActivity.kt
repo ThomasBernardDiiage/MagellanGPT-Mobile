@@ -21,7 +21,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import fr.group5.magellangpt.common.helpers.ErrorHelper
 import fr.group5.magellangpt.common.navigation.Navigator
-import fr.group5.magellangpt.domain.usecases.AuthenticationUseCase
 import fr.group5.magellangpt.presentation.login.LoginScreen
 import fr.group5.magellangpt.presentation.login.LoginViewModel
 import fr.group5.magellangpt.presentation.main.MainScreen

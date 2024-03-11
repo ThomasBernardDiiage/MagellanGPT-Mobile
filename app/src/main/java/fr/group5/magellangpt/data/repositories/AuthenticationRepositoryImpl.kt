@@ -11,6 +11,7 @@ import com.microsoft.identity.client.PublicClientApplication
 import com.microsoft.identity.client.SignInParameters
 import com.microsoft.identity.client.exception.MsalException
 import fr.group5.magellangpt.R
+import fr.group5.magellangpt.domain.models.User
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
 import org.koin.java.KoinJavaComponent.get
 
@@ -41,12 +42,12 @@ class AuthenticationRepositoryImpl(
                     }
 
                     override fun onError(exception: MsalException?) {
-                        Log.e("AuthenticationUseCase", exception?.message ?: "An error occurred")
+                        Log.e("LoginUseCase", exception?.message ?: "An error occurred")
                         onError()
                     }
 
                     override fun onCancel() {
-                        Log.d("AuthenticationUseCase", "User cancelled signing in")
+                        Log.d("LoginUseCase", "User cancelled signing in")
                         onCancel()
                     }
                 })
@@ -65,7 +66,7 @@ class AuthenticationRepositoryImpl(
                 }
 
                 override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
-                    Log.d("AuthenticationUseCase", "Account changed")
+                    Log.d("LoginUseCase", "Account changed")
                 }
 
                 override fun onError(exception: MsalException) {
@@ -89,7 +90,34 @@ class AuthenticationRepositoryImpl(
                 }
 
                 override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
-                    Log.d("AuthenticationUseCase", "Account changed")
+                    Log.d("LoginUseCase", "Account changed")
+                }
+
+                override fun onError(exception: MsalException) {
+                    Log.i("Logout Error", exception.toString())
+                }
+            }
+        )
+    }
+
+    override suspend fun getCurrentUser(onResult : (user : User) -> Unit) {
+        client.getCurrentAccountAsync(
+            object : ISingleAccountPublicClientApplication.CurrentAccountCallback {
+                override fun onAccountLoaded(activeAccount: IAccount?) {
+                    account = activeAccount
+                    val displayName = activeAccount?.claims?.get("name") as String?
+                    val email = activeAccount?.claims?.get("preferred_username") as String?
+                    val user = User(
+                        firstname = displayName?.split(" ")?.get(0) ?: "",
+                        lastname = displayName?.split(" ")?.get(1) ?: "",
+                        email = email ?: ""
+                    )
+
+                    onResult(user)
+                }
+
+                override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
+                    Log.d("LoginUseCase", "Account changed")
                 }
 
                 override fun onError(exception: MsalException) {

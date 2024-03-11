@@ -5,12 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.common.navigation.Navigator
-import fr.group5.magellangpt.domain.models.Message
-import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.domain.models.Resource
-import fr.group5.magellangpt.domain.usecases.AuthenticationUseCase
-import fr.group5.magellangpt.domain.usecases.ConversationUseCase
-import fr.group5.magellangpt.presentation.login.LoginUiState
+import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
+import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
+import fr.group5.magellangpt.domain.usecases.LogoutUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,15 +17,14 @@ import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
 
 class MainViewModel(
-    private val authenticationUseCase: AuthenticationUseCase = get(AuthenticationUseCase::class.java),
+    private val logoutUseCase: LogoutUseCase = get(LogoutUseCase::class.java),
     private val navigator : Navigator = get(Navigator::class.java),
-    private val conversationUseCase: ConversationUseCase = get(ConversationUseCase::class.java),
-    private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java)
+    private val getConversationUseCase: GetConversationUseCase = get(GetConversationUseCase::class.java),
+    private val getCurrentUserUseCase: GetCurrentUserUseCase = get(GetCurrentUserUseCase::class.java),
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
-
 
     fun onEvent(event : MainEvent){
         when(event){
@@ -39,12 +36,7 @@ class MainViewModel(
 
     private fun onAppearing(){
         viewModelScope.launch {
-            _uiState.update { it.copy(
-                firstname = preferencesHelper.firstname,
-                lastname = preferencesHelper.lastname,
-            ) }
-
-            when(val result = conversationUseCase.getConversationMessages()){
+            when(val result = getConversationUseCase()){
                 is Resource.Success -> {
                     _uiState.update { it.copy(messages = result.data) }
                 }
@@ -52,9 +44,11 @@ class MainViewModel(
                     Log.e("MainViewModel", "An error occurred")
                 }
             }
+
+            getCurrentUserUseCase { user ->
+                _uiState.update { it.copy(firstname = user.firstname, lastname = user.lastname, email = user.email) }
+            }
         }
-
-
     }
 
 
@@ -64,7 +58,7 @@ class MainViewModel(
 
     private fun onLogout(){
         viewModelScope.launch {
-            authenticationUseCase.logout()
+            logoutUseCase()
 
             navigator.navigateTo(
                 route = Navigator.Destination.Login,
