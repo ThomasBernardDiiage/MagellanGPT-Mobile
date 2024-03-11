@@ -23,6 +23,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
 
+
+/**
+ * Primary button
+ * @param modifier Modifier -> Modifier of the button
+ * @param text String -> Text of the button display if not loading
+ * @param loading Boolean -> If the button is loading show a circular progress indicator
+ * @param onClick () -> Unit -> Click callback
+ */
 @Composable
 fun PrimaryButton(
     modifier : Modifier = Modifier,

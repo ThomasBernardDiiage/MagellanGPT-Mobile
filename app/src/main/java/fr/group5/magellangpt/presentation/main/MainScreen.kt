@@ -1,6 +1,5 @@
 package fr.group5.magellangpt.presentation.main
 
-import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,15 +39,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
+import coil.compose.rememberAsyncImagePainter
+import coil.decode.ImageDecoderDecoder
+import coil.request.ImageRequest
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.domain.models.MessageSender
+import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
 import fr.group5.magellangpt.presentation.components.main.Message
 import fr.group5.magellangpt.presentation.theme.Secondary
 import fr.thomasbernard03.composents.TextField
@@ -61,7 +67,6 @@ fun MainScreen(
     uiState: MainUiState,
     onEvent: (MainEvent) -> Unit
 ){
-
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -81,58 +86,17 @@ fun MainScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.app_name),
-                        modifier = Modifier.padding(vertical = 16.dp))
-
-                    TextField(
-                        text = "",
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = stringResource(id = R.string.search_conversation),
-                        trailingIcon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.search),
-                                contentDescription = "search")
-                        })
-
-                    Text(
-                        text = stringResource(id = R.string.my_rag),
-                        modifier = Modifier.padding(vertical = 16.dp))
-
-                    HorizontalDivider()
-
-                    Text(
-                        text = stringResource(id = R.string.conversations),
-                        modifier = Modifier.padding(vertical = 16.dp))
-
-                    HorizontalDivider()
-
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-
-                    Row {
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(text = "${uiState.firstname} ${uiState.lastname.uppercase()}")
-                        }
-                        SquaredButton(
-                            backgroundColor = Secondary,
-                            resource = R.drawable.logout,
-                            onClick = { onEvent(MainEvent.OnLogout)}
-                        )
+            MainModalDrawerSheet(
+                firstname = uiState.firstname,
+                lastname = uiState.lastname,
+                email = uiState.email,
+                onLogout = { onEvent(MainEvent.OnLogout) },
+                onClose = {
+                    scope.launch {
+                        drawerState.close()
                     }
-
                 }
-
-            }
+            )
         }
     ) {
 
@@ -141,13 +105,13 @@ fun MainScreen(
                 .background(Color(0xFFF7F7F7))
                 .fillMaxSize()
         ) {
-            Box(
+            Row(
                 modifier = Modifier
                     .padding(12.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 SquaredButton(
-                    modifier = Modifier.align(Alignment.CenterStart),
                     color = MaterialTheme.colorScheme.primary,
                     backgroundColor = Color.Transparent,
                     resource = R.drawable.vectormenu,
@@ -159,18 +123,25 @@ fun MainScreen(
 
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
-                        .align(Alignment.Center),
+                        .weight(1f)
                 ) {
                     options.forEachIndexed { index, option ->
                         SegmentedButton(
+                            colors = SegmentedButtonDefaults.colors(
+                                activeContainerColor = MaterialTheme.colorScheme.primary,
+                                activeContentColor = Color.White
+                            ),
                             selected = selectedOptionIndex == index,
                             onClick = { selectedOptionIndex = index},
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)) {
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                        ) {
                             Text(text = option)
                         }
                     }
 
                 }
+
+                Box(modifier = Modifier.size(44.dp))
 
             }
 
@@ -254,8 +225,18 @@ fun MainScreen(
 
 @Composable
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun mainScreenPreview(){
+fun mainScreenEmptyMessagePreview(){
     val uiState = MainUiState()
+    MainScreen(uiState = uiState, onEvent = {})
+}
+
+@Composable
+@Preview
+fun mainScreenMessagesPreview(){
+    val messages = listOf(
+        fr.group5.magellangpt.domain.models.Message(content = "Hello there", sender = MessageSender.USER),
+        fr.group5.magellangpt.domain.models.Message(content = "Hello obi-wan", sender = MessageSender.AI),
+    )
+    val uiState = MainUiState(messages= messages)
     MainScreen(uiState = uiState, onEvent = {})
 }

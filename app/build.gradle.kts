@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "fr.group5.magellangpt"
-        minSdk = 26
+        minSdk = 28
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -83,4 +83,8 @@ dependencies {
     implementation("com.github.jeziellago:compose-markdown:0.4.1")
 
     implementation("com.microsoft.identity.client:msal:5.1.0")
+
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-gif:2.2.2")
 }
