@@ -3,15 +3,16 @@ package fr.group5.magellangpt.presentation.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.common.navigation.Navigator
 import fr.group5.magellangpt.domain.models.Resource
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
+import fr.group5.magellangpt.domain.usecases.SendMessageUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
@@ -21,6 +22,7 @@ class MainViewModel(
     private val navigator : Navigator = get(Navigator::class.java),
     private val getConversationUseCase: GetConversationUseCase = get(GetConversationUseCase::class.java),
     private val getCurrentUserUseCase: GetCurrentUserUseCase = get(GetCurrentUserUseCase::class.java),
+    private val sendMessageUseCase: SendMessageUseCase = get(SendMessageUseCase::class.java)
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -31,6 +33,7 @@ class MainViewModel(
             is MainEvent.OnAppearing -> onAppearing()
             is MainEvent.OnQueryChanged -> onQueryChanged(event.query)
             is MainEvent.OnLogout -> onLogout()
+            is MainEvent.OnSendMessage -> onSendMessage(event.message)
         }
     }
 
@@ -38,13 +41,17 @@ class MainViewModel(
         viewModelScope.launch {
             when(val result = getConversationUseCase()){
                 is Resource.Success -> {
-                    _uiState.update { it.copy(messages = result.data) }
+                    result.data.collectLatest { messages ->
+                        _uiState.update { it.copy(messages = messages) }
+                    }
                 }
                 is Resource.Error -> {
                     Log.e("MainViewModel", "An error occurred")
                 }
             }
+        }
 
+        viewModelScope.launch {
             getCurrentUserUseCase { user ->
                 _uiState.update { it.copy(firstname = user.firstname, lastname = user.lastname, email = user.email) }
             }
@@ -52,8 +59,17 @@ class MainViewModel(
     }
 
 
+    private fun onSendMessage(message : String){
+        viewModelScope.launch {
+            if (message.isBlank()) return@launch
+            sendMessageUseCase(message)
+            _uiState.update { it.copy(message = "") }
+        }
+    }
+
+
     private fun onQueryChanged(query: String) {
-        _uiState.update { it.copy(query = query) }
+        _uiState.update { it.copy(message = query) }
     }
 
     private fun onLogout(){

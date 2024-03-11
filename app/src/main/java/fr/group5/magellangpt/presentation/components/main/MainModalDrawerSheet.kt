@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +31,9 @@ fun MainModalDrawerSheet(
     firstname : String,
     lastname : String,
     email : String,
+    query : String,
 
+    onQueryChanged : (String) -> Unit = {},
     onLogout : () -> Unit = {},
     onClose : () -> Unit = {}
 ){
@@ -49,21 +52,23 @@ fun MainModalDrawerSheet(
                 Spacer(modifier = Modifier.weight(1f))
 
                 SquaredButton(
-                    backgroundColor = Primary,
+                    backgroundColor = MaterialTheme.colorScheme.primary,
                     resource = R.drawable.close,
                     onClick = onClose)
             }
 
 
             TextField(
-                text = "",
+                text = query,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = stringResource(id = R.string.search_conversation),
+                onTextChange = onQueryChanged,
                 trailingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.search),
                         contentDescription = "search")
-                })
+                },
+            )
 
 
             Text(
@@ -118,7 +123,7 @@ fun MainModalDrawerSheet(
                     Text(text = email)
                 }
                 SquaredButton(
-                    backgroundColor = Secondary,
+                    backgroundColor = MaterialTheme.colorScheme.secondary,
                     resource = R.drawable.logout,
                     onClick = onLogout)
             }
@@ -132,6 +137,7 @@ private fun MainModalDrawerSheetPreview() {
     MainModalDrawerSheet(
         firstname = "Thomas",
         lastname = "Bernard",
-        email = "thomas.bernard@diiage.org"
+        email = "thomas.bernard@diiage.org",
+        query = ""
     )
 }
