@@ -1,6 +1,5 @@
 package fr.group5.magellangpt.presentation.main
 
-import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -141,13 +140,13 @@ fun MainScreen(
                 .background(Color(0xFFF7F7F7))
                 .fillMaxSize()
         ) {
-            Box(
+            Row(
                 modifier = Modifier
                     .padding(12.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 SquaredButton(
-                    modifier = Modifier.align(Alignment.CenterStart),
                     color = MaterialTheme.colorScheme.primary,
                     backgroundColor = Color.Transparent,
                     resource = R.drawable.vectormenu,
@@ -159,18 +158,25 @@ fun MainScreen(
 
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
-                        .align(Alignment.Center),
+                        .weight(1f)
                 ) {
                     options.forEachIndexed { index, option ->
                         SegmentedButton(
+                            colors = SegmentedButtonDefaults.colors(
+                                activeContainerColor = MaterialTheme.colorScheme.primary,
+                                activeContentColor = Color.White
+                            ),
                             selected = selectedOptionIndex == index,
                             onClick = { selectedOptionIndex = index},
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)) {
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                        ) {
                             Text(text = option)
                         }
                     }
 
                 }
+
+                Box(modifier = Modifier.size(44.dp))
 
             }
 
@@ -254,8 +260,18 @@ fun MainScreen(
 
 @Composable
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun mainScreenPreview(){
+fun mainScreenEmptyMessagePreview(){
     val uiState = MainUiState()
+    MainScreen(uiState = uiState, onEvent = {})
+}
+
+@Composable
+@Preview
+fun mainScreenMessagesPreview(){
+    val messages = listOf(
+        fr.group5.magellangpt.domain.models.Message(content = "Hello there", sender = MessageSender.USER),
+        fr.group5.magellangpt.domain.models.Message(content = "Hello obi-wan", sender = MessageSender.AI),
+    )
+    val uiState = MainUiState(messages= messages)
     MainScreen(uiState = uiState, onEvent = {})
 }
