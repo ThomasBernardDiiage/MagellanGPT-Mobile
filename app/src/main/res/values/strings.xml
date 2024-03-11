@@ -12,6 +12,8 @@
     <string name="search_conversation">Recherchez une conversation</string>
     <string name="my_rag">Mes RAG</string>
     <string name="conversations">Conversations</string>
+    <string name="yersterday">Hier</string>
+    <string name="today">Aujourd\'hui</string>
 
 
     <!-- Modal Navigation Drawer -->

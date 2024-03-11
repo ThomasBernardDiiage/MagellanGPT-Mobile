@@ -61,9 +61,10 @@ class MainViewModel(
 
     private fun onSendMessage(message : String){
         viewModelScope.launch {
+            _uiState.update { it.copy(message = "") }
+
             if (message.isBlank()) return@launch
             sendMessageUseCase(message)
-            _uiState.update { it.copy(message = "") }
         }
     }
 

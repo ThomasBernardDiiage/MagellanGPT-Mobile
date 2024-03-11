@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -50,7 +51,6 @@ class MainActivity(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(it),
-                        color = MaterialTheme.colorScheme.background
                     ) {
                         LaunchedEffect(Unit) {
                             navigator.sharedFlow.onEach {

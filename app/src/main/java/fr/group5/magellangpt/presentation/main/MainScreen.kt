@@ -3,6 +3,7 @@ package fr.group5.magellangpt.presentation.main
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +48,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.group5.magellangpt.R
+import fr.group5.magellangpt.common.extensions.toDateLabel
+import fr.group5.magellangpt.common.extensions.toPrettyDate
 import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
 import fr.group5.magellangpt.presentation.components.main.Message
@@ -55,7 +58,7 @@ import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen(
     uiState: MainUiState,
@@ -154,28 +157,41 @@ fun MainScreen(
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.messages){ message ->
-                        when(message.sender){
-                            MessageSender.USER ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(end = 12.dp),
-                                    horizontalArrangement = Arrangement.End
-                                ) {
-                                    Message(content = message.content, isUser = true)
-                                }
-                            MessageSender.AI ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 12.dp),
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    Message(content = message.content, isUser = false)
-                                }
+                    uiState.messages.forEach { date, messages ->
+                        stickyHeader {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .background(Color(0xFFF7F7F7))
+                                    .fillMaxWidth(),
+                                text = date.toDateLabel(),
+                            )
+                        }
+
+                        items(messages){ message ->
+                            when(message.sender){
+                                MessageSender.USER ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(end = 12.dp),
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        Message(content = message.content, date = message.date, isUser = true)
+                                    }
+                                MessageSender.AI ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 12.dp),
+                                        horizontalArrangement = Arrangement.Start
+                                    ) {
+                                        Message(content = message.content, date = message.date, isUser = false)
+                                    }
+                            }
                         }
                     }
+
                 }
             }
             else {
@@ -249,6 +265,6 @@ private fun mainScreenMessagesPreview(){
         fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date()),
         fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date()),
     )
-    val uiState = MainUiState(messages= messages)
+    val uiState = MainUiState(messages= messages.groupBy { it.date })
     MainScreen(uiState = uiState, onEvent = {})
 }
