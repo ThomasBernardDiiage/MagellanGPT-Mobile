@@ -9,6 +9,7 @@ import com.microsoft.identity.client.IAuthenticationResult
 import com.microsoft.identity.client.ISingleAccountPublicClientApplication
 import com.microsoft.identity.client.PublicClientApplication
 import com.microsoft.identity.client.SignInParameters
+import com.microsoft.identity.client.SilentAuthenticationCallback
 import com.microsoft.identity.client.exception.MsalException
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.domain.models.User
@@ -20,6 +21,9 @@ class AuthenticationRepositoryImpl(
 ) : AuthenticationRepository {
 
     private var account: IAccount? = null
+    private val authorityUrl : String = "https://login.microsoftonline.com/14bc5219-40ca-4d62-a8e4-7c97c1236349"
+
+
     private val client : ISingleAccountPublicClientApplication by lazy {
         PublicClientApplication.createSingleAccountPublicClientApplication(context, R.raw.auth_config)
     }
@@ -113,7 +117,8 @@ class AuthenticationRepositoryImpl(
                         email = email ?: ""
                     )
 
-                    onResult(user)
+                    getToken()
+                    // onResult(user)
                 }
 
                 override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
@@ -125,5 +130,20 @@ class AuthenticationRepositoryImpl(
                 }
             }
         )
+    }
+
+    private fun getToken(){
+        val scopes = arrayOf("User.Read") // Définissez les scopes nécessaires pour votre token
+
+        client.acquireTokenSilentAsync(scopes, authorityUrl, object : SilentAuthenticationCallback {
+            override fun onSuccess(authenticationResult: IAuthenticationResult?) {
+                val accessToken = authenticationResult?.accessToken
+                Log.i("Token Request Success", accessToken ?: "")
+            }
+
+            override fun onError(exception: MsalException?) {
+                Log.e("Token Request Error", exception?.message?.toString() ?: "")
+            }
+        })
     }
 }

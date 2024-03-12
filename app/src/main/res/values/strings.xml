@@ -15,6 +15,8 @@
     <string name="yersterday">Hier</string>
     <string name="today">Aujourd\'hui</string>
 
+    <string name="copied_into_clipboard">Copié dans le presse-papier</string>
+
 
     <!-- Modal Navigation Drawer -->
     <string name="more_informations">Plus d\'informations</string>

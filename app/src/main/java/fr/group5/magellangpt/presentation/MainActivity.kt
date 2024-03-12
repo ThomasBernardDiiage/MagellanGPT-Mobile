@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -14,14 +13,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import fr.group5.magellangpt.common.helpers.ErrorHelper
-import fr.group5.magellangpt.common.navigation.Navigator
+import fr.group5.magellangpt.common.helpers.NavigationHelper
 import fr.group5.magellangpt.presentation.login.LoginScreen
 import fr.group5.magellangpt.presentation.login.LoginViewModel
 import fr.group5.magellangpt.presentation.main.MainScreen
@@ -32,7 +30,7 @@ import kotlinx.coroutines.flow.onEach
 import org.koin.java.KoinJavaComponent.get
 
 class MainActivity(
-    private val navigator : Navigator = get(Navigator::class.java),
+    private val navigationHelper : NavigationHelper = get(NavigationHelper::class.java),
     private val errorHelper: ErrorHelper = get(ErrorHelper::class.java),
 ) : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,9 +51,9 @@ class MainActivity(
                             .padding(it),
                     ) {
                         LaunchedEffect(Unit) {
-                            navigator.sharedFlow.onEach {
+                            navigationHelper.sharedFlow.onEach {
                                 when(it){
-                                    is Navigator.NavigationEvent.NavigateTo -> {
+                                    is NavigationHelper.NavigationEvent.NavigateTo -> {
                                         navController.navigate(it.destination.route) {
                                             // avoiding multiple copies on the top of the back stack
                                             launchSingleTop = true
@@ -66,7 +64,7 @@ class MainActivity(
                                                 }
                                         }
                                     }
-                                    is Navigator.NavigationEvent.GoBack -> {
+                                    is NavigationHelper.NavigationEvent.GoBack -> {
                                         navController.navigateUp()
                                     }
                                 }
@@ -81,13 +79,13 @@ class MainActivity(
 
                         }
 
-                        NavHost(navController = navController, startDestination = Navigator.Destination.Login.route){
+                        NavHost(navController = navController, startDestination = NavigationHelper.Destination.Login.route){
                             composable("login"){
                                 val viewModel : LoginViewModel = viewModel()
                                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                                 LoginScreen(uiState = uiState, onEvent = viewModel::onEvent)
                             }
-                            composable(Navigator.Destination.Main.route){
+                            composable(NavigationHelper.Destination.Main.route){
                                 val viewModel : MainViewModel = viewModel()
                                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                                 MainScreen(uiState = uiState, onEvent = viewModel::onEvent)
