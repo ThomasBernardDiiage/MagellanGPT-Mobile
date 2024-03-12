@@ -118,7 +118,7 @@ class AuthenticationRepositoryImpl(
                     )
 
                     getToken()
-                    // onResult(user)
+                    onResult(user)
                 }
 
                 override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
