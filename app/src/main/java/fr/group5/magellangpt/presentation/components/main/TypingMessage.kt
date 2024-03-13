@@ -7,15 +7,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
 import fr.group5.magellangpt.presentation.theme.Secondary
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TypingMessage() {
     Card(
@@ -33,5 +35,17 @@ fun TypingMessage() {
             modifier = Modifier.padding(12.dp),
             style = TextStyle(color = Color.White),
             text = "Typing...",)
+    }
+}
+
+@Composable
+@Preview
+private fun TypingMessagePreview() {
+    MagellanGPTTheme {
+        Surface {
+            Column {
+                TypingMessage()
+            }
+        }
     }
 }

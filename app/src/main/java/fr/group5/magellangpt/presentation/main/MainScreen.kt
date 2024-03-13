@@ -79,7 +79,6 @@ fun MainScreen(
         }
     }
 
-
     val fileResult = remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         fileResult.value = it
@@ -195,6 +194,10 @@ fun MainScreen(
 
                         if (uiState.typing){
                             item {
+                                LaunchedEffect(Unit){
+                                    lazyListState.scrollToItem(uiState.messages.flatMap { it.value }.size + uiState.messages.size)
+                                }
+
                                 TypingMessage()
                             }
                         }
