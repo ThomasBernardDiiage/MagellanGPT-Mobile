@@ -9,9 +9,10 @@ import fr.group5.magellangpt.common.helpers.ResourcesHelper
 import fr.group5.magellangpt.common.helpers.implementations.ErrorHelperImpl
 import fr.group5.magellangpt.common.helpers.implementations.PreferencesHelperImpl
 import fr.group5.magellangpt.common.helpers.implementations.ResourcesHelperImpl
-import fr.group5.magellangpt.common.navigation.Navigator
-import fr.group5.magellangpt.common.navigation.implementations.NavigatorImpl
+import fr.group5.magellangpt.common.helpers.NavigationHelper
+import fr.group5.magellangpt.common.helpers.implementations.NavigationHelperImpl
 import fr.group5.magellangpt.data.local.database.ApplicationDatabase
+import fr.group5.magellangpt.data.remote.ApiClient
 import fr.group5.magellangpt.data.repositories.AuthenticationRepositoryImpl
 import fr.group5.magellangpt.data.repositories.MessageRepositoryImpl
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
@@ -37,7 +38,7 @@ class ApplicationController : Application() {
     }
 
     private val appModule = module {
-        single<Navigator> { NavigatorImpl() }
+        single { ApiClient.apiService }
 
         single<AuthenticationRepository> { AuthenticationRepositoryImpl() }
         single<MessageRepository> { MessageRepositoryImpl() }
@@ -45,6 +46,7 @@ class ApplicationController : Application() {
         single<ResourcesHelper> { ResourcesHelperImpl() }
         single<PreferencesHelper> {  PreferencesHelperImpl() }
         single<ErrorHelper> { ErrorHelperImpl() }
+        single<NavigationHelper> { NavigationHelperImpl() }
 
         single<Context> { androidContext()}
 

@@ -1,8 +1,8 @@
-package fr.group5.magellangpt.common.navigation
+package fr.group5.magellangpt.common.helpers
 
 import kotlinx.coroutines.flow.SharedFlow
 
-interface Navigator {
+interface NavigationHelper {
     val sharedFlow : SharedFlow<NavigationEvent>
     fun navigateTo(route: Destination, popupTo : String? = null, inclusive : Boolean = false)
     fun goBack()

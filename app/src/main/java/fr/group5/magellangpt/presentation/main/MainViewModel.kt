@@ -3,7 +3,8 @@ package fr.group5.magellangpt.presentation.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.group5.magellangpt.common.navigation.Navigator
+import fr.group5.magellangpt.common.helpers.ErrorHelper
+import fr.group5.magellangpt.common.helpers.NavigationHelper
 import fr.group5.magellangpt.domain.models.Resource
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
@@ -19,10 +20,11 @@ import org.koin.java.KoinJavaComponent.get
 
 class MainViewModel(
     private val logoutUseCase: LogoutUseCase = get(LogoutUseCase::class.java),
-    private val navigator : Navigator = get(Navigator::class.java),
+    private val navigationHelper : NavigationHelper = get(NavigationHelper::class.java),
     private val getConversationUseCase: GetConversationUseCase = get(GetConversationUseCase::class.java),
     private val getCurrentUserUseCase: GetCurrentUserUseCase = get(GetCurrentUserUseCase::class.java),
-    private val sendMessageUseCase: SendMessageUseCase = get(SendMessageUseCase::class.java)
+    private val sendMessageUseCase: SendMessageUseCase = get(SendMessageUseCase::class.java),
+    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java)
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -61,10 +63,20 @@ class MainViewModel(
 
     private fun onSendMessage(message : String){
         viewModelScope.launch {
-            _uiState.update { it.copy(message = "") }
-
             if (message.isBlank()) return@launch
-            sendMessageUseCase(message)
+
+            _uiState.update { it.copy(message = "", typing = true) }
+
+            when(val result = sendMessageUseCase(message)){
+                is Resource.Success -> {
+                    _uiState.update { it.copy(typing = false) }
+                }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(typing = false) }
+
+                }
+            }
         }
     }
 
@@ -77,9 +89,9 @@ class MainViewModel(
         viewModelScope.launch {
             logoutUseCase()
 
-            navigator.navigateTo(
-                route = Navigator.Destination.Login,
-                popupTo = Navigator.Destination.Main.route,
+            navigationHelper.navigateTo(
+                route = NavigationHelper.Destination.Login,
+                popupTo = NavigationHelper.Destination.Main.route,
                 inclusive = true)
         }
     }

@@ -9,17 +9,23 @@ import com.microsoft.identity.client.IAuthenticationResult
 import com.microsoft.identity.client.ISingleAccountPublicClientApplication
 import com.microsoft.identity.client.PublicClientApplication
 import com.microsoft.identity.client.SignInParameters
+import com.microsoft.identity.client.SilentAuthenticationCallback
 import com.microsoft.identity.client.exception.MsalException
 import fr.group5.magellangpt.R
+import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.domain.models.User
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
 import org.koin.java.KoinJavaComponent.get
 
 class AuthenticationRepositoryImpl(
-    private val context : Context = get(Context::class.java)
+    private val context : Context = get(Context::class.java),
+    private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java)
 ) : AuthenticationRepository {
 
     private var account: IAccount? = null
+    private val authorityUrl : String = "https://login.microsoftonline.com/14bc5219-40ca-4d62-a8e4-7c97c1236349"
+
+
     private val client : ISingleAccountPublicClientApplication by lazy {
         PublicClientApplication.createSingleAccountPublicClientApplication(context, R.raw.auth_config)
     }
@@ -38,6 +44,7 @@ class AuthenticationRepositoryImpl(
                 .withCallback(object : AuthenticationCallback {
                     override fun onSuccess(authenticationResult: IAuthenticationResult?) {
                         account = authenticationResult?.account
+                        preferencesHelper.accessToken = authenticationResult?.account?.idToken ?: ""
                         onSuccess()
                     }
 
@@ -59,6 +66,7 @@ class AuthenticationRepositoryImpl(
             object : ISingleAccountPublicClientApplication.CurrentAccountCallback {
                 override fun onAccountLoaded(activeAccount: IAccount?) {
                     account = activeAccount
+
                     if (account == null)
                         loginMsal()
                     else
@@ -78,6 +86,8 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun logout() {
+        preferencesHelper.accessToken = ""
+
         client.signOut()
         account = null
     }
@@ -105,6 +115,8 @@ class AuthenticationRepositoryImpl(
             object : ISingleAccountPublicClientApplication.CurrentAccountCallback {
                 override fun onAccountLoaded(activeAccount: IAccount?) {
                     account = activeAccount
+                    preferencesHelper.accessToken = activeAccount?.idToken ?: ""
+
                     val displayName = activeAccount?.claims?.get("name") as String?
                     val email = activeAccount?.claims?.get("preferred_username") as String?
                     val user = User(
