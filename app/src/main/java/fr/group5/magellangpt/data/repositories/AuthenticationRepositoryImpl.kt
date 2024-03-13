@@ -12,12 +12,14 @@ import com.microsoft.identity.client.SignInParameters
 import com.microsoft.identity.client.SilentAuthenticationCallback
 import com.microsoft.identity.client.exception.MsalException
 import fr.group5.magellangpt.R
+import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.domain.models.User
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
 import org.koin.java.KoinJavaComponent.get
 
 class AuthenticationRepositoryImpl(
-    private val context : Context = get(Context::class.java)
+    private val context : Context = get(Context::class.java),
+    private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java)
 ) : AuthenticationRepository {
 
     private var account: IAccount? = null
@@ -42,6 +44,7 @@ class AuthenticationRepositoryImpl(
                 .withCallback(object : AuthenticationCallback {
                     override fun onSuccess(authenticationResult: IAuthenticationResult?) {
                         account = authenticationResult?.account
+                        preferencesHelper.accessToken = authenticationResult?.account?.idToken ?: ""
                         onSuccess()
                     }
 
@@ -63,6 +66,7 @@ class AuthenticationRepositoryImpl(
             object : ISingleAccountPublicClientApplication.CurrentAccountCallback {
                 override fun onAccountLoaded(activeAccount: IAccount?) {
                     account = activeAccount
+
                     if (account == null)
                         loginMsal()
                     else
@@ -82,6 +86,8 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun logout() {
+        preferencesHelper.accessToken = ""
+
         client.signOut()
         account = null
     }
@@ -109,6 +115,8 @@ class AuthenticationRepositoryImpl(
             object : ISingleAccountPublicClientApplication.CurrentAccountCallback {
                 override fun onAccountLoaded(activeAccount: IAccount?) {
                     account = activeAccount
+                    preferencesHelper.accessToken = activeAccount?.idToken ?: ""
+
                     val displayName = activeAccount?.claims?.get("name") as String?
                     val email = activeAccount?.claims?.get("preferred_username") as String?
                     val user = User(
@@ -117,7 +125,6 @@ class AuthenticationRepositoryImpl(
                         email = email ?: ""
                     )
 
-                    getToken()
                     onResult(user)
                 }
 
@@ -130,20 +137,5 @@ class AuthenticationRepositoryImpl(
                 }
             }
         )
-    }
-
-    private fun getToken(){
-        val scopes = arrayOf("User.Read") // Définissez les scopes nécessaires pour votre token
-
-        client.acquireTokenSilentAsync(scopes, authorityUrl, object : SilentAuthenticationCallback {
-            override fun onSuccess(authenticationResult: IAuthenticationResult?) {
-                val accessToken = authenticationResult?.accessToken
-                Log.i("Token Request Success", accessToken ?: "")
-            }
-
-            override fun onError(exception: MsalException?) {
-                Log.e("Token Request Error", exception?.message?.toString() ?: "")
-            }
-        })
     }
 }

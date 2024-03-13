@@ -53,6 +53,7 @@ import fr.group5.magellangpt.common.extensions.toPrettyDate
 import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
 import fr.group5.magellangpt.presentation.components.main.Message
+import fr.group5.magellangpt.presentation.components.main.TypingMessage
 import fr.thomasbernard03.composents.TextField
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
@@ -189,6 +190,12 @@ fun MainScreen(
                                     ) {
                                         Message(content = message.content, date = message.date, isUser = false)
                                     }
+                            }
+                        }
+
+                        if (uiState.typing){
+                            item {
+                                TypingMessage()
                             }
                         }
                     }

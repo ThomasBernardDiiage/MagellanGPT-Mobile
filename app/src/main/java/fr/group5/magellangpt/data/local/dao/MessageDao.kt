@@ -12,5 +12,5 @@ interface MessageDao {
     fun getMessages() : Flow<List<MessageEntity>>
 
     @Insert
-    suspend fun sendMessage(message : MessageEntity)
+    suspend fun insertMessage(message : MessageEntity)
 }

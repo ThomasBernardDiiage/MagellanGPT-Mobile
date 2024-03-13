@@ -15,20 +15,11 @@ class PreferencesHelperImpl(context: Context = get(Context::class.java)) : BaseP
     companion object {
         private const val SHARED_PREFERENCES_NAME = "shared_preferences"
 
-//        private const val PREFERENCE_KEY_FIRSTNAME = "firstname_preference_key"
-//        private const val PREFERENCE_KEY_LASTNAME = "username_preference_key"
-//        private const val PREFERENCE_KEY_MAIL = "mail_preference_key"
+        private const val PREFERENCE_KEY_ACCESS_TOKEN = "access_token_preference_key"
     }
-//
-//    override var lastname: String
-//        get() = getValue(PREFERENCE_KEY_FIRSTNAME, "")
-//        set(value) = setValue(PREFERENCE_KEY_FIRSTNAME, value)
-//
-//    override var firstname: String
-//        get() = getValue(PREFERENCE_KEY_LASTNAME, "")
-//        set(value) = setValue(PREFERENCE_KEY_LASTNAME, value)
-//
-//    override var mail: String
-//        get() = getValue(PREFERENCE_KEY_MAIL, "")
-//        set(value) = setValue(PREFERENCE_KEY_MAIL, value)
+
+    override var accessToken: String
+        get() = getValue(PREFERENCE_KEY_ACCESS_TOKEN, "")
+        set(value) = setValue(PREFERENCE_KEY_ACCESS_TOKEN, value)
+
 }

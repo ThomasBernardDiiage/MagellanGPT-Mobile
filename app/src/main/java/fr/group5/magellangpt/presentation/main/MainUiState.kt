@@ -5,6 +5,7 @@ import java.util.Date
 
 data class MainUiState(
     val message : String = "",
+    val typing : Boolean = false,
 
     val conversationQuery : String = "",
 
