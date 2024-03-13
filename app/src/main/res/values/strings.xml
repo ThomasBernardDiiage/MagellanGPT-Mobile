@@ -16,6 +16,7 @@
     <string name="today">Aujourd\'hui</string>
 
     <string name="copied_into_clipboard">Copié dans le presse-papier</string>
+    <string name="code_copied_into_clipboard">Code copié dans le presse-papier</string>
 
 
     <!-- Modal Navigation Drawer -->

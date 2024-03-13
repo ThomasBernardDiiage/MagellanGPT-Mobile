@@ -51,6 +51,14 @@ fun Message(
             .show()
     }
 
+    fun copyCodeToClipboard() {
+        val code = content.substringAfter("```").substringBefore("```")
+        clipboardManager.setText(AnnotatedString((code)))
+        Toast
+            .makeText(context, R.string.code_copied_into_clipboard, Toast.LENGTH_SHORT)
+            .show()
+    }
+
     Card(
         shape = RoundedCornerShape(
             topStart = 8.dp,
@@ -63,11 +71,16 @@ fun Message(
         ),
         modifier = Modifier
             .combinedClickable(
-            onClick = {},
-            onLongClick = {
-                copyToClipboard()
-            }
-        )
+                onClick = {},
+                onLongClick = {
+                    if (content.contains("```")){
+                        copyCodeToClipboard()
+                    }
+                    else {
+                        copyToClipboard()
+                    }
+                }
+            )
     ) {
         Column(modifier = Modifier.padding(PaddingValues(start = 12.dp, top = 12.dp, end = 12.dp, bottom = 6.dp))) {
             MarkdownText(
