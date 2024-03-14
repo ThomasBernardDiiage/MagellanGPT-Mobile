@@ -47,10 +47,12 @@ import androidx.compose.ui.unit.dp
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.extensions.toDateLabel
 import fr.group5.magellangpt.domain.models.MessageSender
+import fr.group5.magellangpt.presentation.components.Loader
+import fr.group5.magellangpt.presentation.components.TextField
+import fr.group5.magellangpt.presentation.components.main.EmptyList
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
 import fr.group5.magellangpt.presentation.components.main.MessageItem
 import fr.group5.magellangpt.presentation.components.main.TypingMessage
-import fr.thomasbernard03.composents.TextField
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -89,6 +91,7 @@ fun MainScreen(
                 lastname = uiState.lastname,
                 email = uiState.email,
                 query = uiState.conversationQuery,
+                conversationsLoading = uiState.conversationsLoading,
                 selectedConversation = uiState.selectedConversation,
                 conversations = uiState.conversations.filter { it.title.contains(uiState.conversationQuery, ignoreCase = true) },
                 onConversationSelected = {
@@ -148,10 +151,15 @@ fun MainScreen(
                 }
 
                 Box(modifier = Modifier.size(44.dp))
-
             }
 
-            if (uiState.messages.isNotEmpty()){
+            if (uiState.messagesLoading){
+                Loader(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    message = stringResource(id = R.string.loading_characters)
+                )
+            }
+            else if (uiState.messages.isNotEmpty()){
                 LazyColumn(
                     state = lazyListState,
                     modifier = Modifier.weight(1f),
@@ -206,27 +214,7 @@ fun MainScreen(
                 }
             }
             else {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                    Image(
-                        modifier = Modifier.size(200.dp),
-                        contentScale = ContentScale.FillWidth,
-                        painter = painterResource(id = R.drawable.file),
-                        contentDescription = "file")
-
-                    Text(
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .fillMaxWidth(),
-                        text = stringResource(id = R.string.empty_conversation_placeholder),
-                        style = MaterialTheme.typography.titleSmall)
-                }
+                EmptyList(modifier = Modifier.weight(1f))
             }
 
             Row(
@@ -248,7 +236,9 @@ fun MainScreen(
                     modifier = Modifier.weight(1f),
                     text = uiState.message,
                     keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
-                    onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) })
+                    onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) },
+                    singleLine = false,
+                    maxLines = 4,)
 
 
                 SquaredButton(

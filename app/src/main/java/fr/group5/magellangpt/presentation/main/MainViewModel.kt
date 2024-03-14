@@ -120,13 +120,15 @@ class MainViewModel(
 
     private fun onConversationSelected(conversation : Conversation){
         viewModelScope.launch {
-            _uiState.update { it.copy(selectedConversation = conversation) }
+            _uiState.update { it.copy(selectedConversation = conversation, messagesLoading = true) }
             when(val result = getConversationUseCase(conversation.id)){
                 is Resource.Success -> {
-
+                    _uiState.update { it.copy(messagesLoading = false) }
                 }
                 is Resource.Error -> {
                     errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(messagesLoading = false) }
+
                 }
             }
         }
@@ -142,23 +144,31 @@ class MainViewModel(
 
     private fun getModels(){
         viewModelScope.launch {
+            _uiState.update { it.copy(messagesLoading = true) }
             when(val result = getAvailableModelsUseCase()){
                 is Resource.Success -> {
                     val selectedModel = result.data.firstOrNull { it.id == preferencesHelper.selectedModelId } ?: result.data.first()
-                    _uiState.update { it.copy(availableModel = result.data, selectedModel = selectedModel) }
+                    _uiState.update { it.copy(availableModel = result.data, selectedModel = selectedModel, messagesLoading = false) }
                 }
-                is Resource.Error -> errorHelper.onError(ErrorHelper.Error(message = result.message))
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(messagesLoading = false) }
+                }
             }
         }
     }
 
     private fun getConversations(){
         viewModelScope.launch {
+            _uiState.update { it.copy(conversationsLoading = true) }
             when(val result = getConversationsUseCase()){
                 is Resource.Success -> {
-                    _uiState.update { it.copy(conversations = result.data) }
+                    _uiState.update { it.copy(conversations = result.data, conversationsLoading = false) }
                 }
-                is Resource.Error -> errorHelper.onError(ErrorHelper.Error(message = result.message))
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(conversationsLoading = false)}
+                }
             }
         }
     }

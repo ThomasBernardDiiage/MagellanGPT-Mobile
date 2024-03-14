@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.domain.models.Conversation
+import fr.group5.magellangpt.presentation.components.Loader
 import fr.group5.magellangpt.presentation.components.OutlinedButton
 import fr.group5.magellangpt.presentation.main.MainEvent
 import fr.group5.magellangpt.presentation.theme.Primary
@@ -36,6 +37,8 @@ fun MainModalDrawerSheet(
     lastname : String,
     email : String,
     query : String,
+
+    conversationsLoading : Boolean = false,
     conversations : List<Conversation> = emptyList(),
     selectedConversation: Conversation? = null,
 
@@ -69,7 +72,9 @@ fun MainModalDrawerSheet(
 
             TextField(
                 text = query,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 placeholder = stringResource(id = R.string.search_conversation),
                 onTextChange = onQueryChanged,
                 trailingIcon = {
@@ -81,31 +86,45 @@ fun MainModalDrawerSheet(
 
             Text(
                 text = stringResource(id = R.string.conversations),
-                modifier = Modifier.padding(top = 8.dp).padding(horizontal = 16.dp))
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .padding(horizontal = 16.dp))
 
             HorizontalDivider()
 
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(conversations) { conversation ->
-                    ConversationItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        selected = selectedConversation == conversation,
-                        title = conversation.title
-                    ) {
-                        onClose()
+            if (conversationsLoading){
+                Loader(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    message = stringResource(id = R.string.loading_conversations)
+                )
+            }
+            else {
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(conversations) { conversation ->
+                        ConversationItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            selected = selectedConversation == conversation,
+                            title = conversation.title
+                        ) {
+                            onClose()
 
-                        if(selectedConversation != conversation)
-                            onConversationSelected(conversation)
+                            if(selectedConversation != conversation)
+                                onConversationSelected(conversation)
+                        }
                     }
                 }
             }
 
+
+
             OutlinedButton(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 onClick = {
                     val uri = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                     uriHandler.openUri(uri)
@@ -121,7 +140,9 @@ fun MainModalDrawerSheet(
             }
 
             OutlinedButton(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 onClick = {
                     val uri = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                     uriHandler.openUri(uri)

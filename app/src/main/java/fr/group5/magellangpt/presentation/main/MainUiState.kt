@@ -9,8 +9,7 @@ data class MainUiState(
     val message : String = "",
     val typing : Boolean = false,
 
-    val conversationQuery : String = "",
-
+    val messagesLoading : Boolean = false,
     val messages : Map<Date, List<Message>> = emptyMap(),
 
     val firstname : String = "-",
@@ -20,7 +19,8 @@ data class MainUiState(
     val availableModel : List<Model> = emptyList(),
     val selectedModel : Model? = null,
 
-
+    val conversationQuery : String = "",
     val conversations : List<Conversation> = emptyList(),
     val selectedConversation : Conversation? = null,
+    val conversationsLoading : Boolean = false,
 )

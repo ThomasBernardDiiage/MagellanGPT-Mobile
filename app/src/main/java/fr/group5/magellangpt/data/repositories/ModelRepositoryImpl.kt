@@ -9,23 +9,9 @@ class ModelRepositoryImpl(
     private val apiService: ApiService = get(ApiService::class.java)
 ) : ModelRepository {
     override suspend fun getAvailableModels(): List<Model> {
+        val modelsDtoDown = apiService.getModels()
 
-        return listOf(
-            Model(
-                id = "gpt-3",
-                name = "GPT-3",
-                index = 0
-            ),
-            Model(
-                id = "gpt-4",
-                name = "GPT-4",
-                index = 1
-            )
-        )
-
-        val models = apiService.getModels()
-
-        return models.map {
+        return modelsDtoDown.map {
             Model(
                 id = it.id,
                 name = it.name,

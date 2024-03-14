@@ -14,6 +14,9 @@
     <string name="conversations">Conversations</string>
     <string name="yersterday">Hier</string>
     <string name="today">Aujourd\'hui</string>
+    <string name="loading_characters">Chargement des messages</string>
+    <string name="loading_conversations">Chargement des conversations</string>
+    <string name="typing">En train d\'écrire…</string>
 
     <string name="copied_into_clipboard">Copié dans le presse-papier</string>
     <string name="code_copied_into_clipboard">Code copié dans le presse-papier</string>
