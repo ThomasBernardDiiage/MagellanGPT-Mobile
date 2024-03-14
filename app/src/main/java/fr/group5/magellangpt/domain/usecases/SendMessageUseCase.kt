@@ -1,5 +1,6 @@
 package fr.group5.magellangpt.domain.usecases
 
+import android.util.Log
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.helpers.ResourcesHelper
 import fr.group5.magellangpt.domain.models.Resource
@@ -18,6 +19,7 @@ class SendMessageUseCase(
         } catch (e : HttpException){
             Resource.Error(resourcesHelper.getString(R.string.error_occured_code, e.code()))
         } catch (e : Exception){
+            Log.e("SendMessageUseCase", e.message, e)
             Resource.Error(resourcesHelper.getString(R.string.error_occured))
         }
     }

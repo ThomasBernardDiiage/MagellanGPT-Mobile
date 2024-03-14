@@ -9,6 +9,8 @@ import fr.group5.magellangpt.domain.models.Resource
 import fr.group5.magellangpt.domain.repositories.MessageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent.get
@@ -23,9 +25,12 @@ class GetConversationUseCase(
         try {
             val messages = messageRepository.getMessages()
 
-            Resource.Success(messages.map {
-                it.groupBy { message -> message.date.to6AM() }
-            })
+            Resource.Success(messages
+                .map { messages ->
+                    messages.filter { it.content.isNotBlank() }
+                        .groupBy { message -> message.date.to6AM() }
+                }
+            )
         }
         catch (e : Exception){
             Resource.Error(resourcesHelper.getString(R.string.error_occured))
