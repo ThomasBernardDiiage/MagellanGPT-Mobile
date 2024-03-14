@@ -24,8 +24,10 @@ import fr.group5.magellangpt.domain.usecases.LoginUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationsUseCase
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
+import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
-import fr.group5.magellangpt.domain.usecases.SendMessageUseCase
+import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
+import fr.group5.magellangpt.domain.usecases.PostMessageInNewConversationUseCase
 import fr.group5.magellangpt.domain.usecases.UserConnectedUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -60,12 +62,15 @@ class ApplicationController : Application() {
         single { LogoutUseCase() }
         single { UserConnectedUseCase() }
         single { GetCurrentUserUseCase() }
-        single { SendMessageUseCase() }
+        single { PostMessageInConversationUseCase() }
         single { GetAvailableModelsUseCase() }
         single { GetConversationsUseCase() }
+        single { PostMessageInNewConversationUseCase() }
+        single { GetMessagesUseCase() }
 
 
         single { database.messageDao() }
+        single { database.conversationDao() }
 
         // https://developer.android.com/kotlin/coroutines/coroutines-best-practices?hl=fr
         single<CoroutineDispatcher> { Dispatchers.IO }

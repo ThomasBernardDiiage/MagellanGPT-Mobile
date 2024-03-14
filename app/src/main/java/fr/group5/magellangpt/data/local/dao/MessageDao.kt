@@ -12,11 +12,11 @@ interface MessageDao {
     fun getMessages() : Flow<List<MessageEntity>>
 
     @Insert
-    suspend fun insertMessage(message : MessageEntity) : Long
+    suspend fun insertMessage(message : MessageEntity)
 
-    @Query("UPDATE messageentity SET content = :content WHERE id = :id")
-    suspend fun updateMessageContent(id : Long, content : String)
+    @Insert
+    suspend fun insertMessages(messages : List<MessageEntity>)
 
-    @Query("DELETE FROM messageentity WHERE id = :id")
-    suspend fun deleteMessage(id: Long)
+    @Query("DELETE FROM messageentity")
+    fun nuke()
 }

@@ -8,14 +8,15 @@ import fr.group5.magellangpt.domain.repositories.ConversationRepository
 import org.koin.java.KoinJavaComponent.get
 import retrofit2.HttpException
 import java.net.UnknownHostException
+import java.util.UUID
 
-class SendMessageUseCase(
+class PostMessageInConversationUseCase(
     private val conversationRepository: ConversationRepository = get(ConversationRepository::class.java),
     private val resourcesHelper: ResourcesHelper = get(ResourcesHelper::class.java)
 ) {
-    suspend operator fun invoke(content: String) : Resource<Unit> {
+    suspend operator fun invoke(conversationId : UUID, content: String) : Resource<Unit> {
         return try {
-            conversationRepository.sendMessage(content)
+            conversationRepository.sendMessage(conversationId, content)
             Resource.Success(Unit)
         }
         catch (e : UnknownHostException){
