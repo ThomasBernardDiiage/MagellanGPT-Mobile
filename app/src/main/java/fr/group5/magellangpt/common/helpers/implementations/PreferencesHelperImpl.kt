@@ -16,10 +16,15 @@ class PreferencesHelperImpl(context: Context = get(Context::class.java)) : BaseP
         private const val SHARED_PREFERENCES_NAME = "shared_preferences"
 
         private const val PREFERENCE_KEY_ACCESS_TOKEN = "access_token_preference_key"
+        private const val PREFERENCE_KEY_SELECTED_MODEL_ID = "selected_model_id_preference_key"
     }
 
     override var accessToken: String
         get() = getValue(PREFERENCE_KEY_ACCESS_TOKEN, "")
         set(value) = setValue(PREFERENCE_KEY_ACCESS_TOKEN, value)
 
+
+    override var selectedModelId: String
+        get() = getValue(PREFERENCE_KEY_SELECTED_MODEL_ID, "")
+        set(value) = setValue(PREFERENCE_KEY_SELECTED_MODEL_ID, value)
 }

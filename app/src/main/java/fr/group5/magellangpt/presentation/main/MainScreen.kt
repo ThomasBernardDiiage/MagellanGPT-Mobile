@@ -69,9 +69,6 @@ fun MainScreen(
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
 
-    val options by remember { mutableStateOf(listOf("GPT 3.5", "GPT 4")) }
-    var selectedOptionIndex by remember { mutableStateOf(0) }
-
     LaunchedEffect(uiState.messages) {
         if (uiState.messages.isNotEmpty()) {
             // Count all messages in the map
@@ -105,7 +102,6 @@ fun MainScreen(
             )
         }
     ) {
-
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -131,17 +127,17 @@ fun MainScreen(
                     modifier = Modifier
                         .weight(1f)
                 ) {
-                    options.forEachIndexed { index, option ->
+                    uiState.availableModel.forEachIndexed { index, option ->
                         SegmentedButton(
                             colors = SegmentedButtonDefaults.colors(
                                 activeContainerColor = MaterialTheme.colorScheme.primary,
                                 activeContentColor = Color.White
                             ),
-                            selected = selectedOptionIndex == index,
-                            onClick = { selectedOptionIndex = index},
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                            selected = option == uiState.selectedModel,
+                            onClick = { onEvent(MainEvent.OnModelSelected(option)) },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = uiState.availableModel.size),
                         ) {
-                            Text(text = option)
+                            Text(text = option.name)
                         }
                     }
 
@@ -276,6 +272,6 @@ private fun mainScreenMessagesPreview(){
         fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date()),
         fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date()),
     )
-    val uiState = MainUiState(messages= messages.groupBy { it.date })
+    val uiState = MainUiState(messages = messages.groupBy { it.date })
     MainScreen(uiState = uiState, onEvent = {})
 }

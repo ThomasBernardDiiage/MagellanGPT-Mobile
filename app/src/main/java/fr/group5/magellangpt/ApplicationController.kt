@@ -15,8 +15,11 @@ import fr.group5.magellangpt.data.local.database.ApplicationDatabase
 import fr.group5.magellangpt.data.remote.ApiClient
 import fr.group5.magellangpt.data.repositories.AuthenticationRepositoryImpl
 import fr.group5.magellangpt.data.repositories.MessageRepositoryImpl
+import fr.group5.magellangpt.data.repositories.ModelRepositoryImpl
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
 import fr.group5.magellangpt.domain.repositories.MessageRepository
+import fr.group5.magellangpt.domain.repositories.ModelRepository
+import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
 import fr.group5.magellangpt.domain.usecases.LoginUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
@@ -42,6 +45,7 @@ class ApplicationController : Application() {
 
         single<AuthenticationRepository> { AuthenticationRepositoryImpl() }
         single<MessageRepository> { MessageRepositoryImpl() }
+        single<ModelRepository> { ModelRepositoryImpl() }
 
         single<ResourcesHelper> { ResourcesHelperImpl() }
         single<PreferencesHelper> {  PreferencesHelperImpl() }
@@ -56,6 +60,7 @@ class ApplicationController : Application() {
         single { UserConnectedUseCase() }
         single { GetCurrentUserUseCase() }
         single { SendMessageUseCase() }
+        single { GetAvailableModelsUseCase() }
 
 
         single { database.messageDao() }

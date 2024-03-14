@@ -5,7 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.group5.magellangpt.common.helpers.ErrorHelper
 import fr.group5.magellangpt.common.helpers.NavigationHelper
+import fr.group5.magellangpt.common.helpers.PreferencesHelper
+import fr.group5.magellangpt.domain.models.Model
 import fr.group5.magellangpt.domain.models.Resource
+import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
@@ -24,7 +27,9 @@ class MainViewModel(
     private val getConversationUseCase: GetConversationUseCase = get(GetConversationUseCase::class.java),
     private val getCurrentUserUseCase: GetCurrentUserUseCase = get(GetCurrentUserUseCase::class.java),
     private val sendMessageUseCase: SendMessageUseCase = get(SendMessageUseCase::class.java),
-    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java)
+    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java),
+    private val getAvailableModelsUseCase: GetAvailableModelsUseCase = get(GetAvailableModelsUseCase::class.java),
+    private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java)
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -36,6 +41,7 @@ class MainViewModel(
             is MainEvent.OnQueryChanged -> onQueryChanged(event.query)
             is MainEvent.OnLogout -> onLogout()
             is MainEvent.OnSendMessage -> onSendMessage(event.message)
+            is MainEvent.OnModelSelected -> onModelSelected(event.model)
         }
     }
 
@@ -57,6 +63,12 @@ class MainViewModel(
             getCurrentUserUseCase { user ->
                 _uiState.update { it.copy(firstname = user.firstname, lastname = user.lastname, email = user.email) }
             }
+        }
+
+        viewModelScope.launch {
+            val availableModels = getAvailableModelsUseCase()
+            val selectedModel = availableModels.firstOrNull { it.id == preferencesHelper.selectedModelId } ?: availableModels.first()
+            _uiState.update { it.copy(availableModel = availableModels, selectedModel = selectedModel) }
         }
     }
 
@@ -83,6 +95,11 @@ class MainViewModel(
 
     private fun onQueryChanged(query: String) {
         _uiState.update { it.copy(message = query) }
+    }
+
+    private fun onModelSelected(model : Model){
+        preferencesHelper.selectedModelId = model.id
+        _uiState.update { it.copy(selectedModel = model) }
     }
 
     private fun onLogout(){
