@@ -26,4 +26,5 @@
     <!-- Errors -->
     <string name="error_occured">Une erreur est survenue</string>
     <string name="error_occured_code">Une erreur est survenue (code %1$d)</string>
+    <string name="error_network">Vérifiez votre connexion internet puis réessayez</string>
 </resources>

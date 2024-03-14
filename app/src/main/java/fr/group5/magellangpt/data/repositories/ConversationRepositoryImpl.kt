@@ -1,36 +1,54 @@
 package fr.group5.magellangpt.data.repositories
 
-import android.util.Log
-import com.google.gson.JsonSyntaxException
 import fr.group5.magellangpt.data.local.dao.MessageDao
 import fr.group5.magellangpt.data.local.entities.MessageEntity
 import fr.group5.magellangpt.data.remote.ApiService
+import fr.group5.magellangpt.domain.models.Conversation
 import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.MessageSender
-import fr.group5.magellangpt.domain.repositories.MessageRepository
-import kotlinx.coroutines.CoroutineDispatcher
+import fr.group5.magellangpt.domain.repositories.ConversationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import okhttp3.ResponseBody
 import org.koin.java.KoinJavaComponent.get
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.BufferedInputStream
-import java.io.IOException
-import java.io.InputStream
-import java.nio.charset.StandardCharsets
 import java.util.Date
 
 
-class MessageRepositoryImpl(
+class ConversationRepositoryImpl(
     private val messageDao: MessageDao = get(MessageDao::class.java),
     private val apiService: ApiService = get(ApiService::class.java),
-) : MessageRepository {
+) : ConversationRepository {
+
+
+    override suspend fun getConversations(): List<Conversation> {
+
+        return listOf(
+            Conversation(
+                id = 1,
+                title = "Conversation 1",
+                lastMessageDate = Date()
+            ),
+            Conversation(
+                id = 2,
+                title = "Conversation 2",
+                lastMessageDate = Date()
+            ),
+        )
+
+        val conversationsDtoDown = apiService.getConversations()
+
+        return conversationsDtoDown.map {
+            Conversation(
+                id = it.id,
+                title = it.title,
+                lastMessageDate = it.lastMessageDate
+            )
+        }
+    }
+
+
     override fun getMessages(): Flow<List<Message>> {
         return messageDao.getMessages().map {
             it.map { messageEntity ->
@@ -65,11 +83,11 @@ class MessageRepositoryImpl(
         messageDao.updateMessageContent(id, response.filterNotNull().joinToString(""))
     }
 
-//    // https://github.com/lambiengcode/compose-chatgpt-kotlin-android-chatbot/blob/main/app/src/main/java/com/chatgptlite/wanted/data/remote/OpenAIRepositoryImpl.kt
+    // https://github.com/lambiengcode/compose-chatgpt-kotlin-android-chatbot/blob/main/app/src/main/java/com/chatgptlite/wanted/data/remote/OpenAIRepositoryImpl.kt
 //    private suspend fun getResponse(content : String) : Flow<String> {
 //        return callbackFlow {
 //            withContext(Dispatchers.IO){
-//                val response = apiService.sendMessage(content).execute()
+//                val response = apiService.sendMessage2(content).execute()
 //                if (response.isSuccessful){
 //                    val input = response.body()?.byteStream()?.bufferedReader() ?: throw Exception()
 //                    try {
@@ -98,7 +116,7 @@ class MessageRepositoryImpl(
 //                    }
 //                }
 //                else {
-//                    Log.e("MessageRepositoryImpl", "Error: ${response.code()}")
+//                    Log.e("ConversationRepositoryImpl", "Error: ${response.code()}")
 //                }
 //            }
 //        }

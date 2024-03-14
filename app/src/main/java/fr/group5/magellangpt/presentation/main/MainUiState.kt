@@ -1,5 +1,6 @@
 package fr.group5.magellangpt.presentation.main
 
+import fr.group5.magellangpt.domain.models.Conversation
 import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.Model
 import java.util.Date
@@ -17,5 +18,9 @@ data class MainUiState(
     val email : String = "-",
 
     val availableModel : List<Model> = emptyList(),
-    val selectedModel : Model? = null
+    val selectedModel : Model? = null,
+
+
+    val conversations : List<Conversation> = emptyList(),
+    val selectedConversation : Conversation? = null,
 )

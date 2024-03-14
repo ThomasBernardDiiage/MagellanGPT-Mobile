@@ -1,5 +1,6 @@
 package fr.group5.magellangpt.data.remote
 
+import fr.group5.magellangpt.data.remote.dto.down.ConversationDtoDown
 import fr.group5.magellangpt.data.remote.dto.down.ModelDtoDown
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -16,4 +17,7 @@ interface ApiService {
 
     @GET("models")
     suspend fun getModels() : List<ModelDtoDown>
+
+    @POST("message")
+    suspend fun getConversations() : List<ConversationDtoDown>
 }

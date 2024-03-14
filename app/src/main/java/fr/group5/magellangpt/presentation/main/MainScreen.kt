@@ -31,28 +31,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.extensions.toDateLabel
-import fr.group5.magellangpt.common.extensions.toPrettyDate
 import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
-import fr.group5.magellangpt.presentation.components.main.Message
+import fr.group5.magellangpt.presentation.components.main.MessageItem
 import fr.group5.magellangpt.presentation.components.main.TypingMessage
 import fr.thomasbernard03.composents.TextField
 import fr.thomasbernard03.composents.buttons.SquaredButton
@@ -93,7 +89,15 @@ fun MainScreen(
                 lastname = uiState.lastname,
                 email = uiState.email,
                 query = uiState.conversationQuery,
+                selectedConversation = uiState.selectedConversation,
+                conversations = uiState.conversations.filter { it.title.contains(uiState.conversationQuery, ignoreCase = true) },
+                onConversationSelected = {
+                    onEvent(MainEvent.OnConversationSelected(it))
+                },
                 onLogout = { onEvent(MainEvent.OnLogout) },
+                onQueryChanged = {
+                    onEvent(MainEvent.OnConversationQueryChanged(it))
+                },
                 onClose = {
                     scope.launch {
                         drawerState.close()
@@ -174,7 +178,7 @@ fun MainScreen(
                                             .padding(end = 12.dp, start = 48.dp),
                                         horizontalArrangement = Arrangement.End
                                     ) {
-                                        Message(content = message.content, date = message.date, isUser = true)
+                                        MessageItem(content = message.content, date = message.date, isUser = true)
                                     }
                                 MessageSender.AI ->
                                     Row(
@@ -183,7 +187,7 @@ fun MainScreen(
                                             .padding(start = 12.dp, end = 24.dp),
                                         horizontalArrangement = Arrangement.Start
                                     ) {
-                                        Message(content = message.content, date = message.date, isUser = false)
+                                        MessageItem(content = message.content, date = message.date, isUser = false)
                                     }
                             }
                         }
@@ -244,7 +248,7 @@ fun MainScreen(
                     modifier = Modifier.weight(1f),
                     text = uiState.message,
                     keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
-                    onTextChange = { onEvent(MainEvent.OnQueryChanged(it)) })
+                    onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) })
 
 
                 SquaredButton(

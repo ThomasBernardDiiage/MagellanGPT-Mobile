@@ -14,14 +14,15 @@ import fr.group5.magellangpt.common.helpers.implementations.NavigationHelperImpl
 import fr.group5.magellangpt.data.local.database.ApplicationDatabase
 import fr.group5.magellangpt.data.remote.ApiClient
 import fr.group5.magellangpt.data.repositories.AuthenticationRepositoryImpl
-import fr.group5.magellangpt.data.repositories.MessageRepositoryImpl
+import fr.group5.magellangpt.data.repositories.ConversationRepositoryImpl
 import fr.group5.magellangpt.data.repositories.ModelRepositoryImpl
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
-import fr.group5.magellangpt.domain.repositories.MessageRepository
+import fr.group5.magellangpt.domain.repositories.ConversationRepository
 import fr.group5.magellangpt.domain.repositories.ModelRepository
 import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
 import fr.group5.magellangpt.domain.usecases.LoginUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
+import fr.group5.magellangpt.domain.usecases.GetConversationsUseCase
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
 import fr.group5.magellangpt.domain.usecases.SendMessageUseCase
@@ -44,7 +45,7 @@ class ApplicationController : Application() {
         single { ApiClient.apiService }
 
         single<AuthenticationRepository> { AuthenticationRepositoryImpl() }
-        single<MessageRepository> { MessageRepositoryImpl() }
+        single<ConversationRepository> { ConversationRepositoryImpl() }
         single<ModelRepository> { ModelRepositoryImpl() }
 
         single<ResourcesHelper> { ResourcesHelperImpl() }
@@ -61,6 +62,7 @@ class ApplicationController : Application() {
         single { GetCurrentUserUseCase() }
         single { SendMessageUseCase() }
         single { GetAvailableModelsUseCase() }
+        single { GetConversationsUseCase() }
 
 
         single { database.messageDao() }
