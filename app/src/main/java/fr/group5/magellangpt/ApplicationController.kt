@@ -14,14 +14,20 @@ import fr.group5.magellangpt.common.helpers.implementations.NavigationHelperImpl
 import fr.group5.magellangpt.data.local.database.ApplicationDatabase
 import fr.group5.magellangpt.data.remote.ApiClient
 import fr.group5.magellangpt.data.repositories.AuthenticationRepositoryImpl
-import fr.group5.magellangpt.data.repositories.MessageRepositoryImpl
+import fr.group5.magellangpt.data.repositories.ConversationRepositoryImpl
+import fr.group5.magellangpt.data.repositories.ModelRepositoryImpl
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
-import fr.group5.magellangpt.domain.repositories.MessageRepository
+import fr.group5.magellangpt.domain.repositories.ConversationRepository
+import fr.group5.magellangpt.domain.repositories.ModelRepository
+import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
 import fr.group5.magellangpt.domain.usecases.LoginUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
+import fr.group5.magellangpt.domain.usecases.GetConversationsUseCase
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
+import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
-import fr.group5.magellangpt.domain.usecases.SendMessageUseCase
+import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
+import fr.group5.magellangpt.domain.usecases.PostMessageInNewConversationUseCase
 import fr.group5.magellangpt.domain.usecases.UserConnectedUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +47,8 @@ class ApplicationController : Application() {
         single { ApiClient.apiService }
 
         single<AuthenticationRepository> { AuthenticationRepositoryImpl() }
-        single<MessageRepository> { MessageRepositoryImpl() }
+        single<ConversationRepository> { ConversationRepositoryImpl() }
+        single<ModelRepository> { ModelRepositoryImpl() }
 
         single<ResourcesHelper> { ResourcesHelperImpl() }
         single<PreferencesHelper> {  PreferencesHelperImpl() }
@@ -55,10 +62,15 @@ class ApplicationController : Application() {
         single { LogoutUseCase() }
         single { UserConnectedUseCase() }
         single { GetCurrentUserUseCase() }
-        single { SendMessageUseCase() }
+        single { PostMessageInConversationUseCase() }
+        single { GetAvailableModelsUseCase() }
+        single { GetConversationsUseCase() }
+        single { PostMessageInNewConversationUseCase() }
+        single { GetMessagesUseCase() }
 
 
         single { database.messageDao() }
+        single { database.conversationDao() }
 
         // https://developer.android.com/kotlin/coroutines/coroutines-best-practices?hl=fr
         single<CoroutineDispatcher> { Dispatchers.IO }

@@ -2,29 +2,21 @@ package fr.group5.magellangpt.domain.usecases
 
 import android.util.Log
 import fr.group5.magellangpt.R
-import fr.group5.magellangpt.common.extensions.to6AM
 import fr.group5.magellangpt.common.helpers.ResourcesHelper
-import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.Resource
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent.get
 import retrofit2.HttpException
 import java.net.UnknownHostException
-import java.util.Date
 import java.util.UUID
 
-class GetConversationUseCase(
-    private val ioDispatcher: CoroutineDispatcher = get(CoroutineDispatcher::class.java),
+class PostMessageInConversationUseCase(
     private val conversationRepository: ConversationRepository = get(ConversationRepository::class.java),
     private val resourcesHelper: ResourcesHelper = get(ResourcesHelper::class.java)
 ) {
-    suspend operator fun invoke(conversationId : UUID) : Resource<Unit> = withContext(ioDispatcher){
-        try {
-            conversationRepository.getMessages(conversationId)
+    suspend operator fun invoke(conversationId : UUID, content: String) : Resource<Unit> {
+        return try {
+            conversationRepository.sendMessage(conversationId, content)
             Resource.Success(Unit)
         }
         catch (e : UnknownHostException){

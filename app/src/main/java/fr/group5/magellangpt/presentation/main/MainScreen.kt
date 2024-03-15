@@ -31,30 +31,28 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.extensions.toDateLabel
-import fr.group5.magellangpt.common.extensions.toPrettyDate
 import fr.group5.magellangpt.domain.models.MessageSender
+import fr.group5.magellangpt.presentation.components.Loader
+import fr.group5.magellangpt.presentation.components.TextField
+import fr.group5.magellangpt.presentation.components.main.EmptyList
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
-import fr.group5.magellangpt.presentation.components.main.Message
+import fr.group5.magellangpt.presentation.components.main.MessageItem
 import fr.group5.magellangpt.presentation.components.main.TypingMessage
-import fr.thomasbernard03.composents.TextField
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -68,9 +66,6 @@ fun MainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
-
-    val options by remember { mutableStateOf(listOf("GPT 3.5", "GPT 4")) }
-    var selectedOptionIndex by remember { mutableStateOf(0) }
 
     LaunchedEffect(uiState.messages) {
         if (uiState.messages.isNotEmpty()) {
@@ -96,7 +91,16 @@ fun MainScreen(
                 lastname = uiState.lastname,
                 email = uiState.email,
                 query = uiState.conversationQuery,
+                conversationsLoading = uiState.conversationsLoading,
+                selectedConversation = uiState.selectedConversation,
+                conversations = uiState.conversations.filter { it.title.contains(uiState.conversationQuery, ignoreCase = true) },
+                onConversationSelected = {
+                    onEvent(MainEvent.OnConversationSelected(it))
+                },
                 onLogout = { onEvent(MainEvent.OnLogout) },
+                onQueryChanged = {
+                    onEvent(MainEvent.OnConversationQueryChanged(it))
+                },
                 onClose = {
                     scope.launch {
                         drawerState.close()
@@ -105,7 +109,6 @@ fun MainScreen(
             )
         }
     ) {
-
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -131,27 +134,32 @@ fun MainScreen(
                     modifier = Modifier
                         .weight(1f)
                 ) {
-                    options.forEachIndexed { index, option ->
+                    uiState.availableModel.forEachIndexed { index, option ->
                         SegmentedButton(
                             colors = SegmentedButtonDefaults.colors(
                                 activeContainerColor = MaterialTheme.colorScheme.primary,
                                 activeContentColor = Color.White
                             ),
-                            selected = selectedOptionIndex == index,
-                            onClick = { selectedOptionIndex = index},
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                            selected = option == uiState.selectedModel,
+                            onClick = { onEvent(MainEvent.OnModelSelected(option)) },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = uiState.availableModel.size),
                         ) {
-                            Text(text = option)
+                            Text(text = option.name)
                         }
                     }
 
                 }
 
                 Box(modifier = Modifier.size(44.dp))
-
             }
 
-            if (uiState.messages.isNotEmpty()){
+            if (uiState.messagesLoading){
+                Loader(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    message = stringResource(id = R.string.loading_characters)
+                )
+            }
+            else if (uiState.messages.isNotEmpty()){
                 LazyColumn(
                     state = lazyListState,
                     modifier = Modifier.weight(1f),
@@ -178,7 +186,7 @@ fun MainScreen(
                                             .padding(end = 12.dp, start = 48.dp),
                                         horizontalArrangement = Arrangement.End
                                     ) {
-                                        Message(content = message.content, date = message.date, isUser = true)
+                                        MessageItem(content = message.content, date = message.date, isUser = true)
                                     }
                                 MessageSender.AI ->
                                     Row(
@@ -187,7 +195,7 @@ fun MainScreen(
                                             .padding(start = 12.dp, end = 24.dp),
                                         horizontalArrangement = Arrangement.Start
                                     ) {
-                                        Message(content = message.content, date = message.date, isUser = false)
+                                        MessageItem(content = message.content, date = message.date, isUser = false)
                                     }
                             }
                         }
@@ -206,27 +214,7 @@ fun MainScreen(
                 }
             }
             else {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                    Image(
-                        modifier = Modifier.size(200.dp),
-                        contentScale = ContentScale.FillWidth,
-                        painter = painterResource(id = R.drawable.file),
-                        contentDescription = "file")
-
-                    Text(
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .fillMaxWidth(),
-                        text = stringResource(id = R.string.empty_conversation_placeholder),
-                        style = MaterialTheme.typography.titleSmall)
-                }
+                EmptyList(modifier = Modifier.weight(1f))
             }
 
             Row(
@@ -248,7 +236,9 @@ fun MainScreen(
                     modifier = Modifier.weight(1f),
                     text = uiState.message,
                     keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
-                    onTextChange = { onEvent(MainEvent.OnQueryChanged(it)) })
+                    onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) },
+                    singleLine = false,
+                    maxLines = 4,)
 
 
                 SquaredButton(
@@ -276,6 +266,6 @@ private fun mainScreenMessagesPreview(){
         fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date()),
         fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date()),
     )
-    val uiState = MainUiState(messages= messages.groupBy { it.date })
+    val uiState = MainUiState(messages = messages.groupBy { it.date })
     MainScreen(uiState = uiState, onEvent = {})
 }

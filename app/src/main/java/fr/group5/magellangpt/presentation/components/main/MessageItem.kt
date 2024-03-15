@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
@@ -35,7 +33,7 @@ import java.util.Date
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Message(
+fun MessageItem(
     content : String,
     date : Date,
     isUser : Boolean = true
@@ -99,14 +97,14 @@ fun Message(
 
 @Composable
 @Preview
-fun Message() {
+fun MessageItemPreview() {
     MagellanGPTTheme {
         Surface {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Message(content = "Hello World!", date = Date(), isUser = true)
-                Message(content = "Hello World!",date = Date(), isUser = false)
+                MessageItem(content = "Hello World!", date = Date(), isUser = true)
+                MessageItem(content = "Hello World!",date = Date(), isUser = false)
             }
         }
     }

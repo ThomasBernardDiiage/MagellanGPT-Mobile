@@ -13,4 +13,10 @@ interface MessageDao {
 
     @Insert
     suspend fun insertMessage(message : MessageEntity)
+
+    @Insert
+    suspend fun insertMessages(messages : List<MessageEntity>)
+
+    @Query("DELETE FROM messageentity")
+    fun nuke()
 }

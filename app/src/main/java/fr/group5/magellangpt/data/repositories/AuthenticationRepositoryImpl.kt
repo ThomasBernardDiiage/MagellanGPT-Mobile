@@ -23,8 +23,6 @@ class AuthenticationRepositoryImpl(
 ) : AuthenticationRepository {
 
     private var account: IAccount? = null
-    private val authorityUrl : String = "https://login.microsoftonline.com/14bc5219-40ca-4d62-a8e4-7c97c1236349"
-
 
     private val client : ISingleAccountPublicClientApplication by lazy {
         PublicClientApplication.createSingleAccountPublicClientApplication(context, R.raw.auth_config)

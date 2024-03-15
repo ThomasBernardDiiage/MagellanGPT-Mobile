@@ -3,61 +3,73 @@ package fr.group5.magellangpt.presentation.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.group5.magellangpt.common.extensions.to6AM
 import fr.group5.magellangpt.common.helpers.ErrorHelper
 import fr.group5.magellangpt.common.helpers.NavigationHelper
+import fr.group5.magellangpt.common.helpers.PreferencesHelper
+import fr.group5.magellangpt.domain.models.Conversation
+import fr.group5.magellangpt.domain.models.Model
 import fr.group5.magellangpt.domain.models.Resource
+import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
+import fr.group5.magellangpt.domain.usecases.GetConversationsUseCase
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
+import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
-import fr.group5.magellangpt.domain.usecases.SendMessageUseCase
+import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
+import fr.group5.magellangpt.domain.usecases.PostMessageInNewConversationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
+import java.util.UUID
 
 class MainViewModel(
     private val logoutUseCase: LogoutUseCase = get(LogoutUseCase::class.java),
     private val navigationHelper : NavigationHelper = get(NavigationHelper::class.java),
     private val getConversationUseCase: GetConversationUseCase = get(GetConversationUseCase::class.java),
     private val getCurrentUserUseCase: GetCurrentUserUseCase = get(GetCurrentUserUseCase::class.java),
-    private val sendMessageUseCase: SendMessageUseCase = get(SendMessageUseCase::class.java),
-    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java)
+    private val postMessageInConversationUseCase: PostMessageInConversationUseCase = get(PostMessageInConversationUseCase::class.java),
+    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java),
+    private val getAvailableModelsUseCase: GetAvailableModelsUseCase = get(GetAvailableModelsUseCase::class.java),
+    private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java),
+    private val getConversationsUseCase: GetConversationsUseCase = get(GetConversationsUseCase::class.java),
+    private val postMessageInNewConversationUseCase: PostMessageInNewConversationUseCase = get(PostMessageInNewConversationUseCase::class.java),
+    private val getMessagesUseCase: GetMessagesUseCase = get(GetMessagesUseCase::class.java)
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            getMessagesUseCase()
+                .collectLatest { messages ->
+                    _uiState.update { it.copy(messages = messages.filter { it.content.isNotBlank() }.groupBy { it.date.to6AM() }) }
+                }
+        }
+    }
+
     fun onEvent(event : MainEvent){
         when(event){
             is MainEvent.OnAppearing -> onAppearing()
-            is MainEvent.OnQueryChanged -> onQueryChanged(event.query)
+            is MainEvent.OnMessageChanged -> onQueryChanged(event.message)
             is MainEvent.OnLogout -> onLogout()
             is MainEvent.OnSendMessage -> onSendMessage(event.message)
+            is MainEvent.OnModelSelected -> onModelSelected(event.model)
+            is MainEvent.OnConversationQueryChanged -> onConversationQueryChanged(event.query)
+            is MainEvent.OnConversationSelected -> onConversationSelected(event.conversation)
         }
     }
 
     private fun onAppearing(){
-        viewModelScope.launch {
-            when(val result = getConversationUseCase()){
-                is Resource.Success -> {
-                    result.data.collectLatest { messages ->
-                        _uiState.update { it.copy(messages = messages) }
-                    }
-                }
-                is Resource.Error -> {
-                    Log.e("MainViewModel", "An error occurred")
-                }
-            }
-        }
-
-        viewModelScope.launch {
-            getCurrentUserUseCase { user ->
-                _uiState.update { it.copy(firstname = user.firstname, lastname = user.lastname, email = user.email) }
-            }
-        }
+        getUserInformation()
+        getModels()
+        getConversations()
     }
 
 
@@ -67,14 +79,26 @@ class MainViewModel(
 
             _uiState.update { it.copy(message = "", typing = true) }
 
-            when(val result = sendMessageUseCase(message)){
-                is Resource.Success -> {
-                    _uiState.update { it.copy(typing = false) }
+            if (_uiState.value.selectedConversation == null){
+                when(val result = postMessageInNewConversationUseCase(message)){
+                    is Resource.Success -> {
+                        _uiState.update { it.copy(typing = false) }
+                    }
+                    is Resource.Error -> {
+                        errorHelper.onError(ErrorHelper.Error(message = result.message))
+                        _uiState.update { it.copy(typing = false) }
+                    }
                 }
-                is Resource.Error -> {
-                    errorHelper.onError(ErrorHelper.Error(message = result.message))
-                    _uiState.update { it.copy(typing = false) }
-
+            }
+            else {
+                when(val result = postMessageInConversationUseCase(_uiState.value.selectedConversation!!.id, message)){
+                    is Resource.Success -> {
+                        _uiState.update { it.copy(typing = false) }
+                    }
+                    is Resource.Error -> {
+                        errorHelper.onError(ErrorHelper.Error(message = result.message))
+                        _uiState.update { it.copy(typing = false) }
+                    }
                 }
             }
         }
@@ -83,6 +107,70 @@ class MainViewModel(
 
     private fun onQueryChanged(query: String) {
         _uiState.update { it.copy(message = query) }
+    }
+
+    private fun onModelSelected(model : Model){
+        preferencesHelper.selectedModelId = model.id
+        _uiState.update { it.copy(selectedModel = model) }
+    }
+
+    private fun onConversationQueryChanged(query : String){
+        _uiState.update { it.copy(conversationQuery = query)}
+    }
+
+    private fun onConversationSelected(conversation : Conversation){
+        viewModelScope.launch {
+            _uiState.update { it.copy(selectedConversation = conversation, messagesLoading = true) }
+            when(val result = getConversationUseCase(conversation.id)){
+                is Resource.Success -> {
+                    _uiState.update { it.copy(messagesLoading = false) }
+                }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(messagesLoading = false) }
+
+                }
+            }
+        }
+    }
+
+    private fun getUserInformation(){
+        viewModelScope.launch {
+            getCurrentUserUseCase { user ->
+                _uiState.update { it.copy(firstname = user.firstname, lastname = user.lastname, email = user.email) }
+            }
+        }
+    }
+
+    private fun getModels(){
+        viewModelScope.launch {
+            _uiState.update { it.copy(messagesLoading = true) }
+            when(val result = getAvailableModelsUseCase()){
+                is Resource.Success -> {
+                    val selectedModel = result.data.firstOrNull { it.id == preferencesHelper.selectedModelId } ?: result.data.first()
+                    _uiState.update { it.copy(availableModel = result.data, selectedModel = selectedModel, messagesLoading = false) }
+                }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(messagesLoading = false) }
+                }
+            }
+        }
+    }
+
+    private fun getConversations(){
+        viewModelScope.launch {
+            _uiState.update { it.copy(conversationsLoading = true) }
+            when(val result = getConversationsUseCase()){
+                is Resource.Success -> {
+                    _uiState.update { it.copy(conversations = result.data, conversationsLoading = false) }
+                }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(conversationsLoading = false)}
+                }
+            }
+        }
     }
 
     private fun onLogout(){
