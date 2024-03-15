@@ -63,6 +63,7 @@ class MainViewModel(
             is MainEvent.OnModelSelected -> onModelSelected(event.model)
             is MainEvent.OnConversationQueryChanged -> onConversationQueryChanged(event.query)
             is MainEvent.OnConversationSelected -> onConversationSelected(event.conversation)
+            is MainEvent.OnConversationsRefreshed -> refreshConversations()
         }
     }
 
@@ -153,6 +154,21 @@ class MainViewModel(
                 is Resource.Error -> {
                     errorHelper.onError(ErrorHelper.Error(message = result.message))
                     _uiState.update { it.copy(messagesLoading = false) }
+                }
+            }
+        }
+    }
+
+    private fun refreshConversations(){
+        viewModelScope.launch {
+            _uiState.update { it.copy(conversationsRefreshing = true) }
+            when(val result = getConversationsUseCase()){
+                is Resource.Success -> {
+                    _uiState.update { it.copy(conversations = result.data, conversationsRefreshing = false) }
+                }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(conversationsRefreshing = false)}
                 }
             }
         }

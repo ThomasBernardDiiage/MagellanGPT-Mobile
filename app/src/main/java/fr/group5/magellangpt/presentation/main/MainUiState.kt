@@ -23,4 +23,5 @@ data class MainUiState(
     val conversations : List<Conversation> = emptyList(),
     val selectedConversation : Conversation? = null,
     val conversationsLoading : Boolean = false,
+    val conversationsRefreshing : Boolean = false
 )

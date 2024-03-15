@@ -11,5 +11,6 @@ class MessageEntity(
     val id: Long = 0,
     val content : String,
     val sender : MessageSender,
+    val model : String?,
     val date : Date
 )

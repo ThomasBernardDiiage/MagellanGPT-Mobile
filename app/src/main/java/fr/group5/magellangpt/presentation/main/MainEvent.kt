@@ -16,4 +16,5 @@ sealed class MainEvent {
     data class OnModelSelected(val model: Model) : MainEvent()
 
     data class OnConversationSelected(val conversation: Conversation) : MainEvent()
+    data object OnConversationsRefreshed : MainEvent()
 }

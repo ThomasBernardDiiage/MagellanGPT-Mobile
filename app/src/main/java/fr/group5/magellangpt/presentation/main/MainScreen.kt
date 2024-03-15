@@ -91,11 +91,15 @@ fun MainScreen(
                 lastname = uiState.lastname,
                 email = uiState.email,
                 query = uiState.conversationQuery,
+                conversationsRefreshing = uiState.conversationsRefreshing,
                 conversationsLoading = uiState.conversationsLoading,
                 selectedConversation = uiState.selectedConversation,
                 conversations = uiState.conversations.filter { it.title.contains(uiState.conversationQuery, ignoreCase = true) },
                 onConversationSelected = {
                     onEvent(MainEvent.OnConversationSelected(it))
+                },
+                onConversationsRefreshed = {
+                    onEvent(MainEvent.OnConversationsRefreshed)
                 },
                 onLogout = { onEvent(MainEvent.OnLogout) },
                 onQueryChanged = {
@@ -150,12 +154,20 @@ fun MainScreen(
 
                 }
 
-                Box(modifier = Modifier.size(44.dp))
+                SquaredButton(
+                    backgroundColor = Color.Transparent,
+                    color = MaterialTheme.colorScheme.primary,
+                    resource = R.drawable.add_chat,
+                    onClick = {
+
+                    })
             }
 
             if (uiState.messagesLoading){
                 Loader(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
                     message = stringResource(id = R.string.loading_characters)
                 )
             }
@@ -186,7 +198,7 @@ fun MainScreen(
                                             .padding(end = 12.dp, start = 48.dp),
                                         horizontalArrangement = Arrangement.End
                                     ) {
-                                        MessageItem(content = message.content, date = message.date, isUser = true)
+                                        MessageItem(content = message.content, date = message.date, isUser = true, model = message.model)
                                     }
                                 MessageSender.AI ->
                                     Row(
@@ -195,7 +207,7 @@ fun MainScreen(
                                             .padding(start = 12.dp, end = 24.dp),
                                         horizontalArrangement = Arrangement.Start
                                     ) {
-                                        MessageItem(content = message.content, date = message.date, isUser = false)
+                                        MessageItem(content = message.content, date = message.date, isUser = false, model = message.model)
                                     }
                             }
                         }
@@ -263,8 +275,8 @@ private fun mainScreenEmptyMessagePreview(){
 @Preview
 private fun mainScreenMessagesPreview(){
     val messages = listOf(
-        fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date()),
-        fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date()),
+        fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date(), model = "gpt3"),
+        fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date(), model = "gpt4"),
     )
     val uiState = MainUiState(messages = messages.groupBy { it.date })
     MainScreen(uiState = uiState, onEvent = {})

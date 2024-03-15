@@ -6,5 +6,6 @@ data class Message(
     val id : Long,
     val content : String,
     val sender : MessageSender,
+    val model : String?,
     val date : Date
 )
