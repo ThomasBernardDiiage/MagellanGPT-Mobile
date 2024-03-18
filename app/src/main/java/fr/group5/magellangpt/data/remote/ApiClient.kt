@@ -28,7 +28,7 @@ object ApiClient {
 
     private val retrofit : Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("https://di3-p3-test-api.azurewebsites.net/api/")
+            .baseUrl("https://di3-p3-api-test.azurewebsites.net/api/")
             .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()

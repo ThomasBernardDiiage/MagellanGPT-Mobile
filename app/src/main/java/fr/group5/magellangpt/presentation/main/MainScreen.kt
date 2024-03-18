@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +38,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -52,6 +55,7 @@ import fr.group5.magellangpt.presentation.components.TextField
 import fr.group5.magellangpt.presentation.components.main.EmptyList
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
 import fr.group5.magellangpt.presentation.components.main.MessageItem
+import fr.group5.magellangpt.presentation.components.main.PdfThumbnail
 import fr.group5.magellangpt.presentation.components.main.TypingMessage
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
@@ -66,6 +70,7 @@ fun MainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.messages) {
         if (uiState.messages.isNotEmpty()) {
@@ -77,6 +82,10 @@ fun MainScreen(
     val fileResult = remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         fileResult.value = it
+
+        it?.let {
+            onEvent(MainEvent.OnDocumentLoaded(it))
+        }
     }
 
     LaunchedEffect(Unit){
@@ -236,29 +245,49 @@ fun MainScreen(
                         shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                     )
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                SquaredButton(
-                    resource = R.drawable.file_icon,
-                    onClick = { launcher.launch(arrayOf("application/pdf")) })
+                Column {
 
-                TextField(
-                    placeholder = stringResource(id = R.string.message),
-                    modifier = Modifier.weight(1f),
-                    text = uiState.message,
-                    keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
-                    onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) },
-                    singleLine = false,
-                    maxLines = 4,)
-
-
-                SquaredButton(
-                    resource = R.drawable.send,
-                    onClick = {
-                        onEvent(MainEvent.OnSendMessage(uiState.message))
+                    LazyRow {
+                        uiState.documents.forEach { uri, document ->
+                            item {
+                                PdfThumbnail(
+                                    uri = uri,
+                                    document = document,
+                                    onLongClick = {
+                                        onEvent(MainEvent.OnDocumentDeleted(uri))
+                                    }
+                                )
+                            }
+                        }
                     }
-                )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        SquaredButton(
+                            resource = R.drawable.file_icon,
+                            onClick = { launcher.launch(arrayOf("application/pdf")) })
+
+                        TextField(
+                            placeholder = stringResource(id = R.string.message),
+                            modifier = Modifier.weight(1f),
+                            text = uiState.message,
+                            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
+                            onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) },
+                            singleLine = false,
+                            maxLines = 4)
+
+
+                        SquaredButton(
+                            resource = R.drawable.send,
+                            onClick = {
+                                onEvent(MainEvent.OnSendMessage(uiState.message))
+                            })
+                    }
+                }
+
             }
         }
     }

@@ -16,6 +16,9 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1")
         }
+        maven {
+            url = uri("https://my.pspdfkit.com/maven/")
+        }
 
     }
 }
