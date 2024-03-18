@@ -90,7 +90,7 @@ class MainViewModel(
         viewModelScope.launch {
             if (message.isBlank()) return@launch
 
-            _uiState.update { it.copy(message = "", typing = true) }
+            _uiState.update { it.copy(message = "", typing = true, documents = emptyMap()) }
 
             if (_uiState.value.selectedConversation == null){
                 when(val result = postMessageInNewConversationUseCase(message)){
@@ -104,7 +104,9 @@ class MainViewModel(
                 }
             }
             else {
-                when(val result = postMessageInConversationUseCase(_uiState.value.selectedConversation!!.id, message)){
+                val selectedConversationId = uiState.value.selectedConversation!!.id
+                val documents = uiState.value.documents.keys.toList()
+                when(val result = postMessageInConversationUseCase(selectedConversationId, message, documents)){
                     is Resource.Success -> {
                         _uiState.update { it.copy(typing = false) }
                     }

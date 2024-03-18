@@ -1,5 +1,6 @@
 package fr.group5.magellangpt.domain.usecases
 
+import android.net.Uri
 import android.util.Log
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.helpers.ResourcesHelper
@@ -14,9 +15,9 @@ class PostMessageInConversationUseCase(
     private val conversationRepository: ConversationRepository = get(ConversationRepository::class.java),
     private val resourcesHelper: ResourcesHelper = get(ResourcesHelper::class.java)
 ) {
-    suspend operator fun invoke(conversationId : UUID, content: String) : Resource<Unit> {
+    suspend operator fun invoke(conversationId : UUID, content: String, uris : List<Uri>) : Resource<Unit> {
         return try {
-            conversationRepository.sendMessage(conversationId, content)
+            conversationRepository.sendMessage(conversationId, content, uris)
             Resource.Success(Unit)
         }
         catch (e : UnknownHostException){

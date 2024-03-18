@@ -244,11 +244,11 @@ fun MainScreen(
                         color = Color.White,
                         shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                     )
-                    .padding(16.dp),
             ) {
                 Column {
-
-                    LazyRow {
+                    LazyRow(
+                        contentPadding = PaddingValues(8.dp),
+                    ) {
                         uiState.documents.forEach { uri, document ->
                             item {
                                 PdfThumbnail(
@@ -264,7 +264,8 @@ fun MainScreen(
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
                     ) {
                         SquaredButton(
                             resource = R.drawable.file_icon,

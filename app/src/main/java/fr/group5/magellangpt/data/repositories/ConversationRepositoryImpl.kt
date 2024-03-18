@@ -1,5 +1,7 @@
 package fr.group5.magellangpt.data.repositories
 
+import android.content.Context
+import android.net.Uri
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.data.local.dao.ConversationDao
 import fr.group5.magellangpt.data.local.dao.MessageDao
@@ -12,17 +14,20 @@ import fr.group5.magellangpt.domain.models.Conversation
 import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import org.koin.java.KoinJavaComponent.get
+import java.io.File
+import java.io.FileOutputStream
 import java.util.Date
 import java.util.UUID
 
 
 class ConversationRepositoryImpl(
+    private val context: Context = get(Context::class.java),
     private val messageDao: MessageDao = get(MessageDao::class.java),
     private val modelDao: ModelDao = get(ModelDao::class.java),
     private val conversationDao: ConversationDao = get(ConversationDao::class.java),
@@ -78,18 +83,18 @@ class ConversationRepositoryImpl(
 
 
 
-    override suspend fun sendMessage(conversationId : UUID, content: String) {
-        val message = MessageEntity(
-            content = content,
-            sender = MessageSender.USER,
-            model = null,
-            date = Date())
+    override suspend fun sendMessage(conversationId : UUID, content: String, uris : List<Uri>) {
+        val message = MessageEntity(content = content, sender = MessageSender.USER, model = null, date = Date())
 
         messageDao.insertMessage(message)
 
         val dtoUp = MessageDtoUp(message = content, model = preferencesHelper.selectedModelId)
 
-        val response = apiService.postMessage(conversationId, dtoUp)
+        val filesParts = uris.mapIndexed { index, uri ->
+            prepareFilePart("file[$index]", uri)
+        }
+
+        val response = apiService.postMessage(conversationId, dtoUp, filesParts)
         val selectedModel = modelDao.getModel(preferencesHelper.selectedModelId)
 
         val responseMessageEntity = MessageEntity(
@@ -102,27 +107,38 @@ class ConversationRepositoryImpl(
     }
 
     override suspend fun sendMessage(content: String) {
-        val message = MessageEntity(
-            content = content,
-            sender = MessageSender.USER,
-            model = null,
-            date = Date()
-        )
-        messageDao.insertMessage(message)
+        TODO()
+//        val message = MessageEntity(
+//            content = content,
+//            sender = MessageSender.USER,
+//            model = null,
+//            date = Date()
+//        )
+//        messageDao.insertMessage(message)
+//
+//        val dtoUp = MessageDtoUp(message = content, model = preferencesHelper.selectedModelId)
+//
+//        val response = apiService.postMessage(UUID.randomUUID(), dtoUp)
+//        val selectedModel = modelDao.getModel(preferencesHelper.selectedModelId)
+//
+//
+//        val responseMessageEntity = MessageEntity(
+//            content = response,
+//            sender = MessageSender.AI,
+//            model = selectedModel.name,
+//            date = Date())
+//
+//        messageDao.insertMessage(responseMessageEntity)
+    }
 
-        val dtoUp = MessageDtoUp(message = content, model = preferencesHelper.selectedModelId)
+    private fun prepareFilePart(partName: String, uri: Uri): MultipartBody.Part {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val file = File(context.cacheDir, "tempFile")
+        FileOutputStream(file).use { outputStream ->
+            inputStream?.copyTo(outputStream)
+        }
 
-        val response = apiService.postMessage(UUID.randomUUID(), dtoUp)
-        val selectedModel = modelDao.getModel(preferencesHelper.selectedModelId)
-
-
-        val responseMessageEntity = MessageEntity(
-            content = response,
-            sender = MessageSender.AI,
-            model = selectedModel.name,
-            date = Date())
-
-        messageDao.insertMessage(responseMessageEntity)
-
+        val requestFile = RequestBody.create("application/pdf".toMediaTypeOrNull(), file)
+        return MultipartBody.Part.createFormData(partName, file.name, requestFile)
     }
 }
