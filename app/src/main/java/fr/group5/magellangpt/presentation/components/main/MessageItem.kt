@@ -36,7 +36,8 @@ import java.util.Date
 fun MessageItem(
     content : String,
     date : Date,
-    isUser : Boolean = true
+    isUser : Boolean = true,
+    model : String? = null
 ) {
 
     val clipboardManager: androidx.compose.ui.platform.ClipboardManager = LocalClipboardManager.current
@@ -87,7 +88,7 @@ fun MessageItem(
                 markdown = content)
 
             Text(
-                text = date.toPrettyHour(),
+                text = "${date.toPrettyHour()} ${model?.let { " - $it" } ?: ""}",
                 color = Color.White,
                 style = Typography.labelSmall,
             )

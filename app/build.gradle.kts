@@ -91,6 +91,8 @@ dependencies {
 
     implementation("com.microsoft.identity.client:msal:5.1.0")
 
+    implementation("eu.bambooapps:compose-material3-pullrefresh:1.0.0")
+
 //
 //    implementation("io.coil-kt:coil-compose:2.6.0")
 //    implementation("io.coil-kt:coil-gif:2.2.2")
@@ -99,4 +101,6 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // To create requests interceptors
     implementation("com.squareup.okhttp3:okhttp:4.11.0") // Logging interceptor
+
+    implementation("com.pspdfkit:pspdfkit:8.0.0")
 }

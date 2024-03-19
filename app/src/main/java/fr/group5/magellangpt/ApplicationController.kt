@@ -71,6 +71,7 @@ class ApplicationController : Application() {
 
         single { database.messageDao() }
         single { database.conversationDao() }
+        single { database.modelDao() }
 
         // https://developer.android.com/kotlin/coroutines/coroutines-best-practices?hl=fr
         single<CoroutineDispatcher> { Dispatchers.IO }

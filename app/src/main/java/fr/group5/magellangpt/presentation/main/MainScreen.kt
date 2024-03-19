@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +38,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -52,6 +55,7 @@ import fr.group5.magellangpt.presentation.components.TextField
 import fr.group5.magellangpt.presentation.components.main.EmptyList
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
 import fr.group5.magellangpt.presentation.components.main.MessageItem
+import fr.group5.magellangpt.presentation.components.main.PdfThumbnail
 import fr.group5.magellangpt.presentation.components.main.TypingMessage
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
@@ -66,6 +70,7 @@ fun MainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.messages) {
         if (uiState.messages.isNotEmpty()) {
@@ -77,6 +82,10 @@ fun MainScreen(
     val fileResult = remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         fileResult.value = it
+
+        it?.let {
+            onEvent(MainEvent.OnDocumentLoaded(it))
+        }
     }
 
     LaunchedEffect(Unit){
@@ -91,11 +100,15 @@ fun MainScreen(
                 lastname = uiState.lastname,
                 email = uiState.email,
                 query = uiState.conversationQuery,
+                conversationsRefreshing = uiState.conversationsRefreshing,
                 conversationsLoading = uiState.conversationsLoading,
                 selectedConversation = uiState.selectedConversation,
                 conversations = uiState.conversations.filter { it.title.contains(uiState.conversationQuery, ignoreCase = true) },
                 onConversationSelected = {
                     onEvent(MainEvent.OnConversationSelected(it))
+                },
+                onConversationsRefreshed = {
+                    onEvent(MainEvent.OnConversationsRefreshed)
                 },
                 onLogout = { onEvent(MainEvent.OnLogout) },
                 onQueryChanged = {
@@ -150,12 +163,20 @@ fun MainScreen(
 
                 }
 
-                Box(modifier = Modifier.size(44.dp))
+                SquaredButton(
+                    backgroundColor = Color.Transparent,
+                    color = MaterialTheme.colorScheme.primary,
+                    resource = R.drawable.add_chat,
+                    onClick = {
+
+                    })
             }
 
             if (uiState.messagesLoading){
                 Loader(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
                     message = stringResource(id = R.string.loading_characters)
                 )
             }
@@ -186,7 +207,7 @@ fun MainScreen(
                                             .padding(end = 12.dp, start = 48.dp),
                                         horizontalArrangement = Arrangement.End
                                     ) {
-                                        MessageItem(content = message.content, date = message.date, isUser = true)
+                                        MessageItem(content = message.content, date = message.date, isUser = true, model = message.model)
                                     }
                                 MessageSender.AI ->
                                     Row(
@@ -195,7 +216,7 @@ fun MainScreen(
                                             .padding(start = 12.dp, end = 24.dp),
                                         horizontalArrangement = Arrangement.Start
                                     ) {
-                                        MessageItem(content = message.content, date = message.date, isUser = false)
+                                        MessageItem(content = message.content, date = message.date, isUser = false, model = message.model)
                                     }
                             }
                         }
@@ -223,30 +244,51 @@ fun MainScreen(
                         color = Color.White,
                         shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                     )
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                SquaredButton(
-                    resource = R.drawable.file_icon,
-                    onClick = { launcher.launch(arrayOf("application/pdf")) })
-
-                TextField(
-                    placeholder = stringResource(id = R.string.message),
-                    modifier = Modifier.weight(1f),
-                    text = uiState.message,
-                    keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
-                    onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) },
-                    singleLine = false,
-                    maxLines = 4,)
-
-
-                SquaredButton(
-                    resource = R.drawable.send,
-                    onClick = {
-                        onEvent(MainEvent.OnSendMessage(uiState.message))
+                Column {
+                    LazyRow(
+                        contentPadding = PaddingValues(8.dp),
+                    ) {
+                        uiState.documents.forEach { uri, document ->
+                            item {
+                                PdfThumbnail(
+                                    uri = uri,
+                                    document = document,
+                                    onLongClick = {
+                                        onEvent(MainEvent.OnDocumentDeleted(uri))
+                                    }
+                                )
+                            }
+                        }
                     }
-                )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
+                    ) {
+                        SquaredButton(
+                            resource = R.drawable.file_icon,
+                            onClick = { launcher.launch(arrayOf("application/pdf")) })
+
+                        TextField(
+                            placeholder = stringResource(id = R.string.message),
+                            modifier = Modifier.weight(1f),
+                            text = uiState.message,
+                            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
+                            onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) },
+                            singleLine = false,
+                            maxLines = 4)
+
+
+                        SquaredButton(
+                            resource = R.drawable.send,
+                            onClick = {
+                                onEvent(MainEvent.OnSendMessage(uiState.message))
+                            })
+                    }
+                }
+
             }
         }
     }
@@ -263,8 +305,8 @@ private fun mainScreenEmptyMessagePreview(){
 @Preview
 private fun mainScreenMessagesPreview(){
     val messages = listOf(
-        fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date()),
-        fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date()),
+        fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date(), model = "gpt3"),
+        fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date(), model = "gpt4"),
     )
     val uiState = MainUiState(messages = messages.groupBy { it.date })
     MainScreen(uiState = uiState, onEvent = {})

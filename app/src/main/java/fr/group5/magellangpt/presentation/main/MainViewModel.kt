@@ -1,8 +1,12 @@
 package fr.group5.magellangpt.presentation.main
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pspdfkit.document.PdfDocument
+import com.pspdfkit.document.PdfDocumentLoader
 import fr.group5.magellangpt.common.extensions.to6AM
 import fr.group5.magellangpt.common.helpers.ErrorHelper
 import fr.group5.magellangpt.common.helpers.NavigationHelper
@@ -18,6 +22,7 @@ import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
 import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
 import fr.group5.magellangpt.domain.usecases.PostMessageInNewConversationUseCase
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +32,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
 import java.util.UUID
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class MainViewModel(
     private val logoutUseCase: LogoutUseCase = get(LogoutUseCase::class.java),
@@ -39,7 +47,9 @@ class MainViewModel(
     private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java),
     private val getConversationsUseCase: GetConversationsUseCase = get(GetConversationsUseCase::class.java),
     private val postMessageInNewConversationUseCase: PostMessageInNewConversationUseCase = get(PostMessageInNewConversationUseCase::class.java),
-    private val getMessagesUseCase: GetMessagesUseCase = get(GetMessagesUseCase::class.java)
+    private val getMessagesUseCase: GetMessagesUseCase = get(GetMessagesUseCase::class.java),
+    private val context : Context = get(Context::class.java),
+    private val ioDispatcher : CoroutineDispatcher = get(CoroutineDispatcher::class.java)
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -63,6 +73,9 @@ class MainViewModel(
             is MainEvent.OnModelSelected -> onModelSelected(event.model)
             is MainEvent.OnConversationQueryChanged -> onConversationQueryChanged(event.query)
             is MainEvent.OnConversationSelected -> onConversationSelected(event.conversation)
+            is MainEvent.OnConversationsRefreshed -> refreshConversations()
+            is MainEvent.OnDocumentLoaded -> onDocumentLoaded(event.uri)
+            is MainEvent.OnDocumentDeleted -> onDocumentDeleted(event.uri)
         }
     }
 
@@ -77,7 +90,7 @@ class MainViewModel(
         viewModelScope.launch {
             if (message.isBlank()) return@launch
 
-            _uiState.update { it.copy(message = "", typing = true) }
+            _uiState.update { it.copy(message = "", typing = true, documents = emptyMap()) }
 
             if (_uiState.value.selectedConversation == null){
                 when(val result = postMessageInNewConversationUseCase(message)){
@@ -91,7 +104,9 @@ class MainViewModel(
                 }
             }
             else {
-                when(val result = postMessageInConversationUseCase(_uiState.value.selectedConversation!!.id, message)){
+                val selectedConversationId = uiState.value.selectedConversation!!.id
+                val documents = uiState.value.documents.keys.toList()
+                when(val result = postMessageInConversationUseCase(selectedConversationId, message, documents)){
                     is Resource.Success -> {
                         _uiState.update { it.copy(typing = false) }
                     }
@@ -148,11 +163,27 @@ class MainViewModel(
             when(val result = getAvailableModelsUseCase()){
                 is Resource.Success -> {
                     val selectedModel = result.data.firstOrNull { it.id == preferencesHelper.selectedModelId } ?: result.data.first()
+                    preferencesHelper.selectedModelId = selectedModel.id
                     _uiState.update { it.copy(availableModel = result.data, selectedModel = selectedModel, messagesLoading = false) }
                 }
                 is Resource.Error -> {
                     errorHelper.onError(ErrorHelper.Error(message = result.message))
                     _uiState.update { it.copy(messagesLoading = false) }
+                }
+            }
+        }
+    }
+
+    private fun refreshConversations(){
+        viewModelScope.launch {
+            _uiState.update { it.copy(conversationsRefreshing = true) }
+            when(val result = getConversationsUseCase()){
+                is Resource.Success -> {
+                    _uiState.update { it.copy(conversations = result.data, conversationsRefreshing = false) }
+                }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(conversationsRefreshing = false)}
                 }
             }
         }
@@ -182,5 +213,27 @@ class MainViewModel(
                 popupTo = NavigationHelper.Destination.Main.route,
                 inclusive = true)
         }
+    }
+
+    // https://pspdfkit.com/blog/2021/open-pdf-in-jetpack-compose-app/
+    private fun onDocumentLoaded(uri : Uri){
+        viewModelScope.launch(ioDispatcher) {
+            val pdfDocuments = loadPdf(context, uri)
+
+            val documents = _uiState.value.documents.toMutableMap()
+            documents[uri] = pdfDocuments
+
+            _uiState.update { it.copy(documents = documents) }
+        }
+    }
+
+    private fun onDocumentDeleted(uri : Uri){
+        _uiState.update { it.copy(documents = _uiState.value.documents - uri) }
+    }
+
+    private suspend fun loadPdf(context: Context, uri: Uri) = suspendCoroutine<PdfDocument> { continuation ->
+        PdfDocumentLoader
+            .openDocumentAsync(context, uri)
+            .subscribe(continuation::resume, continuation::resumeWithException)
     }
 }
