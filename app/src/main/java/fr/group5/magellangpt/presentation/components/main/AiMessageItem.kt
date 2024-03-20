@@ -26,18 +26,16 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.extensions.toPrettyHour
 import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
-import fr.group5.magellangpt.presentation.theme.Primary
 import fr.group5.magellangpt.presentation.theme.Secondary
 import fr.group5.magellangpt.presentation.theme.Typography
 import java.util.Date
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MessageItem(
+fun AiMessageItem(
     content : String,
     date : Date,
-    isUser : Boolean = true,
-    model : String? = null
+    model : String
 ) {
 
     val clipboardManager: androidx.compose.ui.platform.ClipboardManager = LocalClipboardManager.current
@@ -62,11 +60,11 @@ fun MessageItem(
         shape = RoundedCornerShape(
             topStart = 8.dp,
             topEnd = 8.dp,
-            bottomEnd = if (isUser) 0.dp else 8.dp,
-            bottomStart = if (isUser) 8.dp else 0.dp
+            bottomEnd = 8.dp,
+            bottomStart = 0.dp
         ),
         colors = CardDefaults.cardColors(
-            containerColor = if (isUser) Primary else Secondary
+            containerColor = Secondary
         ),
         modifier = Modifier
             .combinedClickable(
@@ -88,24 +86,23 @@ fun MessageItem(
                 markdown = content)
 
             Text(
-                text = "${date.toPrettyHour()} ${model?.let { " - $it" } ?: ""}",
+                text = "${date.toPrettyHour()} - $model",
                 color = Color.White,
-                style = Typography.labelSmall,
-            )
+                style = Typography.labelSmall)
         }
     }
 }
 
 @Composable
 @Preview
-fun MessageItemPreview() {
+private fun AiMessageItemPreview() {
     MagellanGPTTheme {
         Surface {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                MessageItem(content = "Hello World!", date = Date(), isUser = true)
-                MessageItem(content = "Hello World!",date = Date(), isUser = false)
+                AiMessageItem(content = "Hello World!", date = Date(), model = "GPT-3")
+                AiMessageItem(content = "Hello World!",date = Date(), model = "GPT-3")
             }
         }
     }

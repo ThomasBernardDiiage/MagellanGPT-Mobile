@@ -6,5 +6,5 @@ import java.util.UUID
 data class Conversation(
     val id : UUID,
     val title : String,
-//    val lastMessageDate : Date,
+    val lastModificationDate : Date,
 )

@@ -10,5 +10,5 @@ data class ConversationEntity(
     @PrimaryKey
     val id: UUID,
     val title: String,
-//    val lastMessageDate: Date,
+    val lastModificationDate: Date,
 )

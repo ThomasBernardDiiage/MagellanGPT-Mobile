@@ -1,8 +1,10 @@
 package fr.group5.magellangpt.data.repositories
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.net.http.HttpException
+import android.provider.OpenableColumns
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.data.local.dao.ConversationDao
 import fr.group5.magellangpt.data.local.dao.MessageDao
@@ -45,6 +47,7 @@ class ConversationRepositoryImpl(
                     content = messageEntity.content,
                     sender = messageEntity.sender,
                     model = messageEntity.model,
+                    filesNames = messageEntity.filesNames,
                     date = messageEntity.date)
             }
         }
@@ -53,13 +56,13 @@ class ConversationRepositoryImpl(
     override suspend fun getConversations(): List<Conversation> {
         val conversationsDtoDown = apiService.getConversations()
         val conversationsEntity = conversationsDtoDown.map {
-            ConversationEntity(id = it.id, title = it.title)
+            ConversationEntity(id = it.id, title = it.title, lastModificationDate = it.lastModificationDate)
         }
 
         conversationDao.insertConversations(conversationsEntity)
 
         return conversationsDtoDown.map {
-            Conversation(id = it.id, title = it.title)
+            Conversation(id = it.id, title = it.title, it.lastModificationDate)
         }
     }
 
@@ -77,6 +80,7 @@ class ConversationRepositoryImpl(
                 content = it.text,
                 sender = it.sender,
                 model = selectedModel?.name ?: "",
+                filesNames = it.filesNames,
                 date = it.date)
         }
 
@@ -84,7 +88,7 @@ class ConversationRepositoryImpl(
     }
 
     override suspend fun sendMessage(conversationId : UUID, content: String, uris : List<Uri>) {
-        val message = MessageEntity(content = content, sender = MessageSender.USER, model = null, date = Date())
+        val message = MessageEntity(content = content, sender = MessageSender.USER, model = null, date = Date(), filesNames = uris.map { getFileName(it) } as ArrayList<String>)
 
         val userMessageId = messageDao.insertMessage(message)
 
@@ -110,6 +114,7 @@ class ConversationRepositoryImpl(
             content = response.body()!!.text,
             sender = response.body()!!.sender,
             model = selectedModel?.name,
+            filesNames = response.body()!!.filesNames as ArrayList<String>,
             date = response.body()!!.date)
 
         messageDao.insertMessage(responseMessageEntity)
@@ -120,7 +125,7 @@ class ConversationRepositoryImpl(
 
         val result = apiService.createConversation(dtoUp)
 
-        return Conversation(id = result.id, title = result.title)
+        return Conversation(id = result.id, title = result.title, lastModificationDate = result.lastModificationDate)
     }
 
     private fun prepareFilePart(partName: String, uri: Uri): MultipartBody.Part {
@@ -132,5 +137,28 @@ class ConversationRepositoryImpl(
 
         val requestFile = RequestBody.create("application/pdf".toMediaTypeOrNull(), file)
         return MultipartBody.Part.createFormData(partName, file.name, requestFile)
+    }
+
+    @SuppressLint("Range")
+    private fun getFileName(uri: Uri): String? {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                }
+            } finally {
+                cursor?.close()
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result!!.lastIndexOf('/')
+            if (cut != -1) {
+                result = result.substring(cut + 1)
+            }
+        }
+        return result
     }
 }

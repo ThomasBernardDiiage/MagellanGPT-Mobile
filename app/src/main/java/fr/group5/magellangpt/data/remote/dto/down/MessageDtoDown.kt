@@ -14,6 +14,9 @@ data class MessageDtoDown(
     @SerializedName("model")
     val model : String,
 
+    @SerializedName("filesNames")
+    val filesNames : List<String>,
+
     @SerializedName("date")
     val date : Date
 )

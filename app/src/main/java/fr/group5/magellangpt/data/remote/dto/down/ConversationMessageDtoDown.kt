@@ -21,6 +21,9 @@ data class ConversationMessageDtoDown(
     @SerializedName("date")
     val date : Date,
 
+    @SerializedName("filesNames")
+    val filesNames : ArrayList<String>,
+
     @SerializedName("model")
      val model : String?
 )

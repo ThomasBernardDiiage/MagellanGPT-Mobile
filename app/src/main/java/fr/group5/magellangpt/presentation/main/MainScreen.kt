@@ -29,11 +29,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,10 +45,11 @@ import fr.group5.magellangpt.common.extensions.toDateLabel
 import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.presentation.components.Loader
 import fr.group5.magellangpt.presentation.components.TextField
+import fr.group5.magellangpt.presentation.components.main.AiMessageItem
 import fr.group5.magellangpt.presentation.components.main.CreateNewConversationBottomSheet
 import fr.group5.magellangpt.presentation.components.main.EmptyList
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
-import fr.group5.magellangpt.presentation.components.main.MessageItem
+import fr.group5.magellangpt.presentation.components.main.UserMessageItem
 import fr.group5.magellangpt.presentation.components.main.NoConversationSelected
 import fr.group5.magellangpt.presentation.components.main.PdfThumbnail
 import fr.group5.magellangpt.presentation.components.main.TypingMessage
@@ -223,7 +222,7 @@ fun MainScreen(
                                                 .padding(end = 12.dp, start = 48.dp),
                                             horizontalArrangement = Arrangement.End
                                         ) {
-                                            MessageItem(content = message.content, date = message.date, isUser = true, model = message.model)
+                                            UserMessageItem(content = message.content, date = message.date, filesNames = message.filesNames)
                                         }
                                     MessageSender.AI ->
                                         Row(
@@ -232,7 +231,7 @@ fun MainScreen(
                                                 .padding(start = 12.dp, end = 24.dp),
                                             horizontalArrangement = Arrangement.Start
                                         ) {
-                                            MessageItem(content = message.content, date = message.date, isUser = false, model = message.model)
+                                            AiMessageItem(content = message.content, date = message.date, model = message.model ?: "")
                                         }
                                 }
                             }
@@ -324,8 +323,8 @@ private fun MainScreenEmptyMessagePreview(){
 @Preview
 private fun MainScreenMessagesPreview(){
     val messages = listOf(
-        fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date(), model = "gpt3"),
-        fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date(), model = "gpt4"),
+        fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date(), model = "gpt3", filesNames = emptyList()),
+        fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date(), model = "gpt4", filesNames = emptyList()),
     )
     val uiState = MainUiState(messages = messages.groupBy { it.date })
     MainScreen(uiState = uiState, onEvent = {})

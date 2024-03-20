@@ -7,5 +7,6 @@ data class Message(
     val content : String,
     val sender : MessageSender,
     val model : String?,
+    val filesNames : List<String>,
     val date : Date
 )
