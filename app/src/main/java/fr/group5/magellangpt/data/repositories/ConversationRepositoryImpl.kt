@@ -10,6 +10,7 @@ import fr.group5.magellangpt.data.local.dao.ModelDao
 import fr.group5.magellangpt.data.local.entities.ConversationEntity
 import fr.group5.magellangpt.data.local.entities.MessageEntity
 import fr.group5.magellangpt.data.remote.ApiService
+import fr.group5.magellangpt.data.remote.dto.up.CreateConversationDtoUp
 import fr.group5.magellangpt.data.remote.dto.up.MessageDtoUp
 import fr.group5.magellangpt.domain.models.Conversation
 import fr.group5.magellangpt.domain.models.Message
@@ -92,7 +93,7 @@ class ConversationRepositoryImpl(
         val dtoUp = MessageDtoUp(message = content, model = preferencesHelper.selectedModelId)
 
         val filesParts = uris.mapIndexed { index, uri ->
-            prepareFilePart("file[$index]", uri)
+            prepareFilePart("files", uri)
         }
 
         val response = apiService.postMessage(
@@ -141,6 +142,14 @@ class ConversationRepositoryImpl(
 //            date = Date())
 //
 //        messageDao.insertMessage(responseMessageEntity)
+    }
+
+    override suspend fun createConversation(name: String, prePrompt: String): Conversation {
+        val dtoUp = CreateConversationDtoUp(title = name, prePrompt = prePrompt)
+
+        val result = apiService.createConversation(dtoUp)
+
+        return Conversation(id = result.id, title = result.title)
     }
 
     private fun prepareFilePart(partName: String, uri: Uri): MultipartBody.Part {

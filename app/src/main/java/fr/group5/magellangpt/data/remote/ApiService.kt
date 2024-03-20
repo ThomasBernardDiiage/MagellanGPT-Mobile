@@ -4,6 +4,7 @@ import fr.group5.magellangpt.data.remote.dto.down.ConversationDtoDown
 import fr.group5.magellangpt.data.remote.dto.down.ConversationListDtoDown
 import fr.group5.magellangpt.data.remote.dto.down.MessageDtoDown
 import fr.group5.magellangpt.data.remote.dto.down.ModelDtoDown
+import fr.group5.magellangpt.data.remote.dto.up.CreateConversationDtoUp
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -22,6 +23,9 @@ interface ApiService {
 
     @GET("conversations")
     suspend fun getConversations() : List<ConversationListDtoDown>
+
+    @POST("conversations")
+    suspend fun createConversation(@Body body : CreateConversationDtoUp) : ConversationListDtoDown
 
     @GET("conversations/{id}")
     suspend fun getConversation(@Path("id") id : UUID) : ConversationDtoDown

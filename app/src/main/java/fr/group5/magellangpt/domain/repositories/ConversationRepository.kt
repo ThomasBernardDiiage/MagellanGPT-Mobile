@@ -23,4 +23,7 @@ interface ConversationRepository {
 
     @Throws(HttpException::class, UnknownHostException::class)
     suspend fun sendMessage(content: String)
+
+    @Throws(HttpException::class, UnknownHostException::class)
+    suspend fun createConversation(name: String, prePrompt: String) : Conversation
 }

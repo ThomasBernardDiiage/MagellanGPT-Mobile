@@ -19,6 +19,7 @@ import fr.group5.magellangpt.data.repositories.ModelRepositoryImpl
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
 import fr.group5.magellangpt.domain.repositories.ModelRepository
+import fr.group5.magellangpt.domain.usecases.CreateConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
 import fr.group5.magellangpt.domain.usecases.LoginUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
@@ -67,6 +68,7 @@ class ApplicationController : Application() {
         single { GetConversationsUseCase() }
         single { PostMessageInNewConversationUseCase() }
         single { GetMessagesUseCase() }
+        single { CreateConversationUseCase() }
 
 
         single { database.messageDao() }

@@ -26,5 +26,11 @@ data class MainUiState(
     val conversations : List<Conversation> = emptyList(),
     val selectedConversation : Conversation? = null,
     val conversationsLoading : Boolean = false,
-    val conversationsRefreshing : Boolean = false
+    val conversationsRefreshing : Boolean = false,
+
+
+    val showCreationDialog : Boolean = false,
+    val conversationName : String = "",
+    val conversationPrePrompt : String = "",
+    val createConversationLoading : Boolean = false
 )

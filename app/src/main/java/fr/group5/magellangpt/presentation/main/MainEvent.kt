@@ -24,4 +24,10 @@ sealed class MainEvent {
 
     data class OnConversationSelected(val conversation: Conversation) : MainEvent()
     data object OnConversationsRefreshed : MainEvent()
+
+
+    data class OnCreateConversationDialogVisibilityChanged(val show : Boolean) : MainEvent()
+    data class OnCreateConversation(val conversationName : String, val prePrompt : String) : MainEvent()
+    data class OnConversationNameChanged(val conversationName : String) : MainEvent()
+    data class OnConversationPrePromptChanged(val prePrompt : String) : MainEvent()
 }

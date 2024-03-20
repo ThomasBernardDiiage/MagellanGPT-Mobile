@@ -14,6 +14,7 @@ import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.domain.models.Conversation
 import fr.group5.magellangpt.domain.models.Model
 import fr.group5.magellangpt.domain.models.Resource
+import fr.group5.magellangpt.domain.usecases.CreateConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationsUseCase
@@ -48,6 +49,7 @@ class MainViewModel(
     private val getConversationsUseCase: GetConversationsUseCase = get(GetConversationsUseCase::class.java),
     private val postMessageInNewConversationUseCase: PostMessageInNewConversationUseCase = get(PostMessageInNewConversationUseCase::class.java),
     private val getMessagesUseCase: GetMessagesUseCase = get(GetMessagesUseCase::class.java),
+    private val createConversationUseCase: CreateConversationUseCase = get(CreateConversationUseCase::class.java),
     private val context : Context = get(Context::class.java),
     private val ioDispatcher : CoroutineDispatcher = get(CoroutineDispatcher::class.java)
 ) : ViewModel() {
@@ -76,6 +78,19 @@ class MainViewModel(
             is MainEvent.OnConversationsRefreshed -> refreshConversations()
             is MainEvent.OnDocumentLoaded -> onDocumentLoaded(event.uri)
             is MainEvent.OnDocumentDeleted -> onDocumentDeleted(event.uri)
+            is MainEvent.OnConversationNameChanged -> {
+                _uiState.update { it.copy(conversationName = event.conversationName) }
+            }
+            is MainEvent.OnConversationPrePromptChanged -> {
+                _uiState.update { it.copy(conversationPrePrompt = event.prePrompt) }
+            }
+            is MainEvent.OnCreateConversation -> {
+                onCreateConversation(event.conversationName, event.prePrompt)
+            }
+
+            is MainEvent.OnCreateConversationDialogVisibilityChanged -> {
+                _uiState.update { it.copy(showCreationDialog = event.show) }
+            }
         }
     }
 
@@ -89,6 +104,8 @@ class MainViewModel(
     private fun onSendMessage(message : String){
         viewModelScope.launch {
             if (message.isBlank()) return@launch
+
+            val documents = uiState.value.documents.keys.toList()
 
             _uiState.update { it.copy(message = "", typing = true, documents = emptyMap()) }
 
@@ -105,7 +122,6 @@ class MainViewModel(
             }
             else {
                 val selectedConversationId = uiState.value.selectedConversation!!.id
-                val documents = uiState.value.documents.keys.toList()
                 when(val result = postMessageInConversationUseCase(selectedConversationId, message, documents)){
                     is Resource.Success -> {
                         _uiState.update { it.copy(typing = false) }
@@ -202,6 +218,36 @@ class MainViewModel(
                 }
             }
         }
+    }
+
+    private fun onCreateConversation(conversationName : String, conversationPrePrompt : String){
+        _uiState.update { it.copy(createConversationLoading = true) }
+
+        viewModelScope.launch {
+
+            when(val result = createConversationUseCase(conversationName, conversationPrePrompt)){
+                is Resource.Success -> {
+                    val conversations = uiState.value.conversations.toMutableList()
+                    conversations.add(result.data)
+                    _uiState.update { it.copy(
+                        showCreationDialog = false,
+                        createConversationLoading = false,
+                        conversations = conversations,
+                        conversationPrePrompt = "",
+                        conversationName = ""
+                    ) }
+
+                    onConversationSelected(result.data)
+                }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(createConversationLoading = false) }
+                }
+            }
+        }
+
+
+        _uiState.update { it.copy(conversationName = "", conversationPrePrompt = "", createConversationLoading = false) }
     }
 
     private fun onLogout(){
