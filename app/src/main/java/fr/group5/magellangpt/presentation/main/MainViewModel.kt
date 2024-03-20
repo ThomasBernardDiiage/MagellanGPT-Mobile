@@ -2,7 +2,6 @@ package fr.group5.magellangpt.presentation.main
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pspdfkit.document.PdfDocument
@@ -22,17 +21,14 @@ import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
 import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
-import fr.group5.magellangpt.domain.usecases.PostMessageInNewConversationUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
-import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -47,7 +43,6 @@ class MainViewModel(
     private val getAvailableModelsUseCase: GetAvailableModelsUseCase = get(GetAvailableModelsUseCase::class.java),
     private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java),
     private val getConversationsUseCase: GetConversationsUseCase = get(GetConversationsUseCase::class.java),
-    private val postMessageInNewConversationUseCase: PostMessageInNewConversationUseCase = get(PostMessageInNewConversationUseCase::class.java),
     private val getMessagesUseCase: GetMessagesUseCase = get(GetMessagesUseCase::class.java),
     private val createConversationUseCase: CreateConversationUseCase = get(CreateConversationUseCase::class.java),
     private val context : Context = get(Context::class.java),
@@ -108,28 +103,14 @@ class MainViewModel(
             val documents = uiState.value.documents.keys.toList()
 
             _uiState.update { it.copy(message = "", typing = true, documents = emptyMap()) }
-
-            if (_uiState.value.selectedConversation == null){
-                when(val result = postMessageInNewConversationUseCase(message)){
-                    is Resource.Success -> {
-                        _uiState.update { it.copy(typing = false) }
-                    }
-                    is Resource.Error -> {
-                        errorHelper.onError(ErrorHelper.Error(message = result.message))
-                        _uiState.update { it.copy(typing = false) }
-                    }
+            val selectedConversationId = uiState.value.selectedConversation!!.id
+            when(val result = postMessageInConversationUseCase(selectedConversationId, message, documents)){
+                is Resource.Success -> {
+                    _uiState.update { it.copy(typing = false) }
                 }
-            }
-            else {
-                val selectedConversationId = uiState.value.selectedConversation!!.id
-                when(val result = postMessageInConversationUseCase(selectedConversationId, message, documents)){
-                    is Resource.Success -> {
-                        _uiState.update { it.copy(typing = false) }
-                    }
-                    is Resource.Error -> {
-                        errorHelper.onError(ErrorHelper.Error(message = result.message))
-                        _uiState.update { it.copy(typing = false) }
-                    }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(typing = false) }
                 }
             }
         }

@@ -28,7 +28,6 @@ import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
 import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
-import fr.group5.magellangpt.domain.usecases.PostMessageInNewConversationUseCase
 import fr.group5.magellangpt.domain.usecases.UserConnectedUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -66,10 +65,8 @@ class ApplicationController : Application() {
         single { PostMessageInConversationUseCase() }
         single { GetAvailableModelsUseCase() }
         single { GetConversationsUseCase() }
-        single { PostMessageInNewConversationUseCase() }
         single { GetMessagesUseCase() }
         single { CreateConversationUseCase() }
-
 
         single { database.messageDao() }
         single { database.conversationDao() }

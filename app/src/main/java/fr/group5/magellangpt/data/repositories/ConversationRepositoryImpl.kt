@@ -83,8 +83,6 @@ class ConversationRepositoryImpl(
         messageDao.insertMessages(messagesEntity)
     }
 
-
-
     override suspend fun sendMessage(conversationId : UUID, content: String, uris : List<Uri>) {
         val message = MessageEntity(content = content, sender = MessageSender.USER, model = null, date = Date())
 
@@ -117,31 +115,6 @@ class ConversationRepositoryImpl(
             date = response.body()!!.date)
 
         messageDao.insertMessage(responseMessageEntity)
-    }
-
-    override suspend fun sendMessage(content: String) {
-        TODO()
-//        val message = MessageEntity(
-//            content = content,
-//            sender = MessageSender.USER,
-//            model = null,
-//            date = Date()
-//        )
-//        messageDao.insertMessage(message)
-//
-//        val dtoUp = MessageDtoUp(message = content, model = preferencesHelper.selectedModelId)
-//
-//        val response = apiService.postMessage(UUID.randomUUID(), dtoUp)
-//        val selectedModel = modelDao.getModel(preferencesHelper.selectedModelId)
-//
-//
-//        val responseMessageEntity = MessageEntity(
-//            content = response,
-//            sender = MessageSender.AI,
-//            model = selectedModel.name,
-//            date = Date())
-//
-//        messageDao.insertMessage(responseMessageEntity)
     }
 
     override suspend fun createConversation(name: String, prePrompt: String): Conversation {
