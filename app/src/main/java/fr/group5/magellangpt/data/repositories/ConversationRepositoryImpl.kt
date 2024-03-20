@@ -2,6 +2,7 @@ package fr.group5.magellangpt.data.repositories
 
 import android.content.Context
 import android.net.Uri
+import android.net.http.HttpException
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.data.local.dao.ConversationDao
 import fr.group5.magellangpt.data.local.dao.MessageDao
@@ -69,12 +70,12 @@ class ConversationRepositoryImpl(
 
         val messagesEntity = messagesDtoDown.messages.map {
 
-            val selectedModel = if (it.model?.isNotEmpty() == true) modelDao.getModel(it.model).name else ""
+            val selectedModel = it.model?.let { modelDao.getModel(it) }
 
             MessageEntity(
                 content = it.text,
                 sender = it.sender,
-                model = selectedModel,
+                model = selectedModel?.name ?: "",
                 date = it.date)
         }
 
@@ -86,7 +87,7 @@ class ConversationRepositoryImpl(
     override suspend fun sendMessage(conversationId : UUID, content: String, uris : List<Uri>) {
         val message = MessageEntity(content = content, sender = MessageSender.USER, model = null, date = Date())
 
-        messageDao.insertMessage(message)
+        val userMessageId = messageDao.insertMessage(message)
 
         val dtoUp = MessageDtoUp(message = content, model = preferencesHelper.selectedModelId)
 
@@ -94,14 +95,25 @@ class ConversationRepositoryImpl(
             prepareFilePart("file[$index]", uri)
         }
 
-        val response = apiService.postMessage(conversationId, dtoUp, filesParts)
-        val selectedModel = modelDao.getModel(preferencesHelper.selectedModelId)
+        val response = apiService.postMessage(
+            id = conversationId,
+            model = MultipartBody.Part.createFormData("Model", preferencesHelper.selectedModelId),
+            message = MultipartBody.Part.createFormData("Message", content),
+            saveFile = MultipartBody.Part.createFormData("SaveFile", "false"),
+            files = filesParts)
+
+        if (!response.isSuccessful){
+            messageDao.deleteMessage(userMessageId)
+            throw retrofit2.HttpException(response)
+        }
+
+        val selectedModel = modelDao.getModel(response.body()!!.model)
 
         val responseMessageEntity = MessageEntity(
-            content = response,
-            sender = MessageSender.AI,
-            model = selectedModel.name,
-            date = Date())
+            content = response.body()!!.text,
+            sender = response.body()!!.sender,
+            model = selectedModel?.name,
+            date = response.body()!!.date)
 
         messageDao.insertMessage(responseMessageEntity)
     }

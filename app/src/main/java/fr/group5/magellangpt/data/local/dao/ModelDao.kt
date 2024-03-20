@@ -12,7 +12,7 @@ interface ModelDao {
     suspend fun getModels(): List<ModelEntity>
 
     @Query("SELECT * FROM modelentity WHERE id = :id")
-    suspend fun getModel(id : String): ModelEntity
+    suspend fun getModel(id : String): ModelEntity?
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

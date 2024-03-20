@@ -21,7 +21,7 @@ data class ConversationMessageDtoDown(
     @SerializedName("date")
     val date : Date,
 
-    @SerializedName("modelUsedForResponse")
+    @SerializedName("model")
      val model : String?
 )
 
