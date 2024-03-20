@@ -39,9 +39,6 @@ interface ApiService {
         @Part saveFile : MultipartBody.Part,
         @Part files: List<MultipartBody.Part>) : Response<MessageDtoDown>
 
-    @POST("conversations/messages")
-    suspend fun postMessageToNewConversation(@Body message : String) : List<String?>
-
     @GET("models")
     suspend fun getModels() : List<ModelDtoDown>
 

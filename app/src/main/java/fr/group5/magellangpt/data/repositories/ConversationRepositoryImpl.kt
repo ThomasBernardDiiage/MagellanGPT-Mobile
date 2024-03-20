@@ -88,8 +88,6 @@ class ConversationRepositoryImpl(
 
         val userMessageId = messageDao.insertMessage(message)
 
-        val dtoUp = MessageDtoUp(message = content, model = preferencesHelper.selectedModelId)
-
         val filesParts = uris.mapIndexed { index, uri ->
             prepareFilePart("files", uri)
         }
@@ -127,7 +125,7 @@ class ConversationRepositoryImpl(
 
     private fun prepareFilePart(partName: String, uri: Uri): MultipartBody.Part {
         val inputStream = context.contentResolver.openInputStream(uri)
-        val file = File(context.cacheDir, "tempFile")
+        val file = File(context.cacheDir, "tempFile.pdf")
         FileOutputStream(file).use { outputStream ->
             inputStream?.copyTo(outputStream)
         }
