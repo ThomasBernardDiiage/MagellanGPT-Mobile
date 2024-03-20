@@ -51,13 +51,13 @@ class ConversationRepositoryImpl(
     override suspend fun getConversations(): List<Conversation> {
         val conversationsDtoDown = apiService.getConversations()
         val conversationsEntity = conversationsDtoDown.map {
-            ConversationEntity(id = it.id, title = it.title, lastMessageDate = it.lastMessageDate)
+            ConversationEntity(id = it.id, title = it.title)
         }
 
         conversationDao.insertConversations(conversationsEntity)
 
         return conversationsDtoDown.map {
-            Conversation(id = it.id, title = it.title, lastMessageDate = it.lastMessageDate)
+            Conversation(id = it.id, title = it.title)
         }
     }
 
@@ -65,17 +65,17 @@ class ConversationRepositoryImpl(
     override suspend fun getMessages(conversationId : UUID) {
         messageDao.nuke()
 
-        val messagesDtoDown = apiService.getConversationMessages(conversationId)
+        val messagesDtoDown = apiService.getConversation(conversationId)
 
-        val messagesEntity = messagesDtoDown.map {
+        val messagesEntity = messagesDtoDown.messages.map {
 
-            val selectedModel = it.model?.let { modelDao.getModel(it) }
+            val selectedModel = if (it.model?.isNotEmpty() == true) modelDao.getModel(it.model).name else ""
 
             MessageEntity(
-                content = it.message,
-                sender = it.chatRole,
-                model = selectedModel?.name,
-                date = it.dateTimeMessage)
+                content = it.text,
+                sender = it.sender,
+                model = selectedModel,
+                date = it.date)
         }
 
         messageDao.insertMessages(messagesEntity)

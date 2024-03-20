@@ -43,6 +43,7 @@ class AuthenticationRepositoryImpl(
                     override fun onSuccess(authenticationResult: IAuthenticationResult?) {
                         account = authenticationResult?.account
                         preferencesHelper.accessToken = authenticationResult?.account?.idToken ?: ""
+                        Log.d("access_token", preferencesHelper.accessToken)
                         onSuccess()
                     }
 
@@ -114,6 +115,7 @@ class AuthenticationRepositoryImpl(
                 override fun onAccountLoaded(activeAccount: IAccount?) {
                     account = activeAccount
                     preferencesHelper.accessToken = activeAccount?.idToken ?: ""
+                    Log.d("access_token", preferencesHelper.accessToken)
 
                     val displayName = activeAccount?.claims?.get("name") as String?
                     val email = activeAccount?.claims?.get("preferred_username") as String?

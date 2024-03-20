@@ -12,14 +12,14 @@ data class ConversationMessageDtoDown(
     @SerializedName("conversationId")
     val conversationId : UUID,
 
-    @SerializedName("message")
-    val message : String,
+    @SerializedName("text")
+    val text : String,
 
-    @SerializedName("chatRole")
-    val chatRole : MessageSender,
+    @SerializedName("sender")
+    val sender : MessageSender,
 
-    @SerializedName("dateTimeMessage")
-    val dateTimeMessage : Date,
+    @SerializedName("date")
+    val date : Date,
 
     @SerializedName("modelUsedForResponse")
      val model : String?
