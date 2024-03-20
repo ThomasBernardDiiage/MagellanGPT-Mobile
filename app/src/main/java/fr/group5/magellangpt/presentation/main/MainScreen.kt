@@ -219,7 +219,7 @@ fun MainScreen(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(end = 12.dp, start = 48.dp),
+                                                .padding(start = 48.dp),
                                             horizontalArrangement = Arrangement.End
                                         ) {
                                             UserMessageItem(content = message.content, date = message.date, filesNames = message.filesNames)
@@ -228,7 +228,7 @@ fun MainScreen(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(start = 12.dp, end = 24.dp),
+                                                .padding(end = 48.dp),
                                             horizontalArrangement = Arrangement.Start
                                         ) {
                                             AiMessageItem(content = message.content, date = message.date, model = message.model ?: "")

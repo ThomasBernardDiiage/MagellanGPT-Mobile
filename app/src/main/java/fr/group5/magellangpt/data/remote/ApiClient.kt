@@ -41,10 +41,10 @@ object ApiClient {
         OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(headerInterceptor)
-            .callTimeout(3, TimeUnit.MINUTES)
-            .connectTimeout(3, TimeUnit.MINUTES)
-            .readTimeout(3, TimeUnit.MINUTES)
-            .writeTimeout(3, TimeUnit.MINUTES)
+            .callTimeout(5, TimeUnit.MINUTES)
+            .connectTimeout(5, TimeUnit.MINUTES)
+            .readTimeout(5, TimeUnit.MINUTES)
+            .writeTimeout(5, TimeUnit.MINUTES)
             .build()
     }
 

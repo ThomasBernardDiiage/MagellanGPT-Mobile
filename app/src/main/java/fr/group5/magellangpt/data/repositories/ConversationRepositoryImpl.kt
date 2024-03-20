@@ -114,7 +114,7 @@ class ConversationRepositoryImpl(
             content = response.body()!!.text,
             sender = response.body()!!.sender,
             model = selectedModel?.name,
-            filesNames = response.body()!!.filesNames as ArrayList<String>,
+            filesNames = response.body()!!.filesNames ?: arrayListOf(),
             date = response.body()!!.date)
 
         messageDao.insertMessage(responseMessageEntity)
@@ -130,7 +130,7 @@ class ConversationRepositoryImpl(
 
     private fun prepareFilePart(partName: String, uri: Uri): MultipartBody.Part {
         val inputStream = context.contentResolver.openInputStream(uri)
-        val file = File(context.cacheDir, "tempFile.pdf")
+        val file = File(context.cacheDir, getFileName(uri)!!)
         FileOutputStream(file).use { outputStream ->
             inputStream?.copyTo(outputStream)
         }
@@ -140,7 +140,7 @@ class ConversationRepositoryImpl(
     }
 
     @SuppressLint("Range")
-    private fun getFileName(uri: Uri): String? {
+    private fun getFileName(uri: Uri): String {
         var result: String? = null
         if (uri.scheme == "content") {
             val cursor = context.contentResolver.query(uri, null, null, null, null)
