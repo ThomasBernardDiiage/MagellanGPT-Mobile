@@ -224,7 +224,6 @@ class MainViewModel(
         _uiState.update { it.copy(createConversationLoading = true) }
 
         viewModelScope.launch {
-
             when(val result = createConversationUseCase(conversationName, conversationPrePrompt)){
                 is Resource.Success -> {
                     val conversations = uiState.value.conversations.toMutableList()
@@ -245,9 +244,6 @@ class MainViewModel(
                 }
             }
         }
-
-
-        _uiState.update { it.copy(conversationName = "", conversationPrePrompt = "", createConversationLoading = false) }
     }
 
     private fun onLogout(){
