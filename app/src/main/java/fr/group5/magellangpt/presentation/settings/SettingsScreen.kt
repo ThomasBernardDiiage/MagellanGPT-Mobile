@@ -63,97 +63,81 @@ fun SettingsScreen(
         onEvent(SettingsEvent.OnGetUserInformation)
     }
 
+    Box {
+        LazyColumn(
+            contentPadding = PaddingValues(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                Text(
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    style = MaterialTheme.typography.titleLarge,
+                    text = "${stringResource(id = R.string.hello)} \uD83D\uDC4B")
+            }
 
-    Scaffold(
-        containerColor = Color.White,
-        topBar = {
-            NavigationBar(
-                title = stringResource(id = R.string.settings),
-                showBackButton = true,
-                onBack = { onEvent(SettingsEvent.OnGoBack) },
-                actions = { Box(modifier = Modifier.size(44.dp))}
-            )
+            item {
+                SettingItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.mail,
+                    title = R.string.mail,
+                    subtitle = uiState.email
+                ) {
+
+                }
+            }
+
+            item {
+                SettingItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.user,
+                    title = R.string.user,
+                    subtitle = "${uiState.firstname} ${uiState.lastname.uppercase()}"
+                ) {
+
+                }
+            }
+
+            item {
+                SettingItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.android,
+                    title = R.string.app_name_android,
+                    subtitle = "${stringResource(id = R.string.version)} ${BuildConfig.VERSION_NAME}"
+                ) {
+                    showConfetti = true
+                }
+            }
+
+            item {
+                SettingItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.info,
+                    title = R.string.more_informations,
+                ) {
+                    val uri = "https://mango-wave-081aff710.5.azurestaticapps.net/main.html"
+                    uriHandler.openUri(uri)
+                }
+            }
+
+            item {
+                SettingItem(
+                    color = Secondary,
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.logout,
+                    title = R.string.logout
+                ) {
+                    onEvent(SettingsEvent.OnLogout)
+                }
+            }
         }
-    ) {
-        Box {
-            LazyColumn(
-                modifier = Modifier.padding(it),
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                item {
-                    Text(
-                        modifier = Modifier.padding(bottom = 12.dp),
-                        style = MaterialTheme.typography.titleLarge,
-                        text = "${stringResource(id = R.string.hello)} \uD83D\uDC4B")
-                }
 
-
-
-                item {
-                    SettingItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        icon = R.drawable.mail,
-                        title = R.string.mail,
-                        subtitle = uiState.email
-                    ) {
-
-                    }
-                }
-
-                item {
-                    SettingItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        icon = R.drawable.user,
-                        title = R.string.user,
-                        subtitle = "${uiState.firstname} ${uiState.lastname.uppercase()}"
-                    ) {
-
-                    }
-                }
-
-                item {
-                    SettingItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        icon = R.drawable.android,
-                        title = R.string.app_name_android,
-                        subtitle = "${stringResource(id = R.string.version)} ${BuildConfig.VERSION_NAME}"
-                    ) {
-                        showConfetti = true
-                    }
-                }
-
-                item {
-                    SettingItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        icon = R.drawable.info,
-                        title = R.string.more_informations,
-                    ) {
-                        val uri = "https://mango-wave-081aff710.5.azurestaticapps.net/main.html"
-                        uriHandler.openUri(uri)
-                    }
-                }
-
-                item {
-                    SettingItem(
-                        color = Secondary,
-                        modifier = Modifier.fillMaxWidth(),
-                        icon = R.drawable.logout,
-                        title = R.string.logout
-                    ) {
-                        onEvent(SettingsEvent.OnLogout)
-                    }
-                }
-            }
-
-            if (showConfetti){
-                LottieAnimation(
-                    composition = preloaderLottieComposition,
-                    progress = preloaderProgress,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
+        if (showConfetti){
+            LottieAnimation(
+                composition = preloaderLottieComposition,
+                progress = preloaderProgress,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -51,11 +52,14 @@ fun SettingItem(
             modifier = Modifier.weight(1f)
         ) {
             Text(
+                style = MaterialTheme.typography.bodyLarge,
                 text = stringResource(id = title),
                 color = color)
+
             Text(
+                style = MaterialTheme.typography.bodyMedium,
                 text = subtitle,
-                color = color.copy(0.9f))
+                color = color.copy(0.7f))
         }
     }
 }
@@ -84,6 +88,7 @@ fun SettingItem(
             contentDescription = stringResource(id = title))
 
         Text(
+            style = MaterialTheme.typography.bodyLarge,
             color = color,
             modifier = Modifier.weight(1f),
             text = stringResource(id = title)
