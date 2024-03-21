@@ -12,7 +12,10 @@ interface MessageDao {
     fun getMessages() : Flow<List<MessageEntity>>
 
     @Insert
-    suspend fun insertMessage(message : MessageEntity)
+    suspend fun insertMessage(message : MessageEntity) : Long
+
+    @Query("DELETE FROM messageentity WHERE id = :messageId")
+    suspend fun deleteMessage(messageId : Long)
 
     @Insert
     suspend fun insertMessages(messages : List<MessageEntity>)

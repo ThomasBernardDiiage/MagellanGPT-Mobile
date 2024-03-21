@@ -18,7 +18,7 @@ import fr.group5.magellangpt.data.local.entities.ModelEntity
     ],
     version = 1
 )
-@TypeConverters(DateConverter::class)
+@TypeConverters(DateConverter::class, ArrayConverter::class)
 abstract class ApplicationDatabase : RoomDatabase() {
     abstract fun messageDao(): MessageDao
 

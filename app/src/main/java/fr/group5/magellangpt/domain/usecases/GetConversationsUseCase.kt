@@ -19,7 +19,7 @@ class GetConversationsUseCase(
 ) {
     suspend operator fun invoke(): Resource<List<Conversation>> = withContext(ioDispatcher) {
         try {
-            Resource.Success(conversationRepository.getConversations().sortedByDescending { it.lastMessageDate })
+            Resource.Success(conversationRepository.getConversations().sortedByDescending { it.lastModificationDate })
         }
         catch (e : UnknownHostException){
             Resource.Error(resourcesHelper.getString(R.string.error_network))

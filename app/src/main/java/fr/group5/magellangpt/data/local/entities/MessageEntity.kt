@@ -12,5 +12,6 @@ class MessageEntity(
     val content : String,
     val sender : MessageSender,
     val model : String?,
+    val filesNames : ArrayList<String>,
     val date : Date
 )

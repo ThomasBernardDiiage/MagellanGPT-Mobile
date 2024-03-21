@@ -1,7 +1,10 @@
 package fr.group5.magellangpt.data.repositories
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.net.http.HttpException
+import android.provider.OpenableColumns
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.data.local.dao.ConversationDao
 import fr.group5.magellangpt.data.local.dao.MessageDao
@@ -9,6 +12,7 @@ import fr.group5.magellangpt.data.local.dao.ModelDao
 import fr.group5.magellangpt.data.local.entities.ConversationEntity
 import fr.group5.magellangpt.data.local.entities.MessageEntity
 import fr.group5.magellangpt.data.remote.ApiService
+import fr.group5.magellangpt.data.remote.dto.up.CreateConversationDtoUp
 import fr.group5.magellangpt.data.remote.dto.up.MessageDtoUp
 import fr.group5.magellangpt.domain.models.Conversation
 import fr.group5.magellangpt.domain.models.Message
@@ -43,6 +47,7 @@ class ConversationRepositoryImpl(
                     content = messageEntity.content,
                     sender = messageEntity.sender,
                     model = messageEntity.model,
+                    filesNames = messageEntity.filesNames,
                     date = messageEntity.date)
             }
         }
@@ -51,13 +56,13 @@ class ConversationRepositoryImpl(
     override suspend fun getConversations(): List<Conversation> {
         val conversationsDtoDown = apiService.getConversations()
         val conversationsEntity = conversationsDtoDown.map {
-            ConversationEntity(id = it.id, title = it.title, lastMessageDate = it.lastMessageDate)
+            ConversationEntity(id = it.id, title = it.title, lastModificationDate = it.lastModificationDate)
         }
 
         conversationDao.insertConversations(conversationsEntity)
 
         return conversationsDtoDown.map {
-            Conversation(id = it.id, title = it.title, lastMessageDate = it.lastMessageDate)
+            Conversation(id = it.id, title = it.title, it.lastModificationDate)
         }
     }
 
@@ -65,80 +70,95 @@ class ConversationRepositoryImpl(
     override suspend fun getMessages(conversationId : UUID) {
         messageDao.nuke()
 
-        val messagesDtoDown = apiService.getConversationMessages(conversationId)
+        val messagesDtoDown = apiService.getConversation(conversationId)
 
-        val messagesEntity = messagesDtoDown.map {
+        val messagesEntity = messagesDtoDown.messages.map {
 
             val selectedModel = it.model?.let { modelDao.getModel(it) }
 
             MessageEntity(
-                content = it.message,
-                sender = it.chatRole,
-                model = selectedModel?.name,
-                date = it.dateTimeMessage)
+                content = it.text,
+                sender = it.sender,
+                model = selectedModel?.name ?: "",
+                filesNames = it.filesNames,
+                date = it.date)
         }
 
         messageDao.insertMessages(messagesEntity)
     }
 
-
-
     override suspend fun sendMessage(conversationId : UUID, content: String, uris : List<Uri>) {
-        val message = MessageEntity(content = content, sender = MessageSender.USER, model = null, date = Date())
+        val message = MessageEntity(content = content, sender = MessageSender.USER, model = null, date = Date(), filesNames = uris.map { getFileName(it) } as ArrayList<String>)
 
-        messageDao.insertMessage(message)
-
-        val dtoUp = MessageDtoUp(message = content, model = preferencesHelper.selectedModelId)
+        val userMessageId = messageDao.insertMessage(message)
 
         val filesParts = uris.mapIndexed { index, uri ->
-            prepareFilePart("file[$index]", uri)
+            prepareFilePart("files", uri)
         }
 
-        val response = apiService.postMessage(conversationId, dtoUp, filesParts)
-        val selectedModel = modelDao.getModel(preferencesHelper.selectedModelId)
+        val response = apiService.postMessage(
+            id = conversationId,
+            model = MultipartBody.Part.createFormData("Model", preferencesHelper.selectedModelId),
+            message = MultipartBody.Part.createFormData("Message", content),
+            saveFile = MultipartBody.Part.createFormData("SaveFile", "false"),
+            files = filesParts)
+
+        if (!response.isSuccessful){
+            messageDao.deleteMessage(userMessageId)
+            throw retrofit2.HttpException(response)
+        }
+
+        val selectedModel = modelDao.getModel(response.body()!!.model)
 
         val responseMessageEntity = MessageEntity(
-            content = response,
-            sender = MessageSender.AI,
-            model = selectedModel.name,
-            date = Date())
+            content = response.body()!!.text,
+            sender = response.body()!!.sender,
+            model = selectedModel?.name,
+            filesNames = response.body()!!.filesNames ?: arrayListOf(),
+            date = response.body()!!.date)
 
         messageDao.insertMessage(responseMessageEntity)
     }
 
-    override suspend fun sendMessage(content: String) {
-        TODO()
-//        val message = MessageEntity(
-//            content = content,
-//            sender = MessageSender.USER,
-//            model = null,
-//            date = Date()
-//        )
-//        messageDao.insertMessage(message)
-//
-//        val dtoUp = MessageDtoUp(message = content, model = preferencesHelper.selectedModelId)
-//
-//        val response = apiService.postMessage(UUID.randomUUID(), dtoUp)
-//        val selectedModel = modelDao.getModel(preferencesHelper.selectedModelId)
-//
-//
-//        val responseMessageEntity = MessageEntity(
-//            content = response,
-//            sender = MessageSender.AI,
-//            model = selectedModel.name,
-//            date = Date())
-//
-//        messageDao.insertMessage(responseMessageEntity)
+    override suspend fun createConversation(name: String, prePrompt: String): Conversation {
+        val dtoUp = CreateConversationDtoUp(title = name, prePrompt = prePrompt)
+
+        val result = apiService.createConversation(dtoUp)
+
+        return Conversation(id = result.id, title = result.title, lastModificationDate = result.lastModificationDate)
     }
 
     private fun prepareFilePart(partName: String, uri: Uri): MultipartBody.Part {
         val inputStream = context.contentResolver.openInputStream(uri)
-        val file = File(context.cacheDir, "tempFile")
+        val file = File(context.cacheDir, getFileName(uri)!!)
         FileOutputStream(file).use { outputStream ->
             inputStream?.copyTo(outputStream)
         }
 
         val requestFile = RequestBody.create("application/pdf".toMediaTypeOrNull(), file)
         return MultipartBody.Part.createFormData(partName, file.name, requestFile)
+    }
+
+    @SuppressLint("Range")
+    private fun getFileName(uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                }
+            } finally {
+                cursor?.close()
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result!!.lastIndexOf('/')
+            if (cut != -1) {
+                result = result.substring(cut + 1)
+            }
+        }
+        return result
     }
 }

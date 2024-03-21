@@ -2,7 +2,6 @@ package fr.group5.magellangpt.presentation.main
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pspdfkit.document.PdfDocument
@@ -14,6 +13,7 @@ import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.domain.models.Conversation
 import fr.group5.magellangpt.domain.models.Model
 import fr.group5.magellangpt.domain.models.Resource
+import fr.group5.magellangpt.domain.usecases.CreateConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationsUseCase
@@ -21,17 +21,14 @@ import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
 import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
-import fr.group5.magellangpt.domain.usecases.PostMessageInNewConversationUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
-import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -46,8 +43,8 @@ class MainViewModel(
     private val getAvailableModelsUseCase: GetAvailableModelsUseCase = get(GetAvailableModelsUseCase::class.java),
     private val preferencesHelper: PreferencesHelper = get(PreferencesHelper::class.java),
     private val getConversationsUseCase: GetConversationsUseCase = get(GetConversationsUseCase::class.java),
-    private val postMessageInNewConversationUseCase: PostMessageInNewConversationUseCase = get(PostMessageInNewConversationUseCase::class.java),
     private val getMessagesUseCase: GetMessagesUseCase = get(GetMessagesUseCase::class.java),
+    private val createConversationUseCase: CreateConversationUseCase = get(CreateConversationUseCase::class.java),
     private val context : Context = get(Context::class.java),
     private val ioDispatcher : CoroutineDispatcher = get(CoroutineDispatcher::class.java)
 ) : ViewModel() {
@@ -76,6 +73,19 @@ class MainViewModel(
             is MainEvent.OnConversationsRefreshed -> refreshConversations()
             is MainEvent.OnDocumentLoaded -> onDocumentLoaded(event.uri)
             is MainEvent.OnDocumentDeleted -> onDocumentDeleted(event.uri)
+            is MainEvent.OnConversationNameChanged -> {
+                _uiState.update { it.copy(conversationName = event.conversationName) }
+            }
+            is MainEvent.OnConversationPrePromptChanged -> {
+                _uiState.update { it.copy(conversationPrePrompt = event.prePrompt) }
+            }
+            is MainEvent.OnCreateConversation -> {
+                onCreateConversation(event.conversationName, event.prePrompt)
+            }
+
+            is MainEvent.OnCreateConversationDialogVisibilityChanged -> {
+                _uiState.update { it.copy(showCreationDialog = event.show) }
+            }
         }
     }
 
@@ -90,30 +100,17 @@ class MainViewModel(
         viewModelScope.launch {
             if (message.isBlank()) return@launch
 
-            _uiState.update { it.copy(message = "", typing = true, documents = emptyMap()) }
+            val documents = uiState.value.documents.keys.toList()
 
-            if (_uiState.value.selectedConversation == null){
-                when(val result = postMessageInNewConversationUseCase(message)){
-                    is Resource.Success -> {
-                        _uiState.update { it.copy(typing = false) }
-                    }
-                    is Resource.Error -> {
-                        errorHelper.onError(ErrorHelper.Error(message = result.message))
-                        _uiState.update { it.copy(typing = false) }
-                    }
+            _uiState.update { it.copy(message = "", typing = true, documents = emptyMap()) }
+            val selectedConversationId = uiState.value.selectedConversation!!.id
+            when(val result = postMessageInConversationUseCase(selectedConversationId, message, documents)){
+                is Resource.Success -> {
+                    _uiState.update { it.copy(typing = false) }
                 }
-            }
-            else {
-                val selectedConversationId = uiState.value.selectedConversation!!.id
-                val documents = uiState.value.documents.keys.toList()
-                when(val result = postMessageInConversationUseCase(selectedConversationId, message, documents)){
-                    is Resource.Success -> {
-                        _uiState.update { it.copy(typing = false) }
-                    }
-                    is Resource.Error -> {
-                        errorHelper.onError(ErrorHelper.Error(message = result.message))
-                        _uiState.update { it.copy(typing = false) }
-                    }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(typing = false) }
                 }
             }
         }
@@ -180,6 +177,10 @@ class MainViewModel(
             when(val result = getConversationsUseCase()){
                 is Resource.Success -> {
                     _uiState.update { it.copy(conversations = result.data, conversationsRefreshing = false) }
+
+                    // If selected conversation have been deleted
+                    if (result.data.none { it.id == uiState.value.selectedConversation?.id })
+                        _uiState.update { it.copy(selectedConversation = null) }
                 }
                 is Resource.Error -> {
                     errorHelper.onError(ErrorHelper.Error(message = result.message))
@@ -199,6 +200,32 @@ class MainViewModel(
                 is Resource.Error -> {
                     errorHelper.onError(ErrorHelper.Error(message = result.message))
                     _uiState.update { it.copy(conversationsLoading = false)}
+                }
+            }
+        }
+    }
+
+    private fun onCreateConversation(conversationName : String, conversationPrePrompt : String){
+        _uiState.update { it.copy(createConversationLoading = true) }
+
+        viewModelScope.launch {
+            when(val result = createConversationUseCase(conversationName, conversationPrePrompt)){
+                is Resource.Success -> {
+                    val conversations = uiState.value.conversations.toMutableList()
+                    conversations.add(result.data)
+                    _uiState.update { it.copy(
+                        showCreationDialog = false,
+                        createConversationLoading = false,
+                        conversations = conversations,
+                        conversationPrePrompt = "",
+                        conversationName = ""
+                    ) }
+
+                    onConversationSelected(result.data)
+                }
+                is Resource.Error -> {
+                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    _uiState.update { it.copy(createConversationLoading = false) }
                 }
             }
         }

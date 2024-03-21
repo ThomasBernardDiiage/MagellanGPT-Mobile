@@ -4,17 +4,14 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,10 +35,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
@@ -52,9 +45,12 @@ import fr.group5.magellangpt.common.extensions.toDateLabel
 import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.presentation.components.Loader
 import fr.group5.magellangpt.presentation.components.TextField
+import fr.group5.magellangpt.presentation.components.main.AiMessageItem
+import fr.group5.magellangpt.presentation.components.main.CreateNewConversationBottomSheet
 import fr.group5.magellangpt.presentation.components.main.EmptyList
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
-import fr.group5.magellangpt.presentation.components.main.MessageItem
+import fr.group5.magellangpt.presentation.components.main.UserMessageItem
+import fr.group5.magellangpt.presentation.components.main.NoConversationSelected
 import fr.group5.magellangpt.presentation.components.main.PdfThumbnail
 import fr.group5.magellangpt.presentation.components.main.TypingMessage
 import fr.thomasbernard03.composents.buttons.SquaredButton
@@ -70,7 +66,6 @@ fun MainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
-    val context = LocalContext.current
 
     LaunchedEffect(uiState.messages) {
         if (uiState.messages.isNotEmpty()) {
@@ -122,6 +117,22 @@ fun MainScreen(
             )
         }
     ) {
+        if (uiState.showCreationDialog){
+            CreateNewConversationBottomSheet(
+                createConversationLoading = uiState.createConversationLoading,
+                conversationName = uiState.conversationName,
+                conversationPrePrompt = uiState.conversationPrePrompt,
+                onConversationNameChanged = { onEvent(MainEvent.OnConversationNameChanged(it)) },
+                onPrePromptChanged = { onEvent(MainEvent.OnConversationPrePromptChanged(it))},
+                onClose = { onEvent(MainEvent.OnCreateConversationDialogVisibilityChanged(false)) },
+                onValidate = { name, prePrompt ->
+                    onEvent(MainEvent.OnCreateConversation(name, prePrompt))
+                }
+            )
+        }
+
+
+
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -168,127 +179,134 @@ fun MainScreen(
                     color = MaterialTheme.colorScheme.primary,
                     resource = R.drawable.add_chat,
                     onClick = {
-
+                        onEvent(MainEvent.OnCreateConversationDialogVisibilityChanged(true))
                     })
             }
 
-            if (uiState.messagesLoading){
-                Loader(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    message = stringResource(id = R.string.loading_characters)
-                )
-            }
-            else if (uiState.messages.isNotEmpty()){
-                LazyColumn(
-                    state = lazyListState,
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    uiState.messages.forEach { date, messages ->
-                        stickyHeader {
-                            Text(
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.background),
-                                text = date.toDateLabel(),
-                            )
-                        }
-
-                        items(messages){ message ->
-                            when(message.sender){
-                                MessageSender.USER ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(end = 12.dp, start = 48.dp),
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
-                                        MessageItem(content = message.content, date = message.date, isUser = true, model = message.model)
-                                    }
-                                MessageSender.AI ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(start = 12.dp, end = 24.dp),
-                                        horizontalArrangement = Arrangement.Start
-                                    ) {
-                                        MessageItem(content = message.content, date = message.date, isUser = false, model = message.model)
-                                    }
-                            }
-                        }
-
-                        if (uiState.typing){
-                            item {
-                                LaunchedEffect(Unit){
-                                    lazyListState.scrollToItem(uiState.messages.flatMap { it.value }.size + uiState.messages.size)
-                                }
-
-                                TypingMessage()
-                            }
-                        }
-                    }
-
-                }
+            if (uiState.selectedConversation == null){
+                NoConversationSelected(modifier = Modifier.fillMaxSize())
             }
             else {
-                EmptyList(modifier = Modifier.weight(1f))
-            }
-
-            Row(
-                modifier = Modifier
-                    .background(
-                        color = Color.White,
-                        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+                if (uiState.messagesLoading){
+                    Loader(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        message = stringResource(id = R.string.loading_characters)
                     )
-            ) {
-                Column {
-                    LazyRow(
+                }
+                else if (uiState.messages.isNotEmpty()){
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        uiState.documents.forEach { uri, document ->
-                            item {
-                                PdfThumbnail(
-                                    uri = uri,
-                                    document = document,
-                                    onLongClick = {
-                                        onEvent(MainEvent.OnDocumentDeleted(uri))
-                                    }
+                        uiState.messages.forEach { date, messages ->
+                            stickyHeader {
+                                Text(
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(MaterialTheme.colorScheme.background),
+                                    text = date.toDateLabel(),
                                 )
                             }
+
+                            items(messages){ message ->
+                                when(message.sender){
+                                    MessageSender.USER ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 48.dp),
+                                            horizontalArrangement = Arrangement.End
+                                        ) {
+                                            UserMessageItem(content = message.content, date = message.date, filesNames = message.filesNames)
+                                        }
+                                    MessageSender.AI ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(end = 48.dp),
+                                            horizontalArrangement = Arrangement.Start
+                                        ) {
+                                            AiMessageItem(content = message.content, date = message.date, model = message.model ?: "")
+                                        }
+                                }
+                            }
+
+                            if (uiState.typing){
+                                item {
+                                    LaunchedEffect(Unit){
+                                        lazyListState.scrollToItem(uiState.messages.flatMap { it.value }.size + uiState.messages.size)
+                                    }
+
+                                    TypingMessage()
+                                }
+                            }
+                        }
+
+                    }
+                }
+                else {
+                    EmptyList(modifier = Modifier.weight(1f))
+                }
+
+                Row(
+                    modifier = Modifier
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+                        )
+                ) {
+                    Column {
+                        LazyRow(
+                            contentPadding = PaddingValues(8.dp),
+                        ) {
+                            uiState.documents.forEach { uri, document ->
+                                item {
+                                    PdfThumbnail(
+                                        uri = uri,
+                                        document = document,
+                                        onLongClick = {
+                                            onEvent(MainEvent.OnDocumentDeleted(uri))
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 16.dp)
+                        ) {
+                            SquaredButton(
+                                resource = R.drawable.file_icon,
+                                onClick = { launcher.launch(arrayOf("application/pdf")) })
+
+                            TextField(
+                                placeholder = stringResource(id = R.string.message),
+                                modifier = Modifier.weight(1f),
+                                text = uiState.message,
+                                keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
+                                onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) },
+                                singleLine = false,
+                                maxLines = 4)
+
+
+                            SquaredButton(
+                                resource = R.drawable.send,
+                                onClick = {
+                                    onEvent(MainEvent.OnSendMessage(uiState.message))
+                                })
                         }
                     }
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
-                    ) {
-                        SquaredButton(
-                            resource = R.drawable.file_icon,
-                            onClick = { launcher.launch(arrayOf("application/pdf")) })
-
-                        TextField(
-                            placeholder = stringResource(id = R.string.message),
-                            modifier = Modifier.weight(1f),
-                            text = uiState.message,
-                            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
-                            onTextChange = { onEvent(MainEvent.OnMessageChanged(it)) },
-                            singleLine = false,
-                            maxLines = 4)
-
-
-                        SquaredButton(
-                            resource = R.drawable.send,
-                            onClick = {
-                                onEvent(MainEvent.OnSendMessage(uiState.message))
-                            })
-                    }
                 }
-
             }
         }
     }
@@ -296,17 +314,17 @@ fun MainScreen(
 
 @Composable
 @Preview
-private fun mainScreenEmptyMessagePreview(){
+private fun MainScreenEmptyMessagePreview(){
     val uiState = MainUiState()
     MainScreen(uiState = uiState, onEvent = {})
 }
 
 @Composable
 @Preview
-private fun mainScreenMessagesPreview(){
+private fun MainScreenMessagesPreview(){
     val messages = listOf(
-        fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date(), model = "gpt3"),
-        fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date(), model = "gpt4"),
+        fr.group5.magellangpt.domain.models.Message(id = 1, content = "Hello there", sender = MessageSender.USER, date = Date(), model = "gpt3", filesNames = emptyList()),
+        fr.group5.magellangpt.domain.models.Message(id = 2, content = "Hello obi-wan", sender = MessageSender.AI, date = Date(), model = "gpt4", filesNames = emptyList()),
     )
     val uiState = MainUiState(messages = messages.groupBy { it.date })
     MainScreen(uiState = uiState, onEvent = {})

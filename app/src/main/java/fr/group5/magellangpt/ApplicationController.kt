@@ -19,6 +19,7 @@ import fr.group5.magellangpt.data.repositories.ModelRepositoryImpl
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
 import fr.group5.magellangpt.domain.repositories.ModelRepository
+import fr.group5.magellangpt.domain.usecases.CreateConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
 import fr.group5.magellangpt.domain.usecases.LoginUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
@@ -27,7 +28,6 @@ import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
 import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
-import fr.group5.magellangpt.domain.usecases.PostMessageInNewConversationUseCase
 import fr.group5.magellangpt.domain.usecases.UserConnectedUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -65,9 +65,8 @@ class ApplicationController : Application() {
         single { PostMessageInConversationUseCase() }
         single { GetAvailableModelsUseCase() }
         single { GetConversationsUseCase() }
-        single { PostMessageInNewConversationUseCase() }
         single { GetMessagesUseCase() }
-
+        single { CreateConversationUseCase() }
 
         single { database.messageDao() }
         single { database.conversationDao() }

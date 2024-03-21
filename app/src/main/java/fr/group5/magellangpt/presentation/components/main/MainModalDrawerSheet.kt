@@ -176,7 +176,7 @@ fun MainModalDrawerSheet(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 onClick = {
-                    val uri = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                    val uri = "https://mango-wave-081aff710.5.azurestaticapps.net/main.html"
                     uriHandler.openUri(uri)
                 }
             ) {

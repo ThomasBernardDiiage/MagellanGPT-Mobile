@@ -1,6 +1,5 @@
 package fr.group5.magellangpt.data.remote
 
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
@@ -42,10 +41,10 @@ object ApiClient {
         OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(headerInterceptor)
-            .callTimeout(1, TimeUnit.MINUTES)
-            .connectTimeout(1, TimeUnit.MINUTES)
-            .readTimeout(1, TimeUnit.MINUTES)
-            .writeTimeout(1, TimeUnit.MINUTES)
+            .callTimeout(5, TimeUnit.MINUTES)
+            .connectTimeout(5, TimeUnit.MINUTES)
+            .readTimeout(5, TimeUnit.MINUTES)
+            .writeTimeout(5, TimeUnit.MINUTES)
             .build()
     }
 

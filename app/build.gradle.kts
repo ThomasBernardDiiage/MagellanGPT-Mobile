@@ -103,4 +103,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.11.0") // Logging interceptor
 
     implementation("com.pspdfkit:pspdfkit:8.0.0")
+    implementation("com.airbnb.android:lottie-compose:4.0.0")
 }

@@ -3,12 +3,12 @@ package fr.group5.magellangpt.data.remote.dto.down
 import com.google.gson.annotations.SerializedName
 
 data class ModelDtoDown(
-    @SerializedName("modelId")
+    @SerializedName("id")
     val id : String,
 
-    @SerializedName("modelName")
+    @SerializedName("name")
     val name : String,
 
-    @SerializedName("modelIndex")
+    @SerializedName("index")
     val index : Int
 )

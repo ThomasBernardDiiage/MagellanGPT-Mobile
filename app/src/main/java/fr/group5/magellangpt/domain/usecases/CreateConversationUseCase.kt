@@ -3,6 +3,7 @@ package fr.group5.magellangpt.domain.usecases
 import android.util.Log
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.helpers.ResourcesHelper
+import fr.group5.magellangpt.domain.models.Conversation
 import fr.group5.magellangpt.domain.models.Resource
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -11,15 +12,14 @@ import org.koin.java.KoinJavaComponent.get
 import retrofit2.HttpException
 import java.net.UnknownHostException
 
-class PostMessageInNewConversationUseCase(
+class CreateConversationUseCase(
     private val conversationRepository: ConversationRepository = get(ConversationRepository::class.java),
+    private val resourcesHelper: ResourcesHelper = get(ResourcesHelper::class.java),
     private val ioDispatcher: CoroutineDispatcher = get(CoroutineDispatcher::class.java),
-    private val resourcesHelper: ResourcesHelper = get(ResourcesHelper::class.java)
 ) {
-    suspend operator fun invoke(content: String) : Resource<Unit> = withContext(ioDispatcher) {
+    suspend operator fun invoke(name : String, prePrompt : String) : Resource<Conversation> = withContext(ioDispatcher) {
         try {
-            conversationRepository.sendMessage(content)
-            Resource.Success(Unit)
+            Resource.Success(conversationRepository.createConversation(name, prePrompt))
         }
         catch (e : UnknownHostException){
             Resource.Error(resourcesHelper.getString(R.string.error_network))

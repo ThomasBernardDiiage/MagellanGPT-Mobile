@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import java.util.Date
 import java.util.UUID
 
-data class ConversationDtoDown(
+data class ConversationListDtoDown(
     @SerializedName("id")
     val id: UUID,
 
@@ -13,7 +13,4 @@ data class ConversationDtoDown(
 
     @SerializedName("lastModificationDate")
     val lastModificationDate : Date,
-
-    @SerializedName("messages")
-    val messages: List<ConversationMessageDtoDown>
 )
