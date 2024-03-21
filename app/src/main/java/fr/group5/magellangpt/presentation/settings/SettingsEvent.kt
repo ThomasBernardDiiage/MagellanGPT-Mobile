@@ -6,4 +6,5 @@ sealed class SettingsEvent {
     data object OnLogout : SettingsEvent()
 
     data object OnGoBack : SettingsEvent()
+    data object OnGoToKnowledgeBase : SettingsEvent()
 }

@@ -1,5 +1,6 @@
 package fr.group5.magellangpt.presentation.settings
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import fr.thomasbernard03.composents.navigationbars.NavigationBar
 import fr.group5.magellangpt.BuildConfig
 import fr.group5.magellangpt.presentation.theme.Secondary
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsScreen(
     uiState : SettingsUiState,
@@ -75,6 +77,10 @@ fun SettingsScreen(
                     text = "${stringResource(id = R.string.hello)} \uD83D\uDC4B")
             }
 
+            stickyHeader {
+                Text(text = stringResource(id = R.string.about_me))
+            }
+
             item {
                 SettingItem(
                     modifier = Modifier.fillMaxWidth(),
@@ -97,16 +103,20 @@ fun SettingsScreen(
                 }
             }
 
+            stickyHeader {
+                Text(text = stringResource(id = R.string.settings))
+            }
+
             item {
                 SettingItem(
                     modifier = Modifier.fillMaxWidth(),
-                    icon = R.drawable.android,
-                    title = R.string.app_name_android,
-                    subtitle = "${stringResource(id = R.string.version)} ${BuildConfig.VERSION_NAME}"
+                    icon = R.drawable.brain,
+                    title = R.string.knowledge_base,
                 ) {
-                    showConfetti = true
+                    onEvent(SettingsEvent.OnGoToKnowledgeBase)
                 }
             }
+
 
             item {
                 SettingItem(
@@ -118,6 +128,24 @@ fun SettingsScreen(
                     uriHandler.openUri(uri)
                 }
             }
+
+
+            stickyHeader {
+                Text(text = stringResource(id = R.string.others))
+            }
+
+            item {
+                SettingItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.android,
+                    title = R.string.app_name_android,
+                    subtitle = "${stringResource(id = R.string.version)} ${BuildConfig.VERSION_NAME}"
+                ) {
+                    showConfetti = true
+                }
+            }
+
+
 
             item {
                 SettingItem(

@@ -29,6 +29,7 @@ class SettingsViewModel(
             is SettingsEvent.OnLogout -> logout()
             is SettingsEvent.OnGoBack -> { navigationHelper.goBack() }
             is SettingsEvent.OnGetUserInformation -> { getUserInformation() }
+            is SettingsEvent.OnGoToKnowledgeBase -> { navigationHelper.navigateTo(NavigationHelper.Destination.KnowledgeBase) }
         }
     }
 

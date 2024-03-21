@@ -38,9 +38,9 @@ fun SettingItem(
         onClick = onClick,
         shape = RectangleShape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White
+            containerColor = Color.Transparent
         ),
-        contentPadding = PaddingValues(horizontal = 6.dp)
+        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 12.dp)
     ) {
         Icon(
             modifier = Modifier.size(36.dp).padding(end = 16.dp),
@@ -77,9 +77,9 @@ fun SettingItem(
         onClick = onClick,
         shape = RectangleShape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White
+            containerColor = Color.Transparent
         ),
-        contentPadding = PaddingValues(horizontal = 6.dp)
+        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 12.dp)
     ) {
         Icon(
             modifier = Modifier.size(36.dp).padding(end = 16.dp),

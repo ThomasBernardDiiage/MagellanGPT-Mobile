@@ -3,7 +3,6 @@ package fr.group5.magellangpt.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -29,11 +29,13 @@ import androidx.navigation.compose.rememberNavController
 import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.helpers.ErrorHelper
 import fr.group5.magellangpt.common.helpers.NavigationHelper
+import fr.group5.magellangpt.common.helpers.ResourcesHelper
+import fr.group5.magellangpt.presentation.knowledgebase.KnowledgeBaseScreen
+import fr.group5.magellangpt.presentation.knowledgebase.KnowledgeBaseViewModel
 import fr.group5.magellangpt.presentation.login.LoginScreen
 import fr.group5.magellangpt.presentation.login.LoginViewModel
 import fr.group5.magellangpt.presentation.main.MainScreen
 import fr.group5.magellangpt.presentation.main.MainViewModel
-import fr.group5.magellangpt.presentation.settings.SettingsEvent
 import fr.group5.magellangpt.presentation.settings.SettingsScreen
 import fr.group5.magellangpt.presentation.settings.SettingsViewModel
 import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
@@ -44,6 +46,7 @@ import org.koin.java.KoinJavaComponent.get
 
 class MainActivity(
     private val navigationHelper : NavigationHelper = get(NavigationHelper::class.java),
+    private val resourcesHelper: ResourcesHelper = get(ResourcesHelper::class.java),
     private val errorHelper: ErrorHelper = get(ErrorHelper::class.java),
 ) : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,15 +57,23 @@ class MainActivity(
 
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
+
+
                 val showNavigationBar = navController
-                    .currentBackStackEntryAsState().value?.destination?.route == NavigationHelper.Destination.Settings.route
+                    .currentBackStackEntryAsState().value?.destination?.route == NavigationHelper.Destination.Settings.route ||
+                        navController
+                            .currentBackStackEntryAsState().value?.destination?.route == NavigationHelper.Destination.KnowledgeBase.route
+
+                var title by remember { mutableStateOf("") }
+                var subtitle by remember { mutableStateOf("") }
 
                 Scaffold(
                     snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
                     topBar = {
                         AnimatedVisibility(visible = showNavigationBar){
                             NavigationBar(
-                                title = stringResource(id = R.string.settings),
+                                title = title,
+                                subtitle = subtitle,
                                 showBackButton = true,
                                 onBack = { navigationHelper.goBack() },
                                 actions = { Box(modifier = Modifier.size(44.dp)) }
@@ -102,7 +113,6 @@ class MainActivity(
 
                                 snackbarHostState.showSnackbar(it.message, withDismissAction = true)
                             }.launchIn(this)
-
                         }
 
                         NavHost(navController = navController, startDestination = NavigationHelper.Destination.Login.route){
@@ -117,9 +127,18 @@ class MainActivity(
                                 MainScreen(uiState = uiState, onEvent = viewModel::onEvent)
                             }
                             composable(NavigationHelper.Destination.Settings.route){
+                                title = resourcesHelper.getString(R.string.settings)
+                                subtitle = ""
                                 val viewModel : SettingsViewModel = viewModel()
                                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                                 SettingsScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                            }
+                            composable(NavigationHelper.Destination.KnowledgeBase.route){
+                                title = resourcesHelper.getString(R.string.settings)
+                                subtitle = resourcesHelper.getString(R.string.knowledge_base)
+                                val viewModel : KnowledgeBaseViewModel = viewModel()
+                                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                                KnowledgeBaseScreen(uiState, viewModel::onEvent)
                             }
                         }
                     }

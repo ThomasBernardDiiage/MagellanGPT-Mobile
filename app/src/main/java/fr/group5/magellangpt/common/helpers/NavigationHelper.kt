@@ -16,5 +16,6 @@ interface NavigationHelper {
         data object Login : Destination("login")
         data object Main : Destination("main")
         data object Settings : Destination("settings")
+        data object KnowledgeBase : Destination("knowledgebase")
     }
 }
