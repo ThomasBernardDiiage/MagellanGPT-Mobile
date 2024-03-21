@@ -15,5 +15,6 @@ interface NavigationHelper {
     sealed class Destination(val route: String) {
         data object Login : Destination("login")
         data object Main : Destination("main")
+        data object Settings : Destination("settings")
     }
 }

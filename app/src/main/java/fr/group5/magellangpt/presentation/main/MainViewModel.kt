@@ -35,7 +35,6 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class MainViewModel(
-    private val logoutUseCase: LogoutUseCase = get(LogoutUseCase::class.java),
     private val navigationHelper : NavigationHelper = get(NavigationHelper::class.java),
     private val getConversationUseCase: GetConversationUseCase = get(GetConversationUseCase::class.java),
     private val getCurrentUserUseCase: GetCurrentUserUseCase = get(GetCurrentUserUseCase::class.java),
@@ -66,7 +65,7 @@ class MainViewModel(
         when(event){
             is MainEvent.OnAppearing -> onAppearing()
             is MainEvent.OnMessageChanged -> onQueryChanged(event.message)
-            is MainEvent.OnLogout -> onLogout()
+            is MainEvent.OnGoToSettings -> onGoToSettings()
             is MainEvent.OnSendMessage -> onSendMessage(event.message)
             is MainEvent.OnModelSelected -> onModelSelected(event.model)
             is MainEvent.OnConversationQueryChanged -> onConversationQueryChanged(event.query)
@@ -233,15 +232,8 @@ class MainViewModel(
         }
     }
 
-    private fun onLogout(){
-        viewModelScope.launch {
-            logoutUseCase()
-
-            navigationHelper.navigateTo(
-                route = NavigationHelper.Destination.Login,
-                popupTo = NavigationHelper.Destination.Main.route,
-                inclusive = true)
-        }
+    private fun onGoToSettings(){
+        navigationHelper.navigateTo(route = NavigationHelper.Destination.Settings)
     }
 
     // https://pspdfkit.com/blog/2021/open-pdf-in-jetpack-compose-app/

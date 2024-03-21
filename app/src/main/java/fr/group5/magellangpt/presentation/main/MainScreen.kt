@@ -106,7 +106,7 @@ fun MainScreen(
                 onConversationsRefreshed = {
                     onEvent(MainEvent.OnConversationsRefreshed)
                 },
-                onLogout = { onEvent(MainEvent.OnLogout) },
+                onGoToSettings = { onEvent(MainEvent.OnGoToSettings) },
                 onQueryChanged = {
                     onEvent(MainEvent.OnConversationQueryChanged(it))
                 },
@@ -306,9 +306,7 @@ fun MainScreen(
 
                             SquaredButton(
                                 resource = R.drawable.send,
-                                onClick = {
-                                    onEvent(MainEvent.OnSendMessage(uiState.message))
-                                })
+                                onClick = { onEvent(MainEvent.OnSendMessage(uiState.message)) })
                         }
                     }
 

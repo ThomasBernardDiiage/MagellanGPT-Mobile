@@ -3,6 +3,7 @@ package fr.group5.magellangpt.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -24,6 +25,8 @@ import fr.group5.magellangpt.presentation.login.LoginScreen
 import fr.group5.magellangpt.presentation.login.LoginViewModel
 import fr.group5.magellangpt.presentation.main.MainScreen
 import fr.group5.magellangpt.presentation.main.MainViewModel
+import fr.group5.magellangpt.presentation.settings.SettingsScreen
+import fr.group5.magellangpt.presentation.settings.SettingsViewModel
 import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -41,6 +44,7 @@ class MainActivity(
 
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
+
 
                 Scaffold(
                     snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
@@ -81,7 +85,7 @@ class MainActivity(
                         }
 
                         NavHost(navController = navController, startDestination = NavigationHelper.Destination.Login.route){
-                            composable("login"){
+                            composable(NavigationHelper.Destination.Login.route){
                                 val viewModel : LoginViewModel = viewModel()
                                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                                 LoginScreen(uiState = uiState, onEvent = viewModel::onEvent)
@@ -91,10 +95,14 @@ class MainActivity(
                                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                                 MainScreen(uiState = uiState, onEvent = viewModel::onEvent)
                             }
+                            composable(NavigationHelper.Destination.Settings.route){
+                                val viewModel : SettingsViewModel = viewModel()
+                                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                                SettingsScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                            }
                         }
                     }
                 }
-
             }
         }
     }

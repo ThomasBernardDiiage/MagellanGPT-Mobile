@@ -4,7 +4,7 @@
     <!-- Login -->
     <string name="login_with_microsoft">Se connecter avec Microsoft</string>
     <string name="welcome_to">Bienvenue sur</string>
-    <string name="login_subtitle">Tout comme le navigateur, explorez les entraille de l’IA</string>
+    <string name="login_subtitle">Tout comme le navigateur, explorez les entrailles de l’IA</string>
 
     <!-- Main -->
     <string name="message">Message</string>
@@ -33,6 +33,15 @@
     <!-- Modal Navigation Drawer -->
     <string name="more_informations">Plus d\'informations</string>
     <string name="quota">Quota</string>
+
+    <!-- Settings -->
+    <string name="settings">Paramètres</string>
+    <string name="hello">Bonjour</string>
+    <string name="logout">Se déconnecter</string>
+    <string name="version">Version</string>
+    <string name="app_name_android">MagellanGPT pour Android</string>
+    <string name="mail">Adresse mail</string>
+    <string name="user">Utilisateur</string>
 
     <!-- Errors -->
     <string name="error_occured">Une erreur est survenue</string>
