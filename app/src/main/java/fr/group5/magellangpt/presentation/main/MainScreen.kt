@@ -52,6 +52,7 @@ import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
 import fr.group5.magellangpt.presentation.components.main.UserMessageItem
 import fr.group5.magellangpt.presentation.components.main.NoConversationSelected
 import fr.group5.magellangpt.presentation.components.main.PdfThumbnail
+import fr.group5.magellangpt.presentation.components.main.PromptMessageItem
 import fr.group5.magellangpt.presentation.components.main.TypingMessage
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
@@ -215,6 +216,12 @@ fun MainScreen(
 
                             items(messages){ message ->
                                 when(message.sender){
+                                    MessageSender.PROMPT -> {
+                                        PromptMessageItem(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            content = message.content
+                                        )
+                                    }
                                     MessageSender.USER ->
                                         Row(
                                             modifier = Modifier
@@ -235,18 +242,17 @@ fun MainScreen(
                                         }
                                 }
                             }
-
-                            if (uiState.typing){
-                                item {
-                                    LaunchedEffect(Unit){
-                                        lazyListState.scrollToItem(uiState.messages.flatMap { it.value }.size + uiState.messages.size)
-                                    }
-
-                                    TypingMessage()
-                                }
-                            }
                         }
 
+                        if (uiState.typing){
+                            item {
+                                LaunchedEffect(Unit){
+                                    lazyListState.scrollToItem(uiState.messages.flatMap { it.value }.size + uiState.messages.size)
+                                }
+
+                                TypingMessage()
+                            }
+                        }
                     }
                 }
                 else {

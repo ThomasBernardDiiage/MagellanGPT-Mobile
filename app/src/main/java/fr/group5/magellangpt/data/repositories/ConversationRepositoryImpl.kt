@@ -3,7 +3,6 @@ package fr.group5.magellangpt.data.repositories
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.net.http.HttpException
 import android.provider.OpenableColumns
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.data.local.dao.ConversationDao
@@ -13,7 +12,6 @@ import fr.group5.magellangpt.data.local.entities.ConversationEntity
 import fr.group5.magellangpt.data.local.entities.MessageEntity
 import fr.group5.magellangpt.data.remote.ApiService
 import fr.group5.magellangpt.data.remote.dto.up.CreateConversationDtoUp
-import fr.group5.magellangpt.data.remote.dto.up.MessageDtoUp
 import fr.group5.magellangpt.domain.models.Conversation
 import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.MessageSender
@@ -92,7 +90,7 @@ class ConversationRepositoryImpl(
 
         val userMessageId = messageDao.insertMessage(message)
 
-        val filesParts = uris.mapIndexed { index, uri ->
+        val filesParts = uris.map { uri ->
             prepareFilePart("files", uri)
         }
 
@@ -121,9 +119,11 @@ class ConversationRepositoryImpl(
     }
 
     override suspend fun createConversation(name: String, prePrompt: String): Conversation {
-        val dtoUp = CreateConversationDtoUp(title = name, prePrompt = prePrompt)
+        val dtoUp = CreateConversationDtoUp(title = name, prompt = prePrompt)
 
         val result = apiService.createConversation(dtoUp)
+
+//        messageDao.nuke(result.messages)
 
         return Conversation(id = result.id, title = result.title, lastModificationDate = result.lastModificationDate)
     }

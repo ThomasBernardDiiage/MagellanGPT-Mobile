@@ -2,6 +2,7 @@ package fr.group5.magellangpt.presentation.main
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pspdfkit.document.PdfDocument
@@ -213,6 +214,7 @@ class MainViewModel(
                 is Resource.Success -> {
                     val conversations = uiState.value.conversations.toMutableList()
                     conversations.add(result.data)
+                    conversations.sortByDescending { it.lastModificationDate }
                     _uiState.update { it.copy(
                         showCreationDialog = false,
                         createConversationLoading = false,
@@ -224,7 +226,7 @@ class MainViewModel(
                     onConversationSelected(result.data)
                 }
                 is Resource.Error -> {
-                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                     _uiState.update { it.copy(createConversationLoading = false) }
                 }
             }

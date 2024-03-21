@@ -83,7 +83,7 @@ fun CreateNewConversationBottomSheet(
                         .focusRequester(focusRequester),
                     text = conversationName,
                     placeholder = stringResource(id = R.string.conversation_name),
-                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next, capitalization = KeyboardCapitalization.Sentences),
                     maxLength = 50,
                     onTextChange = {
                         onConversationNameChanged(it)

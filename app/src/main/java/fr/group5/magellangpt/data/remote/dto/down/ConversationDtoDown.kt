@@ -14,6 +14,10 @@ data class ConversationDtoDown(
     @SerializedName("lastModificationDate")
     val lastModificationDate : Date,
 
+
+    @SerializedName("prompt")
+    val prompt : String,
+
     @SerializedName("messages")
     val messages: List<ConversationMessageDtoDown>
 )
