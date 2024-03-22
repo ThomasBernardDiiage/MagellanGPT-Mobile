@@ -191,6 +191,7 @@ class MainViewModel(
     }
 
     private fun getConversations(){
+        if (uiState.value.conversations.isNotEmpty()) return
         viewModelScope.launch {
             _uiState.update { it.copy(conversationsLoading = true) }
             when(val result = getConversationsUseCase()){

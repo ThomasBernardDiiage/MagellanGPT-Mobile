@@ -66,7 +66,7 @@ fun MainModalDrawerSheet(
         drawerContainerColor = Color.White
     ) {
         Column(
-            modifier = Modifier.padding(top = 16.dp),
+            modifier = Modifier.padding(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
@@ -161,39 +161,17 @@ fun MainModalDrawerSheet(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 onClick = {
-                    val uri = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                    uriHandler.openUri(uri)
+                    onGoToSettings()
                 }
             ){
-                Text(text = stringResource(id = R.string.quota))
+                Text(text = stringResource(id = R.string.settings))
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 Icon(
-                    painter = painterResource(id = R.drawable.flask),
-                    contentDescription = "Flash")
-            }
-
-            Column {
-                HorizontalDivider()
-                
-                Button(
-                    onClick = onGoToSettings,
-                    shape = RectangleShape,
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-
-                        Text(text = "$firstname ${lastname.uppercase()}")
-                        Text(text = email)
-                    }
-
-                    Icon(
-                        painter = painterResource(id = R.drawable.options),
-                        contentDescription = "")
-                }
+                    tint = MaterialTheme.colorScheme.primary,
+                    painter = painterResource(id = R.drawable.settings),
+                    contentDescription = stringResource(id = R.string.settings))
             }
         }
     }

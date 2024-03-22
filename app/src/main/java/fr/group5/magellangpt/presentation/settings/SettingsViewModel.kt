@@ -5,13 +5,11 @@ import androidx.lifecycle.viewModelScope
 import fr.group5.magellangpt.common.helpers.NavigationHelper
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
-import fr.group5.magellangpt.presentation.main.MainUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.java.KoinJavaComponent
 import org.koin.java.KoinJavaComponent.get
 
 class SettingsViewModel(
@@ -26,15 +24,14 @@ class SettingsViewModel(
 
     fun onEvent(event : SettingsEvent){
         when(event){
-            is SettingsEvent.OnLogout -> logout()
-            is SettingsEvent.OnGoBack -> { navigationHelper.goBack() }
+            is SettingsEvent.OnLogout -> onLogout()
             is SettingsEvent.OnGetUserInformation -> { getUserInformation() }
             is SettingsEvent.OnGoToKnowledgeBase -> { navigationHelper.navigateTo(NavigationHelper.Destination.KnowledgeBase) }
         }
     }
 
 
-    private fun logout(){
+    private fun onLogout(){
         viewModelScope.launch {
             logoutUseCase()
             navigationHelper.navigateTo(

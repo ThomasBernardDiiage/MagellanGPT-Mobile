@@ -113,7 +113,7 @@ class ConversationRepositoryImpl(
             sender = response.body()!!.sender,
             model = selectedModel?.name,
             filesNames = response.body()!!.filesNames ?: arrayListOf(),
-            date = response.body()!!.date)
+            date = Date())
 
         messageDao.insertMessage(responseMessageEntity)
     }

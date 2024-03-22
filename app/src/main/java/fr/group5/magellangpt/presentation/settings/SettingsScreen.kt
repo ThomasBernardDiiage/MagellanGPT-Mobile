@@ -37,6 +37,7 @@ import fr.group5.magellangpt.R
 import fr.group5.magellangpt.presentation.components.settings.SettingItem
 import fr.thomasbernard03.composents.navigationbars.NavigationBar
 import fr.group5.magellangpt.BuildConfig
+import fr.group5.magellangpt.presentation.components.settings.Header
 import fr.group5.magellangpt.presentation.theme.Secondary
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -68,7 +69,7 @@ fun SettingsScreen(
     Box {
         LazyColumn(
             contentPadding = PaddingValues(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 Text(
@@ -78,7 +79,7 @@ fun SettingsScreen(
             }
 
             stickyHeader {
-                Text(text = stringResource(id = R.string.about_me))
+                Header(title = R.string.about_me)
             }
 
             item {
@@ -104,7 +105,7 @@ fun SettingsScreen(
             }
 
             stickyHeader {
-                Text(text = stringResource(id = R.string.settings))
+                Header(title = R.string.settings)
             }
 
             item {
@@ -131,7 +132,17 @@ fun SettingsScreen(
 
 
             stickyHeader {
-                Text(text = stringResource(id = R.string.others))
+                Header(title = R.string.others)
+            }
+
+            item {
+                SettingItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.flask,
+                    title = R.string.quota,
+                    subtitle = "0/1000"
+                ) {
+                }
             }
 
             item {

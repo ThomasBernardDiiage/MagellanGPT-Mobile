@@ -96,7 +96,7 @@ fun CreateNewConversationBottomSheet(
                         .height(100.dp),
                     text = conversationPrePrompt,
                     placeholder = stringResource(id = R.string.pre_prompt),
-                    maxLength = 150,
+                    maxLength = 200,
                     keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
                     singleLine = false,
                     onTextChange = {
