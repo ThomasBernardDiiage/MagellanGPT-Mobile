@@ -13,7 +13,7 @@ android {
         minSdk = 28
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -38,6 +38,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -85,7 +86,7 @@ dependencies {
     implementation("io.insert-koin:koin-android:3.5.3")
 
     // Composants
-    implementation("com.github.ThomasBernard03:Composents:1.2.1")
+    implementation("com.github.ThomasBernard03:Composents:1.2.2")
 
     implementation("com.github.jeziellago:compose-markdown:0.4.1")
 

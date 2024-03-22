@@ -2,6 +2,7 @@ package fr.group5.magellangpt.presentation.main
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pspdfkit.document.PdfDocument
@@ -34,7 +35,6 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class MainViewModel(
-    private val logoutUseCase: LogoutUseCase = get(LogoutUseCase::class.java),
     private val navigationHelper : NavigationHelper = get(NavigationHelper::class.java),
     private val getConversationUseCase: GetConversationUseCase = get(GetConversationUseCase::class.java),
     private val getCurrentUserUseCase: GetCurrentUserUseCase = get(GetCurrentUserUseCase::class.java),
@@ -65,7 +65,7 @@ class MainViewModel(
         when(event){
             is MainEvent.OnAppearing -> onAppearing()
             is MainEvent.OnMessageChanged -> onQueryChanged(event.message)
-            is MainEvent.OnLogout -> onLogout()
+            is MainEvent.OnGoToSettings -> onGoToSettings()
             is MainEvent.OnSendMessage -> onSendMessage(event.message)
             is MainEvent.OnModelSelected -> onModelSelected(event.model)
             is MainEvent.OnConversationQueryChanged -> onConversationQueryChanged(event.query)
@@ -191,6 +191,7 @@ class MainViewModel(
     }
 
     private fun getConversations(){
+        if (uiState.value.conversations.isNotEmpty()) return
         viewModelScope.launch {
             _uiState.update { it.copy(conversationsLoading = true) }
             when(val result = getConversationsUseCase()){
@@ -213,6 +214,7 @@ class MainViewModel(
                 is Resource.Success -> {
                     val conversations = uiState.value.conversations.toMutableList()
                     conversations.add(result.data)
+                    conversations.sortByDescending { it.lastModificationDate }
                     _uiState.update { it.copy(
                         showCreationDialog = false,
                         createConversationLoading = false,
@@ -224,22 +226,15 @@ class MainViewModel(
                     onConversationSelected(result.data)
                 }
                 is Resource.Error -> {
-                    errorHelper.onError(ErrorHelper.Error(message = result.message))
+                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                     _uiState.update { it.copy(createConversationLoading = false) }
                 }
             }
         }
     }
 
-    private fun onLogout(){
-        viewModelScope.launch {
-            logoutUseCase()
-
-            navigationHelper.navigateTo(
-                route = NavigationHelper.Destination.Login,
-                popupTo = NavigationHelper.Destination.Main.route,
-                inclusive = true)
-        }
+    private fun onGoToSettings(){
+        navigationHelper.navigateTo(route = NavigationHelper.Destination.Settings)
     }
 
     // https://pspdfkit.com/blog/2021/open-pdf-in-jetpack-compose-app/

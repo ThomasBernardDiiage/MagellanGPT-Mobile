@@ -83,7 +83,7 @@ fun CreateNewConversationBottomSheet(
                         .focusRequester(focusRequester),
                     text = conversationName,
                     placeholder = stringResource(id = R.string.conversation_name),
-                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next, capitalization = KeyboardCapitalization.Sentences),
                     maxLength = 50,
                     onTextChange = {
                         onConversationNameChanged(it)
@@ -96,7 +96,7 @@ fun CreateNewConversationBottomSheet(
                         .height(100.dp),
                     text = conversationPrePrompt,
                     placeholder = stringResource(id = R.string.pre_prompt),
-                    maxLength = 150,
+                    maxLength = 200,
                     keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
                     singleLine = false,
                     onTextChange = {

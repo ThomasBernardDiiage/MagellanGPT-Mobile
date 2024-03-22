@@ -7,5 +7,8 @@ enum class MessageSender {
     USER,
 
     @SerializedName("1")
-    AI
+    AI,
+
+    @SerializedName("2")
+    PROMPT
 }

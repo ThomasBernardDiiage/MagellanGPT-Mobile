@@ -16,16 +16,11 @@ import retrofit2.http.Path
 import java.util.UUID
 
 interface ApiService {
-
-//    @POST("conversations/{id}/messages")
-//    suspend fun postMessage(@Path("id") id : UUID, @Body message : String) : List<String?>
-
-
     @GET("conversations")
     suspend fun getConversations() : List<ConversationListDtoDown>
 
     @POST("conversations")
-    suspend fun createConversation(@Body body : CreateConversationDtoUp) : ConversationListDtoDown
+    suspend fun createConversation(@Body body : CreateConversationDtoUp) : ConversationDtoDown
 
     @GET("conversations/{id}")
     suspend fun getConversation(@Path("id") id : UUID) : ConversationDtoDown
@@ -41,6 +36,4 @@ interface ApiService {
 
     @GET("models")
     suspend fun getModels() : List<ModelDtoDown>
-
-
 }

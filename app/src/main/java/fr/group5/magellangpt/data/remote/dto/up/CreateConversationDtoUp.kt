@@ -6,6 +6,6 @@ data class CreateConversationDtoUp(
     @SerializedName("title")
     val title : String,
 
-    @SerializedName("prePrompt")
-    val prePrompt : String
+    @SerializedName("prompt")
+    val prompt : String
 )
