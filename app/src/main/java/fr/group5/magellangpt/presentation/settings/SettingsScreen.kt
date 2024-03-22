@@ -72,9 +72,9 @@ fun SettingsScreen(
         ) {
             item {
                 Text(
-                    modifier = Modifier.padding(bottom = 12.dp),
+                    modifier = Modifier.padding(bottom = 34.dp),
                     style = MaterialTheme.typography.titleLarge,
-                    text = "${stringResource(id = R.string.hello)} \uD83D\uDC4B")
+                    text = "${stringResource(id = R.string.hello)} ${uiState.firstname} \uD83D\uDC4B")
             }
 
             stickyHeader {

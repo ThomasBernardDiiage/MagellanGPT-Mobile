@@ -42,9 +42,14 @@
     <string name="app_name_android">MagellanGPT pour Android</string>
     <string name="mail">Adresse mail</string>
     <string name="user">Utilisateur</string>
-    <string name="knowledge_base">Base de connaissances</string>
     <string name="about_me">À propose de moi</string>
     <string name="others">Autres</string>
+
+
+    <!-- Knowledge Base -->
+    <string name="knowledge_base">Base de connaissances</string>
+    <string name="add_file">Ajouter un document</string>
+
 
     <!-- Errors -->
     <string name="error_occured">Une erreur est survenue</string>
