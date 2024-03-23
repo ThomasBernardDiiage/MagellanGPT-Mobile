@@ -2,19 +2,14 @@ package fr.group5.magellangpt.domain.usecases
 
 import android.util.Log
 import fr.group5.magellangpt.R
-import fr.group5.magellangpt.common.extensions.to6AM
 import fr.group5.magellangpt.common.helpers.ResourcesHelper
-import fr.group5.magellangpt.domain.models.Message
 import fr.group5.magellangpt.domain.models.Resource
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent.get
 import retrofit2.HttpException
 import java.net.UnknownHostException
-import java.util.Date
 import java.util.UUID
 
 class GetConversationUseCase(

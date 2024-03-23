@@ -1,9 +1,7 @@
 package fr.group5.magellangpt.data.repositories
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
 import fr.group5.magellangpt.common.extensions.fromUri
 import fr.group5.magellangpt.common.extensions.getFileName
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
@@ -20,12 +18,8 @@ import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import org.koin.java.KoinJavaComponent.get
-import java.io.File
-import java.io.FileOutputStream
 import java.util.Date
 import java.util.UUID
 
