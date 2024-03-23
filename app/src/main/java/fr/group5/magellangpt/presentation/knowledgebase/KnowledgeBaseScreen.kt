@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -64,7 +65,9 @@ fun KnowledgeBaseScreen(uiState : KnowledgeBaseUiState, onEvent : (KnowledgeBase
 
         Column(
             modifier = Modifier
-                .padding(12.dp)
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             PrimaryButton(
                 loading = uiState.loading,

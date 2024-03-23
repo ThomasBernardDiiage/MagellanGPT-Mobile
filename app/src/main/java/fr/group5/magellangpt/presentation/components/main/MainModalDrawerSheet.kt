@@ -155,6 +155,24 @@ fun MainModalDrawerSheet(
                 HorizontalDivider()
             }
 
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                onClick = {
+                    onGoToSettings()
+                }
+            ){
+                Text(text = stringResource(id = R.string.quota))
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Icon(
+                    tint = MaterialTheme.colorScheme.primary,
+                    painter = painterResource(id = R.drawable.flask),
+                    contentDescription = stringResource(id = R.string.quota))
+            }
+
 
             OutlinedButton(
                 modifier = Modifier
