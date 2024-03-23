@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pspdfkit.document.PdfDocument
 import com.pspdfkit.document.PdfDocumentLoader
-import fr.group5.magellangpt.presentation.settings.SettingsUiState
+import fr.group5.magellangpt.common.helpers.ErrorHelper
+import fr.group5.magellangpt.domain.models.Resource
+import fr.group5.magellangpt.domain.usecases.UploadDocumentUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +23,8 @@ import kotlin.coroutines.suspendCoroutine
 class KnowledgeBaseViewModel(
     private val ioDispatcher: CoroutineDispatcher = get(CoroutineDispatcher::class.java),
     private val context: Context = get(Context::class.java),
+    private val uploadDocumentUseCase: UploadDocumentUseCase = get(UploadDocumentUseCase::class.java),
+    private val errorHelper: ErrorHelper = get(ErrorHelper::class.java)
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(KnowledgeBaseUiState())
@@ -37,6 +41,21 @@ class KnowledgeBaseViewModel(
             }
             is KnowledgeBaseEvent.OnDocumentDeleted -> {
                 _uiState.update { it.copy(document = null) }
+            }
+
+            is KnowledgeBaseEvent.OnUploadDocument -> {
+                viewModelScope.launch {
+                    _uiState.update { it.copy(loading = true) }
+                    when(val result = uploadDocumentUseCase(event.uri)){
+                        is Resource.Success -> {
+                            _uiState.update { it.copy(document = null, loading = false) }
+                        }
+                        is Resource.Error -> {
+                            errorHelper.onError(ErrorHelper.Error(result.message))
+                            _uiState.update { it.copy(loading = false) }
+                        }
+                    }
+                }
             }
         }
     }

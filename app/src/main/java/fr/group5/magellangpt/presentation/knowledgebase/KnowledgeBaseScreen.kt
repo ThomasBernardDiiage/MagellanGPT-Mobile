@@ -67,11 +67,17 @@ fun KnowledgeBaseScreen(uiState : KnowledgeBaseUiState, onEvent : (KnowledgeBase
                 .padding(12.dp)
         ) {
             PrimaryButton(
-                text = stringResource(id = R.string.add_file),
+                loading = uiState.loading,
+                text = if (uiState.document == null) stringResource(id = R.string.add_file) else stringResource(id = R.string.send_file),
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                launcher.launch(arrayOf("application/pdf"))
+                if (uiState.document == null){
+                    launcher.launch(arrayOf("application/pdf"))
+                }
+                else {
+                    onEvent(KnowledgeBaseEvent.OnUploadDocument(uiState.document.first))
+                }
             }
         }
     }

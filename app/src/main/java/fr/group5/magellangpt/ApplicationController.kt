@@ -15,9 +15,11 @@ import fr.group5.magellangpt.data.local.database.ApplicationDatabase
 import fr.group5.magellangpt.data.remote.ApiClient
 import fr.group5.magellangpt.data.repositories.AuthenticationRepositoryImpl
 import fr.group5.magellangpt.data.repositories.ConversationRepositoryImpl
+import fr.group5.magellangpt.data.repositories.DocumentRepositoryImpl
 import fr.group5.magellangpt.data.repositories.ModelRepositoryImpl
 import fr.group5.magellangpt.domain.repositories.AuthenticationRepository
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
+import fr.group5.magellangpt.domain.repositories.DocumentRepository
 import fr.group5.magellangpt.domain.repositories.ModelRepository
 import fr.group5.magellangpt.domain.usecases.CreateConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetAvailableModelsUseCase
@@ -28,6 +30,7 @@ import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
 import fr.group5.magellangpt.domain.usecases.LogoutUseCase
 import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
+import fr.group5.magellangpt.domain.usecases.UploadDocumentUseCase
 import fr.group5.magellangpt.domain.usecases.UserConnectedUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +52,7 @@ class ApplicationController : Application() {
         single<AuthenticationRepository> { AuthenticationRepositoryImpl() }
         single<ConversationRepository> { ConversationRepositoryImpl() }
         single<ModelRepository> { ModelRepositoryImpl() }
+        single<DocumentRepository> { DocumentRepositoryImpl() }
 
         single<ResourcesHelper> { ResourcesHelperImpl() }
         single<PreferencesHelper> {  PreferencesHelperImpl() }
@@ -67,6 +71,7 @@ class ApplicationController : Application() {
         single { GetConversationsUseCase() }
         single { GetMessagesUseCase() }
         single { CreateConversationUseCase() }
+        single { UploadDocumentUseCase() }
 
         single { database.messageDao() }
         single { database.conversationDao() }

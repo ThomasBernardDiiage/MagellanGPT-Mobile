@@ -36,4 +36,8 @@ interface ApiService {
 
     @GET("models")
     suspend fun getModels() : List<ModelDtoDown>
+
+    @Multipart
+    @POST("documents")
+    suspend fun uploadDocument(@Part document : MultipartBody.Part)
 }

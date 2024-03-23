@@ -6,4 +6,5 @@ sealed class KnowledgeBaseEvent {
     data class OnDocumentLoaded(val uri : Uri) : KnowledgeBaseEvent()
     data object OnDocumentDeleted : KnowledgeBaseEvent()
 
+    data class OnUploadDocument(val uri : Uri) : KnowledgeBaseEvent()
 }
