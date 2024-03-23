@@ -49,6 +49,8 @@
     <!-- Knowledge Base -->
     <string name="knowledge_base">Base de connaissances</string>
     <string name="add_file">Ajouter un document</string>
+    <string name="kesako">Kesako ?</string>
+    <string name="knowledge_base_description">Enrichissez notre base de connaissances en téléchargeant vos propres fichiers. Chaque contribution améliore notre capacité à fournir des réponses précises et personnalisées. </string>
 
 
     <!-- Errors -->
