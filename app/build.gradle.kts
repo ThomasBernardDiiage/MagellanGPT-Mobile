@@ -23,11 +23,18 @@ android {
 
     buildTypes {
         release {
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.66:5183/api/\"")
+            buildConfigField("String", "ENVIRONMENT", "\"production\"")
+
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.66:5183/api/\"")
+            buildConfigField("String", "ENVIRONMENT", "\"production\"")
         }
     }
     compileOptions {

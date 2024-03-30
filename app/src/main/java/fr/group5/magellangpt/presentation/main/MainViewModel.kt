@@ -131,7 +131,7 @@ class MainViewModel(
 
     private fun onConversationSelected(conversation : Conversation){
         viewModelScope.launch {
-            _uiState.update { it.copy(selectedConversation = conversation, messagesLoading = true) }
+            _uiState.update { it.copy(selectedConversation = conversation, messagesLoading = true, typing = false) }
             when(val result = getConversationUseCase(conversation.id)){
                 is Resource.Success -> {
                     _uiState.update { it.copy(messagesLoading = false) }

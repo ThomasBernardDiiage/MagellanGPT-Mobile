@@ -38,7 +38,8 @@ fun SettingItem(
         onClick = onClick,
         shape = RectangleShape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent
+            containerColor = Color.Transparent,
+            contentColor = Color.Black
         ),
         contentPadding = PaddingValues(horizontal = 6.dp, vertical = 12.dp)
     ) {
@@ -77,7 +78,8 @@ fun SettingItem(
         onClick = onClick,
         shape = RectangleShape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent
+            containerColor = Color.Transparent,
+            contentColor = Color.Black
         ),
         contentPadding = PaddingValues(horizontal = 6.dp, vertical = 12.dp)
     ) {

@@ -2,6 +2,7 @@ package fr.group5.magellangpt.data.remote
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import fr.group5.magellangpt.BuildConfig
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -27,7 +28,7 @@ object ApiClient {
 
     private val retrofit : Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("https://di3-p3-api-test.azurewebsites.net/api/")
+            .baseUrl(BuildConfig.BASE_URL)
             .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()

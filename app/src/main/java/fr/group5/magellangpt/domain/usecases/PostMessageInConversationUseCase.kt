@@ -6,6 +6,8 @@ import fr.group5.magellangpt.R
 import fr.group5.magellangpt.common.helpers.ResourcesHelper
 import fr.group5.magellangpt.domain.models.Resource
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent.get
 import retrofit2.HttpException
 import java.net.UnknownHostException
@@ -13,10 +15,11 @@ import java.util.UUID
 
 class PostMessageInConversationUseCase(
     private val conversationRepository: ConversationRepository = get(ConversationRepository::class.java),
-    private val resourcesHelper: ResourcesHelper = get(ResourcesHelper::class.java)
+    private val resourcesHelper: ResourcesHelper = get(ResourcesHelper::class.java),
+    private val ioDispatcher: CoroutineDispatcher = get(CoroutineDispatcher::class.java)
 ) {
-    suspend operator fun invoke(conversationId : UUID, content: String, uris : List<Uri>) : Resource<Unit> {
-        return try {
+    suspend operator fun invoke(conversationId : UUID, content: String, uris : List<Uri>) : Resource<Unit> = withContext(ioDispatcher) {
+        try {
             conversationRepository.sendMessage(conversationId, content, uris)
             Resource.Success(Unit)
         }

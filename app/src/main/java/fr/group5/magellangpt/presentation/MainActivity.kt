@@ -16,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -39,8 +40,11 @@ import fr.group5.magellangpt.presentation.settings.SettingsScreen
 import fr.group5.magellangpt.presentation.settings.SettingsViewModel
 import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
 import fr.thomasbernard03.composents.navigationbars.NavigationBar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent.get
 
 class MainActivity(
@@ -56,6 +60,17 @@ class MainActivity(
 
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
+
+                val errorScope = rememberCoroutineScope()
+
+                fun onError(message : String){
+                    errorScope.launch {
+                        if (snackbarHostState.currentSnackbarData != null)
+                            snackbarHostState.currentSnackbarData!!.dismiss()
+
+                        snackbarHostState.showSnackbar(message, withDismissAction = true)
+                    }
+                }
 
 
                 val showNavigationBar = navController
@@ -107,10 +122,7 @@ class MainActivity(
                             }.launchIn(this)
 
                             errorHelper.sharedFlow.onEach {
-                                if (snackbarHostState.currentSnackbarData != null)
-                                    snackbarHostState.currentSnackbarData?.dismiss()
-
-                                snackbarHostState.showSnackbar(it.message, withDismissAction = true)
+                                onError(it.message)
                             }.launchIn(this)
                         }
 
