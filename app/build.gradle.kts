@@ -34,7 +34,7 @@ android {
         }
         debug {
             buildConfigField("String", "BASE_URL", "\"http://192.168.1.66:5183/api/\"")
-            buildConfigField("String", "ENVIRONMENT", "\"production\"")
+            buildConfigField("String", "ENVIRONMENT", "\"debug\"")
         }
     }
     compileOptions {
@@ -112,4 +112,6 @@ dependencies {
 
     implementation("com.pspdfkit:pspdfkit:8.0.0")
     implementation("com.airbnb.android:lottie-compose:4.0.0")
+
+    implementation("com.microsoft.signalr:signalr:8.0.3")
 }

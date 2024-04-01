@@ -135,7 +135,7 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     icon = R.drawable.flask,
                     title = R.string.quota,
-                    subtitle = "0/1000"
+                    subtitle = "${uiState.currentQuota}/${uiState.maxQuota}"
                 ) {
                 }
             }
