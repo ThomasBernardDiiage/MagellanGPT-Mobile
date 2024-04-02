@@ -20,6 +20,7 @@ import fr.group5.magellangpt.R
 import fr.group5.magellangpt.presentation.components.Loader
 import fr.group5.magellangpt.presentation.components.TextField
 import fr.group5.magellangpt.presentation.components.login.PrimaryButton
+import fr.group5.magellangpt.presentation.components.tcu.WarningMessage
 
 @Composable
 fun TcuScreen(uiState: TcuUiState, onEvent : (TcuEvent) -> Unit) {
@@ -50,6 +51,10 @@ fun TcuScreen(uiState: TcuUiState, onEvent : (TcuEvent) -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(6.dp),
                 contentPadding = PaddingValues(12.dp)
             ) {
+                item {
+                    WarningMessage(text = "Attention, les réponses sont générées par un modèle de langage et peuvent ne pas être correctes.")
+                }
+
                 items(uiState.questions){ question ->
                     TextField(
                         modifier = Modifier.fillMaxWidth(),

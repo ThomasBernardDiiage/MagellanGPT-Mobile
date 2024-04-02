@@ -31,17 +31,20 @@ fun SettingItem(
     @DrawableRes icon : Int,
     @StringRes title : Int,
     subtitle : String,
+    enabled : Boolean = true,
     onClick : () -> Unit
 ) {
     Button(
+        enabled = enabled,
         modifier = modifier,
         onClick = onClick,
         shape = RectangleShape,
         colors = ButtonDefaults.buttonColors(
+            disabledContainerColor = Color.Transparent,
             containerColor = Color.Transparent,
             contentColor = Color.Black
         ),
-        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 12.dp)
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
     ) {
         Icon(
             modifier = Modifier.size(36.dp).padding(end = 16.dp),
@@ -71,17 +74,20 @@ fun SettingItem(
     color : Color = Color.DarkGray,
     @DrawableRes icon : Int,
     @StringRes title : Int,
+    enabled: Boolean = true,
     onClick : () -> Unit
 ) {
     Button(
+        enabled = enabled,
         modifier = modifier,
         onClick = onClick,
         shape = RectangleShape,
         colors = ButtonDefaults.buttonColors(
+            disabledContainerColor = Color.Transparent,
             containerColor = Color.Transparent,
             contentColor = Color.Black
         ),
-        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 12.dp)
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
     ) {
         Icon(
             modifier = Modifier.size(36.dp).padding(end = 16.dp),

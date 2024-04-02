@@ -38,9 +38,17 @@ class SettingsViewModel(
         when(event){
             is SettingsEvent.OnLogout -> onLogout()
             is SettingsEvent.OnGetUserInformation -> { getUserInformation() }
-            is SettingsEvent.OnGoToKnowledgeBase -> { navigationHelper.navigateTo(NavigationHelper.Destination.KnowledgeBase) }
-            is SettingsEvent.OnGoToTCU -> { navigationHelper.navigateTo(NavigationHelper.Destination.Tcu) }
+            is SettingsEvent.OnGoToKnowledgeBase -> {
+                navigateToSubScreen(NavigationHelper.Destination.KnowledgeBase)
+            }
+            is SettingsEvent.OnGoToTCU -> {
+                navigateToSubScreen(NavigationHelper.Destination.Tcu)
+            }
         }
+    }
+
+    private fun navigateToSubScreen(destination : NavigationHelper.Destination){
+        navigationHelper.navigateTo(destination, popupTo = NavigationHelper.Destination.Settings.route)
     }
 
 

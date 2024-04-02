@@ -172,14 +172,10 @@ class MainViewModel(
 
     private fun refreshConversations(){
         viewModelScope.launch {
-            _uiState.update { it.copy(conversationsRefreshing = true) }
+            _uiState.update { it.copy(conversationsRefreshing = true, selectedConversation = null) }
             when(val result = getConversationsUseCase()){
                 is Resource.Success -> {
                     _uiState.update { it.copy(conversations = result.data, conversationsRefreshing = false) }
-
-                    // If selected conversation have been deleted
-                    if (result.data.none { it.id == uiState.value.selectedConversation?.id })
-                        _uiState.update { it.copy(selectedConversation = null) }
                 }
                 is Resource.Error -> {
                     errorHelper.onError(ErrorHelper.Error(message = result.message))

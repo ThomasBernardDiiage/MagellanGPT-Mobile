@@ -22,6 +22,7 @@ fun Header(
         modifier = modifier
             .background(Color.White)
             .padding(top = 12.dp)
+            .padding(horizontal = 8.dp)
             .fillMaxWidth()
     )
 }

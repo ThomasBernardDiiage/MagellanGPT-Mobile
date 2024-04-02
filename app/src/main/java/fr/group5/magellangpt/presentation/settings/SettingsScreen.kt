@@ -63,12 +63,12 @@ fun SettingsScreen(
     Box {
         LazyColumn(
             modifier = Modifier.background(Color.White),
-            contentPadding = PaddingValues(12.dp),
+            contentPadding = PaddingValues(vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 Text(
-                    modifier = Modifier.padding(bottom = 34.dp),
+                    modifier = Modifier.padding(bottom = 34.dp).padding(horizontal = 12.dp),
                     style = MaterialTheme.typography.titleLarge,
                     text = "${stringResource(id = R.string.hello)} ${uiState.firstname} \uD83D\uDC4B")
             }
@@ -79,6 +79,7 @@ fun SettingsScreen(
 
             item {
                 SettingItem(
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     icon = R.drawable.mail,
                     title = R.string.mail,
@@ -90,6 +91,7 @@ fun SettingsScreen(
 
             item {
                 SettingItem(
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     icon = R.drawable.user,
                     title = R.string.user,
@@ -142,6 +144,7 @@ fun SettingsScreen(
 
             item {
                 SettingItem(
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     icon = R.drawable.flask,
                     title = R.string.quota,
