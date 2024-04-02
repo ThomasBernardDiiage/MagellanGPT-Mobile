@@ -1,9 +1,9 @@
 package fr.group5.magellangpt.data.repositories
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
+import fr.group5.magellangpt.common.extensions.fromUri
+import fr.group5.magellangpt.common.extensions.getFileName
 import fr.group5.magellangpt.common.helpers.PreferencesHelper
 import fr.group5.magellangpt.data.local.dao.ConversationDao
 import fr.group5.magellangpt.data.local.dao.MessageDao
@@ -18,12 +18,8 @@ import fr.group5.magellangpt.domain.models.MessageSender
 import fr.group5.magellangpt.domain.repositories.ConversationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import org.koin.java.KoinJavaComponent.get
-import java.io.File
-import java.io.FileOutputStream
 import java.util.Date
 import java.util.UUID
 
@@ -86,19 +82,18 @@ class ConversationRepositoryImpl(
     }
 
     override suspend fun sendMessage(conversationId : UUID, content: String, uris : List<Uri>) {
-        val message = MessageEntity(content = content, sender = MessageSender.USER, model = null, date = Date(), filesNames = uris.map { getFileName(it) } as ArrayList<String>)
+        val message = MessageEntity(content = content, sender = MessageSender.USER, model = null, date = Date(), filesNames = uris.map { it.getFileName() } as ArrayList<String>)
 
         val userMessageId = messageDao.insertMessage(message)
 
         val filesParts = uris.map { uri ->
-            prepareFilePart("files", uri)
+            MultipartBody.Part.fromUri(uri, "files")
         }
 
         val response = apiService.postMessage(
             id = conversationId,
             model = MultipartBody.Part.createFormData("Model", preferencesHelper.selectedModelId),
             message = MultipartBody.Part.createFormData("Message", content),
-            saveFile = MultipartBody.Part.createFormData("SaveFile", "false"),
             files = filesParts)
 
         if (!response.isSuccessful){
@@ -128,37 +123,4 @@ class ConversationRepositoryImpl(
         return Conversation(id = result.id, title = result.title, lastModificationDate = result.lastModificationDate)
     }
 
-    private fun prepareFilePart(partName: String, uri: Uri): MultipartBody.Part {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val file = File(context.cacheDir, getFileName(uri)!!)
-        FileOutputStream(file).use { outputStream ->
-            inputStream?.copyTo(outputStream)
-        }
-
-        val requestFile = RequestBody.create("application/pdf".toMediaTypeOrNull(), file)
-        return MultipartBody.Part.createFormData(partName, file.name, requestFile)
-    }
-
-    @SuppressLint("Range")
-    private fun getFileName(uri: Uri): String {
-        var result: String? = null
-        if (uri.scheme == "content") {
-            val cursor = context.contentResolver.query(uri, null, null, null, null)
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                }
-            } finally {
-                cursor?.close()
-            }
-        }
-        if (result == null) {
-            result = uri.path
-            val cut = result!!.lastIndexOf('/')
-            if (cut != -1) {
-                result = result.substring(cut + 1)
-            }
-        }
-        return result
-    }
 }

@@ -14,7 +14,7 @@
     <string name="conversations">Conversations</string>
     <string name="yersterday">Hier</string>
     <string name="today">Aujourd\'hui</string>
-    <string name="loading_characters">Chargement des messages</string>
+    <string name="loading_messages">Chargement des messages</string>
     <string name="loading_conversations">Chargement des conversations</string>
     <string name="typing">En train d\'écrire…</string>
     <string name="select_conversation">Séléctionnez une conversation existante ou créez une nouvelle conversation pour commencer</string>
@@ -42,14 +42,20 @@
     <string name="app_name_android">MagellanGPT pour Android</string>
     <string name="mail">Adresse mail</string>
     <string name="user">Utilisateur</string>
-    <string name="about_me">À propose de moi</string>
+    <string name="about_me">À propos de moi</string>
     <string name="others">Autres</string>
 
 
     <!-- Knowledge Base -->
     <string name="knowledge_base">Base de connaissances</string>
     <string name="add_file">Ajouter un document</string>
+    <string name="kesako">Kesako ?</string>
+    <string name="send_file">Envoyer le document</string>
+    <string name="knowledge_base_description">Enrichissez notre base de connaissances en téléchargeant vos propres fichiers. Chaque contribution améliore notre capacité à fournir des réponses précises et personnalisées. </string>
 
+    <!-- TCU -->
+    <string name="terms_and_conditions_of_use_analysis">Analyse des CGU</string>
+    <string name="loading_questions">Chargement des questions</string>
 
     <!-- Errors -->
     <string name="error_occured">Une erreur est survenue</string>

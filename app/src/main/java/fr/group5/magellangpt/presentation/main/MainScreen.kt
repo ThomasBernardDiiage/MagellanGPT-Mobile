@@ -49,11 +49,11 @@ import fr.group5.magellangpt.presentation.components.main.AiMessageItem
 import fr.group5.magellangpt.presentation.components.main.CreateNewConversationBottomSheet
 import fr.group5.magellangpt.presentation.components.main.EmptyList
 import fr.group5.magellangpt.presentation.components.main.MainModalDrawerSheet
-import fr.group5.magellangpt.presentation.components.main.UserMessageItem
 import fr.group5.magellangpt.presentation.components.main.NoConversationSelected
 import fr.group5.magellangpt.presentation.components.main.PdfThumbnail
 import fr.group5.magellangpt.presentation.components.main.PromptMessageItem
 import fr.group5.magellangpt.presentation.components.main.TypingMessage
+import fr.group5.magellangpt.presentation.components.main.UserMessageItem
 import fr.thomasbernard03.composents.buttons.SquaredButton
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -193,7 +193,7 @@ fun MainScreen(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
-                        message = stringResource(id = R.string.loading_characters)
+                        message = stringResource(id = R.string.loading_messages)
                     )
                 }
                 else if (uiState.messages.isNotEmpty()){

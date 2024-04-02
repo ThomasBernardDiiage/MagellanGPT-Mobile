@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MessageDao {
-    @Query("SELECT * FROM messageentity ORDER BY date ASC")
+    @Query("SELECT * FROM messageentity")
     fun getMessages() : Flow<List<MessageEntity>>
 
     @Insert

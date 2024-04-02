@@ -20,7 +20,6 @@ import fr.group5.magellangpt.domain.usecases.GetConversationUseCase
 import fr.group5.magellangpt.domain.usecases.GetConversationsUseCase
 import fr.group5.magellangpt.domain.usecases.GetCurrentUserUseCase
 import fr.group5.magellangpt.domain.usecases.GetMessagesUseCase
-import fr.group5.magellangpt.domain.usecases.LogoutUseCase
 import fr.group5.magellangpt.domain.usecases.PostMessageInConversationUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -132,7 +131,7 @@ class MainViewModel(
 
     private fun onConversationSelected(conversation : Conversation){
         viewModelScope.launch {
-            _uiState.update { it.copy(selectedConversation = conversation, messagesLoading = true) }
+            _uiState.update { it.copy(selectedConversation = conversation, messagesLoading = true, typing = false) }
             when(val result = getConversationUseCase(conversation.id)){
                 is Resource.Success -> {
                     _uiState.update { it.copy(messagesLoading = false) }
@@ -173,14 +172,10 @@ class MainViewModel(
 
     private fun refreshConversations(){
         viewModelScope.launch {
-            _uiState.update { it.copy(conversationsRefreshing = true) }
+            _uiState.update { it.copy(conversationsRefreshing = true, selectedConversation = null) }
             when(val result = getConversationsUseCase()){
                 is Resource.Success -> {
                     _uiState.update { it.copy(conversations = result.data, conversationsRefreshing = false) }
-
-                    // If selected conversation have been deleted
-                    if (result.data.none { it.id == uiState.value.selectedConversation?.id })
-                        _uiState.update { it.copy(selectedConversation = null) }
                 }
                 is Resource.Error -> {
                     errorHelper.onError(ErrorHelper.Error(message = result.message))

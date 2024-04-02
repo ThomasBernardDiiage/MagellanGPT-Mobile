@@ -16,9 +16,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,10 +38,15 @@ import fr.group5.magellangpt.presentation.main.MainScreen
 import fr.group5.magellangpt.presentation.main.MainViewModel
 import fr.group5.magellangpt.presentation.settings.SettingsScreen
 import fr.group5.magellangpt.presentation.settings.SettingsViewModel
+import fr.group5.magellangpt.presentation.tcu.TcuScreen
+import fr.group5.magellangpt.presentation.tcu.TcuViewModel
 import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
 import fr.thomasbernard03.composents.navigationbars.NavigationBar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent.get
 
 class MainActivity(
@@ -58,11 +63,25 @@ class MainActivity(
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
 
+                val errorScope = rememberCoroutineScope()
+
+                fun onError(message : String){
+                    errorScope.launch {
+                        if (snackbarHostState.currentSnackbarData != null)
+                            snackbarHostState.currentSnackbarData!!.dismiss()
+
+                        snackbarHostState.showSnackbar(message, withDismissAction = true)
+                    }
+                }
+
 
                 val showNavigationBar = navController
                     .currentBackStackEntryAsState().value?.destination?.route == NavigationHelper.Destination.Settings.route ||
                         navController
                             .currentBackStackEntryAsState().value?.destination?.route == NavigationHelper.Destination.KnowledgeBase.route
+                        ||
+                        navController
+                            .currentBackStackEntryAsState().value?.destination?.route == NavigationHelper.Destination.Tcu.route
 
                 var title by remember { mutableStateOf("") }
                 var subtitle by remember { mutableStateOf("") }
@@ -108,10 +127,7 @@ class MainActivity(
                             }.launchIn(this)
 
                             errorHelper.sharedFlow.onEach {
-                                if (snackbarHostState.currentSnackbarData != null)
-                                    snackbarHostState.currentSnackbarData?.dismiss()
-
-                                snackbarHostState.showSnackbar(it.message, withDismissAction = true)
+                                onError(it.message)
                             }.launchIn(this)
                         }
 
@@ -139,6 +155,13 @@ class MainActivity(
                                 val viewModel : KnowledgeBaseViewModel = viewModel()
                                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                                 KnowledgeBaseScreen(uiState, viewModel::onEvent)
+                            }
+                            composable(NavigationHelper.Destination.Tcu.route){
+                                title = resourcesHelper.getString(R.string.settings)
+                                subtitle = resourcesHelper.getString(R.string.terms_and_conditions_of_use_analysis)
+                                val viewModel : TcuViewModel = viewModel()
+                                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                                TcuScreen(uiState, viewModel::onEvent)
                             }
                         }
                     }

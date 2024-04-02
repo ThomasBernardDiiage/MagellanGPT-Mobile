@@ -36,11 +36,13 @@ fun PrimaryButton(
     modifier : Modifier = Modifier,
     text: String,
     loading : Boolean = false,
+    enabled : Boolean = true,
     onClick: () -> Unit
 ) {
     val height = 60.dp
 
     Button(
+        enabled = enabled,
         onClick = {
             if (!loading)
                 onClick()

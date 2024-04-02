@@ -1,19 +1,16 @@
 package fr.group5.magellangpt.presentation.settings
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,17 +24,14 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.airbnb.lottie.animation.content.Content
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import fr.group5.magellangpt.R
-import fr.group5.magellangpt.presentation.components.settings.SettingItem
-import fr.thomasbernard03.composents.navigationbars.NavigationBar
 import fr.group5.magellangpt.BuildConfig
+import fr.group5.magellangpt.R
 import fr.group5.magellangpt.presentation.components.settings.Header
+import fr.group5.magellangpt.presentation.components.settings.SettingItem
 import fr.group5.magellangpt.presentation.theme.Secondary
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -68,12 +62,13 @@ fun SettingsScreen(
 
     Box {
         LazyColumn(
-            contentPadding = PaddingValues(12.dp),
+            modifier = Modifier.background(Color.White),
+            contentPadding = PaddingValues(vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 Text(
-                    modifier = Modifier.padding(bottom = 34.dp),
+                    modifier = Modifier.padding(bottom = 34.dp).padding(horizontal = 12.dp),
                     style = MaterialTheme.typography.titleLarge,
                     text = "${stringResource(id = R.string.hello)} ${uiState.firstname} \uD83D\uDC4B")
             }
@@ -84,6 +79,7 @@ fun SettingsScreen(
 
             item {
                 SettingItem(
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     icon = R.drawable.mail,
                     title = R.string.mail,
@@ -95,6 +91,7 @@ fun SettingsScreen(
 
             item {
                 SettingItem(
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     icon = R.drawable.user,
                     title = R.string.user,
@@ -118,6 +115,16 @@ fun SettingsScreen(
                 }
             }
 
+            item {
+                SettingItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.scale,
+                    title = R.string.terms_and_conditions_of_use_analysis,
+                ) {
+                    onEvent(SettingsEvent.OnGoToTCU)
+                }
+            }
+
 
             item {
                 SettingItem(
@@ -137,10 +144,11 @@ fun SettingsScreen(
 
             item {
                 SettingItem(
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     icon = R.drawable.flask,
                     title = R.string.quota,
-                    subtitle = "0/1000"
+                    subtitle = "${uiState.currentQuota}/${uiState.maxQuota}"
                 ) {
                 }
             }
