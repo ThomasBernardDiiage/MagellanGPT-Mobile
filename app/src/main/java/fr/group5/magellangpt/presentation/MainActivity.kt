@@ -38,6 +38,8 @@ import fr.group5.magellangpt.presentation.main.MainScreen
 import fr.group5.magellangpt.presentation.main.MainViewModel
 import fr.group5.magellangpt.presentation.settings.SettingsScreen
 import fr.group5.magellangpt.presentation.settings.SettingsViewModel
+import fr.group5.magellangpt.presentation.tcu.TcuScreen
+import fr.group5.magellangpt.presentation.tcu.TcuViewModel
 import fr.group5.magellangpt.presentation.theme.MagellanGPTTheme
 import fr.thomasbernard03.composents.navigationbars.NavigationBar
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +79,9 @@ class MainActivity(
                     .currentBackStackEntryAsState().value?.destination?.route == NavigationHelper.Destination.Settings.route ||
                         navController
                             .currentBackStackEntryAsState().value?.destination?.route == NavigationHelper.Destination.KnowledgeBase.route
+                        ||
+                        navController
+                            .currentBackStackEntryAsState().value?.destination?.route == NavigationHelper.Destination.Tcu.route
 
                 var title by remember { mutableStateOf("") }
                 var subtitle by remember { mutableStateOf("") }
@@ -150,6 +155,13 @@ class MainActivity(
                                 val viewModel : KnowledgeBaseViewModel = viewModel()
                                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                                 KnowledgeBaseScreen(uiState, viewModel::onEvent)
+                            }
+                            composable(NavigationHelper.Destination.Tcu.route){
+                                title = resourcesHelper.getString(R.string.settings)
+                                subtitle = resourcesHelper.getString(R.string.terms_and_conditions_of_use_analysis)
+                                val viewModel : TcuViewModel = viewModel()
+                                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                                TcuScreen(uiState, viewModel::onEvent)
                             }
                         }
                     }

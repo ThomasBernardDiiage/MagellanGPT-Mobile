@@ -18,18 +18,18 @@ class QuotaRepositoryImpl(
 ) : QuotaRepository {
 
     override suspend fun getCurrentQuota(): Flow<Quota> = callbackFlow {
-        hubConnection.start()
-
-        hubConnection.on("general",
-            { value ->
-                Log.d("QuotaRepositoryImpl", value.maxQuota.toString())
-                trySend(Quota(value.currentQuota.toInt(), value.maxQuota.toInt()))
-            },
-            QuotaDtoDown::class.java,
-        )
-
+//        hubConnection.start()
+//
+//        hubConnection.on("general",
+//            { value ->
+//                Log.d("QuotaRepositoryImpl", value.maxQuota.toString())
+//                trySend(Quota(value.currentQuota.toInt(), value.maxQuota.toInt()))
+//            },
+//            QuotaDtoDown::class.java,
+//        )
+//
         awaitClose {
-            hubConnection.stop()
+//            hubConnection.stop()
         }
     }
 }

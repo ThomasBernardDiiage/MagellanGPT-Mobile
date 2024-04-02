@@ -87,14 +87,13 @@ class ConversationRepositoryImpl(
         val userMessageId = messageDao.insertMessage(message)
 
         val filesParts = uris.map { uri ->
-            MultipartBody.Part.fromUri(uri)
+            MultipartBody.Part.fromUri(uri, "files")
         }
 
         val response = apiService.postMessage(
             id = conversationId,
             model = MultipartBody.Part.createFormData("Model", preferencesHelper.selectedModelId),
             message = MultipartBody.Part.createFormData("Message", content),
-            saveFile = MultipartBody.Part.createFormData("SaveFile", "false"),
             files = filesParts)
 
         if (!response.isSuccessful){

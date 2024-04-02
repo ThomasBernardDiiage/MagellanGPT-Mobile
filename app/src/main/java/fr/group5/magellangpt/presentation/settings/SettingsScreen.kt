@@ -113,6 +113,16 @@ fun SettingsScreen(
                 }
             }
 
+            item {
+                SettingItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.scale,
+                    title = R.string.terms_and_conditions_of_use_analysis,
+                ) {
+                    onEvent(SettingsEvent.OnGoToTCU)
+                }
+            }
+
 
             item {
                 SettingItem(

@@ -193,7 +193,7 @@ fun MainScreen(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
-                        message = stringResource(id = R.string.loading_characters)
+                        message = stringResource(id = R.string.loading_messages)
                     )
                 }
                 else if (uiState.messages.isNotEmpty()){

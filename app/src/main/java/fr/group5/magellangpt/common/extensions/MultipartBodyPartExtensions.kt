@@ -12,7 +12,7 @@ import java.io.FileOutputStream
 
 private val context : Context = get(Context::class.java)
 
-fun MultipartBody.Part.Companion.fromUri(uri: Uri, partName : String = "files") : MultipartBody.Part {
+fun MultipartBody.Part.Companion.fromUri(uri: Uri, partName : String) : MultipartBody.Part {
     val inputStream = context.contentResolver.openInputStream(uri)
     val file = File(context.cacheDir, uri.getFileName())
     FileOutputStream(file).use { outputStream ->

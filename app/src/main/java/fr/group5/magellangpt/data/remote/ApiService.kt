@@ -4,6 +4,8 @@ import fr.group5.magellangpt.data.remote.dto.down.ConversationDtoDown
 import fr.group5.magellangpt.data.remote.dto.down.ConversationListDtoDown
 import fr.group5.magellangpt.data.remote.dto.down.MessageDtoDown
 import fr.group5.magellangpt.data.remote.dto.down.ModelDtoDown
+import fr.group5.magellangpt.data.remote.dto.down.TcuAnalysisDtoDown
+import fr.group5.magellangpt.data.remote.dto.down.TcuQuestionDtoDown
 import fr.group5.magellangpt.data.remote.dto.up.CreateConversationDtoUp
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -31,7 +33,6 @@ interface ApiService {
         @Path("id") id : UUID,
         @Part model : MultipartBody.Part,
         @Part message : MultipartBody.Part,
-        @Part saveFile : MultipartBody.Part,
         @Part files: List<MultipartBody.Part>) : Response<MessageDtoDown>
 
     @GET("models")
@@ -40,4 +41,12 @@ interface ApiService {
     @Multipart
     @POST("documents")
     suspend fun uploadDocument(@Part document : MultipartBody.Part)
+
+
+    @GET("tcu/questions")
+    suspend fun getTcuQuestions() : List<TcuQuestionDtoDown>
+
+    @Multipart
+    @POST("tcu/questions/answers")
+    suspend fun tcuAnalysis(@Part document : MultipartBody.Part) : List<TcuAnalysisDtoDown>
 }
