@@ -1,3 +1,7 @@
+# MagellanGPT
+
+![alt text](<doc/banner.png>)
+
 ## Faire fonctionner l'authentification avec Azure AD
 
 1) Générer une clé de keystore :
