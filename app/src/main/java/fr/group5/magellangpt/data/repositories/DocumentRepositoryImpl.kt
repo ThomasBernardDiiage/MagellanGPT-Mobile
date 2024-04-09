@@ -11,7 +11,7 @@ class DocumentRepositoryImpl(
     private val apiService: ApiService = get(ApiService::class.java),
 ) : DocumentRepository {
     override suspend fun uploadDocument(uri : Uri) {
-        val part = MultipartBody.Part.fromUri(uri, "files")
+        val part = MultipartBody.Part.fromUri(uri, "file")
         apiService.uploadDocument(part)
     }
 }
